@@ -12,7 +12,22 @@ var Employee = require('./models/employee.js');
 
 
 app.get('/',function(req,res,next) {
-    res.render(view_filepath+'home.ejs')
+    res.render(view_filepath+'home.ejs');
+});
+
+
+app.get('/calendar',function(req,res,next) {
+    res.render(view_filepath+'calendar.ejs');
+});
+
+
+app.get('/rooms',function(req,res,next){
+    res.render(view_filepath+'rooms.ejs');
+});
+
+
+app.get('/settings',function(req,res,next){
+    res.render(view_filepath+'settings.ejs');
 });
 
 
