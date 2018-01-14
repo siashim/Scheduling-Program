@@ -24,5 +24,16 @@ Employee.prototype.outputInfo = function() {
 }
 
 
+Employee.prototype.output = function() {
+    var self = this;
+    return {
+        id: this.id,
+        name: this.name,
+        pass: this.pass,
+        schedule: this.schedule
+    };
+}
+
+
 module.exports = Employee;
 
