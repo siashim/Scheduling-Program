@@ -16,7 +16,8 @@ module.exports = function(express) {
     var api = require('./api.js');
     var errors = require('./error.js');
     
-    app.set('view engine','ejs');
+    //app.set('view engine','ejs');
+    app.engine('html',require('ejs').renderFile);
     //app.use(logger('dev'));
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: false}));

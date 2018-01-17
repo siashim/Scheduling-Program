@@ -15,7 +15,7 @@ var db = new Database('scheduling');
 
 
 app.get('/',function(req,res,next) {
-    res.render(view_filepath+'home.ejs');
+    res.render(view_filepath+'home.html');
 });
 
 
@@ -36,17 +36,17 @@ app.get('/calendar',function(req,res,next) {
     
     
 
-    res.render(view_filepath+'calendar.ejs');
+    res.render(view_filepath+'calendar.html');
 });
 
 
 app.get('/rooms',function(req,res,next){
-    res.render(view_filepath+'rooms.ejs');
+    res.render(view_filepath+'rooms.html');
 });
 
 
 app.get('/settings',function(req,res,next){
-    res.render(view_filepath+'settings.ejs');
+    res.render(view_filepath+'settings.html');
 });
 
 
