@@ -17,9 +17,11 @@ Database.prototype.query = function(collection,criteria={}) {
     var self = this;
     return this.client.connect(this.url)
         .then(function(db) {
-            return db.db(self.name)
+            var entries = db.db(self.name)
                 .collection(collection)
                 .find(criteria).toArray();
+            db.close();
+            return entries;
         });
 }
 
@@ -28,9 +30,10 @@ Database.prototype.insert = function(collection,entry) {
     var self = this;
     return this.client.connect(this.url)
         .then(function(db) {
-            return db.db(self.name)
+            db.db(self.name)
                 .collection(collection)
                 .insertOne(entry);
+            db.close();
         }).
         then(function(db) {
             return self.query(collection);

@@ -21,19 +21,22 @@ app.get('/',function(req,res,next) {
 
 app.get('/calendar',function(req,res,next) {
 
+    /*
     var schedule = new Schedule();
     var employee = new Employee('Super Joe','monkey',schedule);
-    
     db.insert('employee',employee)
-        .then(function(res) {
-            console.log(res);
+        .then(function(entries) {
+            console.log(entries);
         })
         .catch(function(err) {
             console.log(err);
         });
+    */
+
+    
+    
 
     res.render(view_filepath+'calendar.ejs');
-
 });
 
 
