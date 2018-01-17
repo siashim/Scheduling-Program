@@ -33,10 +33,16 @@ app.get('/calendar',function(req,res,next) {
         });
     */
 
-    
-    
+    db.query('employee')
+        .then(function(docs) {
+            res.render(view_filepath+'calendar.html');
+            //res.send(docs);
+        })
+        .catch(function(err) {
+            res.send(err);
+        });
 
-    res.render(view_filepath+'calendar.html');
+    //res.render(view_filepath+'calendar.html');
 });
 
 

@@ -21,7 +21,7 @@ module.exports = function(app) {
         if (app.get('env') === 'development') {
             app.use(function (err, req, res, next) {
                 res.status(err.status || 500);
-                res.render('../frontend/views/error.ejs', {
+                res.render('../frontend/views/error.html', {
                     message: err.message,
                     status: err.status,
                     error: err
@@ -35,7 +35,7 @@ module.exports = function(app) {
         // no stacktraces leaked to user
         app.use(function (err, req, res, next) {
             res.status(err.status || 500);
-            res.render('../frontend/views/error.ejs', {
+            res.render('../frontend/views/error.html', {
                 message: err.message,
                 stats: err.status,
                 error: {}
