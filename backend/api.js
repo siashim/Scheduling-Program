@@ -2,16 +2,16 @@
     backend routing system
 */
 
-
 var express = require('express');
 var app = express.Router();
 var path = require('path');
 var view_filepath = '../frontend/views/';
 
 var Database = require('./db.js');
-var db = new Database('scheduling');
-
 var Employee = require('./models/employee.js');
+var Schedule = require('./models/schedule.js');
+
+var db = new Database('scheduling');
 
 
 app.get('/',function(req,res,next) {
@@ -21,14 +21,19 @@ app.get('/',function(req,res,next) {
 
 app.get('/calendar',function(req,res,next) {
 
-    db.query('employee').then(function(res) {
-        console.log(res);
-    })
-    .catch(function(err) {
-        console.log(err);
-    });
-        
+    var schedule = new Schedule();
+    var employee = new Employee('Super Joe','monkey',schedule);
+    
+    db.insert('employee',employee)
+        .then(function(res) {
+            console.log(res);
+        })
+        .catch(function(err) {
+            console.log(err);
+        });
+
     res.render(view_filepath+'calendar.ejs');
+
 });
 
 

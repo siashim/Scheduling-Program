@@ -6,10 +6,10 @@
 var Schedule = require('./schedule.js');
 
 
-function Employee(name,pass) {
+function Employee(name,pass,schedule) {
     this.name = name;
     this.pass = pass;
-    this.schedule = new Schedule();
+    this.schedule = schedule;
     this.admin = false;
 }
 

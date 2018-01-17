@@ -5,10 +5,13 @@
 
 
 function Schedule() {
-    this.grid = null;
+    this.grid = {};
 }
 
 
+Schedule.prototype.update = function() {
+
+}
 
 
-
+module.exports = Schedule;
