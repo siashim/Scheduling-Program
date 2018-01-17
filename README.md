@@ -8,6 +8,11 @@ Ensure node and npm are installed, then run
 npm install
 ```
 
+This requires an angular.js file at:
+```javascript
+/frontend/deps/angular.js
+```
+
 ### Run Server
 
 ```javascript

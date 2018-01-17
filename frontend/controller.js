@@ -3,7 +3,8 @@
 */
 
 
-var app = angular.module('controller',[]);
+var app = angular.module('schedule',[]);
+
 
 app.controller('home',function($scope,$http) {
     console.log('home controller.');
