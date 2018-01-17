@@ -3,11 +3,14 @@
 */
 
 
-function Employee(id,name,pass,schedule) {
-    this.id = id;    
+var Schedule = require('./schedule.js');
+
+
+function Employee(name,pass) {
     this.name = name;
     this.pass = pass;
-    this.schedule = schedule;
+    this.schedule = new Schedule();
+    this.admin = false;
 }
 
 
@@ -15,23 +18,6 @@ Employee.prototype.scheduleMeeting = function(day) {
     // will have to query database before this
     // then update from own schedule
     console.log(day);
-}
-
-
-Employee.prototype.outputInfo = function() {
-    console.log('Name ',this.name)
-    console.log('Password',this.pass)
-}
-
-
-Employee.prototype.output = function() {
-    var self = this;
-    return {
-        id: this.id,
-        name: this.name,
-        pass: this.pass,
-        schedule: this.schedule
-    };
 }
 
 
