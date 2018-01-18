@@ -1,0 +1,66 @@
+/**/
+
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: aliceblue;
+}
+
+.top-outer-navbar {
+    overflow: hidden;
+    background-color: #fff;
+    position: fixed;
+    height: 98px;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
+}
+
+.top-inner-navbar {
+    position: relative;
+    height: 98px;
+    width: 94%;
+    left: 3%;
+    top: 0px;
+    vertical-align: middle;
+    line-height: 100px;
+    text-decoration: none;
+}
+
+.top-inner-navbar span {
+    float: left;
+    clear: left;
+    font-size: 2em;
+    letter-spacing: 3px;
+    color: #000;
+}
+
+.top-inner-navbar .directory {
+    float: right;
+    clear: right;
+}
+
+.top-inner-navbar a {
+    font-size: 1.5em;
+    text-decoration: none;
+    margin: 0.5em;
+    color: #000;
+    transition: color 300ms ease;
+}
+
+.top-inner-navbar a:hover {
+    color: #666;
+}
+
+.top-navbar-shadow {
+
+    position: fixed;
+    top: 100px;
+    left: 0px;
+    width: 100%;
+    background-color: #000;
+    z-index: 100;
+}
+
