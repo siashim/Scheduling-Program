@@ -1,0 +1,110 @@
+<html lang="en" ng-app="mainapp">
+<head>
+   <title>Meeting Scheduler</title>
+
+   <!-- Meta-data -->
+   <meta charset="utf-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+   <!-- Scripts -->
+   <script src="libs/jquery.min.js"></script> 
+   <script src="libs/jquery-ui.min.js"></script>
+   <script src="libs/angular.min.js"></script>
+   <script src="libs/angular-ui-router.min.js"></script><!-- for $stateProvider -->
+   <script src="libs/bootstrap.min.js"></script>
+   <script src="libs/daypilot-all.min.js"></script><!-- for calendar -->
+   <script src="libs/bootstrap-datepicker.min.js"></script><!-- for datepicker -->
+   <script src="libs/jquery.timepicker.min.js"></script><!-- for timepicker -->
+   <script src="libs/datepair.min.js"></script><!-- date and time linker plugin -->
+
+   <!--<script src="libs/angular-route.min.js"></script>
+   <script src="libs/angular-sanitize.min.js"></script>    
+   <script src="libs/angular-animate.min.js"></script>
+   <script src="libs/angular-aria.min.js"></script>
+   <script src="libs/angular-messages.min.js"></script>
+   <script src="libs/angular-material.min.js"></script>
+   <script src="libs/angular-cookies.js"></script>
+   <script src="libs/angular-filter.min.js"></script>
+   <script src="libs/ui-bootstrap-tpls-2.5.0.js"></script>
+   <script src="libs/ng-table.min.js"></script>-->
+     
+
+   <!-- Stylesheets -->
+   <link rel="stylesheet" href="libs/bootstrap.min.css">
+   <link rel="stylesheet" href="libs/bootstrap-datepicker.min.css">
+   <link rel="stylesheet" href="libs/jquery.timepicker.min.css">
+   <link rel="stylesheet" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css"><!-- for glyphicons -->
+
+   <!--<link rel="stylesheet" href="libs/angular-material.min.css">
+   <link rel="stylesheet" href="libs/jquery-ui.min.css">
+   <link rel="stylesheet" href="libs/bootstrap-combined.min.css">     
+   <link rel="stylesheet" href="libs/ng-table.min.css">-->
+
+   <!-- Local modules -->
+   <script src="js/app.js"></script>
+   <script src="js/appController.js"></script>
+   <script src="views/adminView/admin-empl.ctrl.js"></script>
+   <script src="views/adminView/admin-empl.factory.js"></script>
+   <script src="views/adminView/admin-empl.service.js"></script>
+   <script src="views/adminView/admin-room.ctrl.js"></script>
+   <script src="views/adminView/admin-room.factory.js"></script>
+   <script src="views/adminView/admin-room.service.js"></script>
+   <script src="views/homeView/home.ctrl.js"></script>
+   <script src="views/loginView/login.ctrl.js"></script>
+   <script src="views/meetingView/meeting.ctrl.js"></script>
+
+   <!-- Custom stylesheets -->
+   <link rel="stylesheet" href="css/style.css">
+   <link rel="stylesheet" href="css/daypilot.css">
+
+   <script>
+   $(document).ready(function(){
+      $(".tab").click(function () {
+         $(".tab").removeClass("active");
+         // $(".tab").addClass("active"); // instead of this do the below 
+         $(this).addClass("active");   
+      });
+   });
+   </script>
+
+<style>
+    body {
+        padding-top: 60px;
+    }
+    @media (max-width: 979px) {
+        body {
+            padding-top: 0px;
+        }
+    }
+</style>
+
+</head>
+<body ng-controller="mainCtrl">
+
+  <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color: #0574ac; color: white;"> 
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style="border-right: solid 1px black; color: white;"> MeetApp</strong></a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li class="tab active"><a ui-sref="login" style="color: white"><img src="img/login.png" style="width: 30px; height: 30px;"/> Login</a></li>
+        <li class="tab"><a ui-sref="home" style="color: white"><img src="img/home.png" style="width: 30px; height: 30px;"/> Home</a></li>
+        <li class="tab"><a ui-sref="meeting" style="color: white"><img src="img/meeting.png" style="width: 30px; height: 30px;"/> Meeting</a></li>
+        <li class="tab"><a ui-sref="admin" style="color: white"><img src="img/admin.png" style="width: 30px; height: 30px;"/> Admin</a></li>
+      
+      </ul>
+    </div>
+  </nav>
+ 
+<div ui-view></div>
+ 
+</body>
+
+<footer class="footer">
+   <p align="center">Meeting Scheduler Webapp  
+   <br>©2018 CPP Computer Science Department 
+   </p>
+</footer> 
+
+</html>

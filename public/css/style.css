@@ -1,0 +1,17 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+/* Table formatting (added by MarkM) */
+thead th {
+   background-color: #006DCC;
+   color: white;
+}
+tbody td {
+   background-color: #ffffff;
+}

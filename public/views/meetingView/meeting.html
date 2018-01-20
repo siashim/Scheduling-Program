@@ -1,0 +1,101 @@
+<!-- Top title section -->
+<div class="container">
+   <div class="well">
+      <h1 align="center">Meeting Page</h1>
+      <h4 align="center">Here you can create a new meeting, select date and time, room and attendees, and
+         <br>check available rooms and select attendees.</h4>
+   </div>    
+</div>
+
+<!-- Create Meeting section-->
+<div class="container">
+   <div class="well">
+      <h1 align="center">Create Meeting</h1>
+
+      <div class="row">
+         <div class="col-sm-7" id="formInput">
+            
+            <!-- Form: Subject input -->
+            <form class="form">
+               <div class="input-group">
+                  <span class="input-group-addon">Subject</span>
+                  <input id="subject" type="text" class="form-control" name="subject" placeholder="Subject of meeting...">
+               </div>
+            </form>
+
+            <!-- Form: Datetime input -->
+            <div id="datetimepicker">
+               <form class="form-inline">
+                  <label class="control-label col-xs-2" for="start">Start:</label>
+                  <div class="input-group col-xs-4">
+                     <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
+                     <input id="date" type="text" class="form-control date start" name="date" placeholder="Date">
+                  </div>
+                  <div class="input-group col-xs-4">
+                     <span class="input-group-addon"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></span>
+                     <input id="time" type="text" class="form-control time start" name="time" placeholder="Time">
+                  </div>
+               </form>
+               <form class="form-inline">
+                  <label class="control-label col-xs-2" for="end">End:</label>
+                  <div class="input-group col-xs-4">
+                     <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
+                     <input id="date" type="text" class="form-control date end" name="date" placeholder="Date">
+                  </div>
+                  <div class="input-group col-xs-4">
+                     <span class="input-group-addon"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></span>
+                     <input id="time" type="text" class="form-control time end" name="time" placeholder="Time">
+                  </div>
+               </form>
+            </div>
+
+         </div>
+         
+         <div class="col-sm-5" id="formPreview">
+            <p>Subject: {{event.subject}}<p>
+            <p>Room: {{event.room}}</p>
+            <p>Start: {{event.startTime.toLocaleString()}}</p>
+            <p>End: {{event.endTime.toLocaleString()}}</p>
+            <p>Attendees: {{event.attendees}}</p>
+         </div>
+      </div>
+
+   </div>    
+</div>
+
+<!-- Availabilty section-->
+<div class="container">
+   <div class="well">
+      <h1 align="center">Check Availability</h1>
+         <table class="table table-bordered table-sm">
+         <thead class="thead-inverse">
+            <tr>
+            <th><button type="button" class="btn btn-success" ng-click="selectRooms()">Select</button></th>
+            <th>Room(Cap)</th>
+            <th ng-repeat="x in times">{{x}}</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr ng-repeat="x in selectedRooms">
+               <td><label><input type="radio" name="sel"></label></td>
+               <td>{{ x.number }}({{ x.capacity }})</td>
+               <td class={{y.class}} ng-repeat="y in x.events">{{y.busy}}</td>
+            </tr>
+         </tbody>
+         <thead class="thead-inverse">
+            <tr>
+            <th><button type="button" class="btn btn-success" ng-click="selectEmployees()">Select</button></th>
+            <th>Employees</th>
+            <th ng-repeat="x in times">{{x}}</th>
+            </tr>
+         </thead>
+         <tbody>
+            <tr ng-repeat="x in selectedEmployees">
+               <td>{{$index}}</td>
+               <td>{{ x.LastName }}, {{ x.FirstName }}</td>
+               <td class={{y.class}} ng-repeat="y in x.events">{{y.busy}}</td>
+            </tr>
+         </tbody>
+         </table>
+   </div>
+</div>

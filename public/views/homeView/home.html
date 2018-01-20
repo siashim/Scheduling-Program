@@ -1,0 +1,73 @@
+<!-- Top title section -->
+<div class="container">
+   <div class="well">
+      <h1 align="center">Employee Home Page</h1>
+      <h4 align="center">View meeting request notifications, manage created meetings, and view meetings on a calendar.</h4>
+   </div>    
+</div>
+
+<!-- Status section-->
+<div class="container">
+   <div class="well">
+      
+      <!-- Notifications -->
+      <h1 align="center">Notifications</h1>
+      <table  class="table table-bordered">
+      <thead class="thead-inverse">
+         <tr>
+         <th>Requester</th>
+         <th>Subject</th>
+         <th>Date</th>
+         <th>Time</th>
+         <th>Room</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr ng-repeat="x in notifications">
+            <td>{{ x.requester }}</td>
+            <td>{{ x.subject }}</td>
+            <td>{{ x.date }}</td>
+            <td>{{ x.time }}</td>
+            <td>{{ x.room }}</td>
+            <td><button type="button" class="btn btn-success" ng-click="accept(x._id)">Accept</button></td>
+            <td><button type="button" class="btn btn-danger" ng-click="decline(x._id)">Decline</button></td>
+         </tr>
+      </tbody>
+      </table>
+
+      <!-- My Meetings -->
+      <h1 align="center">My Meetings</h1>
+      <table  class="table table-bordered">
+      <thead class="thead-inverse">
+         <tr>
+         <th>Requester</th>
+         <th>Subject</th>
+         <th>Date</th>
+         <th>Time</th>
+         <th>Room</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr ng-repeat="x in notifications">
+            <td>{{ x.requester }}</td>
+            <td>{{ x.subject }}</td>
+            <td>{{ x.date }}</td>
+            <td>{{ x.time }}</td>
+            <td>{{ x.room }}</td>
+            <td><button type="button" class="btn btn-success" ng-click="edit()">Edit</button></td>
+            <td><button type="button" class="btn btn-danger" ng-click="delete()">Delete</button></td>
+         </tr>
+      </tbody>
+      </table>
+   </div>    
+</div>
+
+<!-- Calendar section-->
+<div class="container">
+   <div class="well">
+      <h1 align="center">My Calendar</h1>
+         <daypilot-calendar id="dpm"></daypilot-calendar>
+      <div id="dp"></div>
+
+   </div>    
+</div>
