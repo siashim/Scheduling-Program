@@ -1,5 +1,5 @@
 # ignore the following files
-/
+
 /node_modules/
 package-lock.json
 /public/fonts/
