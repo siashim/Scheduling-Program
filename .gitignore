@@ -1,4 +1,5 @@
 # ignore the following files
-/frontend/deps/
+
 /node_modules/
 package-lock.json
+
