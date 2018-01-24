@@ -1,28 +1,40 @@
 <!-- Top title section -->
-<div class="container">
+<!-- <div class="container">
    <div class="well">
       <h1 align="center">Meeting Page</h1>
       <h4 align="center">Here you can create a new meeting, select date and time, room and attendees, and
          <br>check available rooms and select attendees.</h4>
    </div>    
-</div>
+</div> -->
 
 <!-- Create Meeting section-->
 <div class="container">
    <div class="well">
-      <h1 align="center">Create Meeting</h1>
+      <h1 align="center">Create New Meeting</h1>
 
       <div class="row">
-         <div class="col-sm-7" id="formInput">
+         <div class="col-sm-6 col-sm-offset-3" id="formInput">
             
             <!-- Form: Subject input -->
             <form class="form">
                <div class="input-group">
                   <span class="input-group-addon">Subject</span>
-                  <input id="subject" type="text" class="form-control" name="subject" placeholder="Subject of meeting...">
+                  <input id="subject" type="text" class="form-control" name="subject" placeholder="Subject of meeting..." ng-model="event.subject">
                </div>
             </form>
+      
+         </div>
 
+         <div class="col-sm-1" id="formInput4">
+            <!-- Form: Submit button -->
+            <button type="button" class="btn btn-primary" ng-click="createMeeting()">Create</button>
+         </div>
+         
+      </div>
+
+      <div class="row">
+         <div class="col-sm-6 col-sm-offset-3" id="formInput2">
+            
             <!-- Form: Datetime input -->
             <div id="datetimepicker">
                <form class="form-inline">
@@ -50,52 +62,135 @@
             </div>
 
          </div>
-         
-         <div class="col-sm-5" id="formPreview">
-            <p>Subject: {{event.subject}}<p>
-            <p>Room: {{event.room}}</p>
-            <p>Start: {{event.startTime.toLocaleString()}}</p>
-            <p>End: {{event.endTime.toLocaleString()}}</p>
-            <p>Attendees: {{event.attendees}}</p>
-         </div>
       </div>
 
+      <div class="row">
+         <div class="col-sm-6 col-sm-offset-3" id="formInput3">
+
+            <!-- Form: Room select list -->
+            <div class="form-group">
+               <label for="sel1">Select room:</label>
+               <select class="form-control" id="selroom">
+               <option ng-repeat="x in roomList.selectedRooms">{{ x.name }}</option>
+               </select>
+            </div>
+         </div>   
+      </div>
+      
    </div>    
 </div>
 
-<!-- Availabilty section-->
+<!-- Daypilot schedule availability section -->
 <div class="container">
    <div class="well">
       <h1 align="center">Check Availability</h1>
-         <table class="table table-bordered table-sm">
-         <thead class="thead-inverse">
-            <tr>
-            <th><button type="button" class="btn btn-success" ng-click="selectRooms()">Select</button></th>
-            <th>Room(Cap)</th>
-            <th ng-repeat="x in times">{{x}}</th>
-            </tr>
-         </thead>
-         <tbody>
-            <tr ng-repeat="x in selectedRooms">
-               <td><label><input type="radio" name="sel"></label></td>
-               <td>{{ x.number }}({{ x.capacity }})</td>
-               <td class={{y.class}} ng-repeat="y in x.events">{{y.busy}}</td>
-            </tr>
-         </tbody>
-         <thead class="thead-inverse">
-            <tr>
-            <th><button type="button" class="btn btn-success" ng-click="selectEmployees()">Select</button></th>
-            <th>Employees</th>
-            <th ng-repeat="x in times">{{x}}</th>
-            </tr>
-         </thead>
-         <tbody>
-            <tr ng-repeat="x in selectedEmployees">
-               <td>{{$index}}</td>
-               <td>{{ x.LastName }}, {{ x.FirstName }}</td>
-               <td class={{y.class}} ng-repeat="y in x.events">{{y.busy}}</td>
-            </tr>
-         </tbody>
-         </table>
+      <button type="button" class="btn btn-primary" ng-click="selectRooms()">Check Rooms</button>
+      <button type="button" class="btn btn-primary" ng-click="selectEmployees()">Check Employees</button>
+      <p>&nbsp</p>
+      <daypilot-scheduler id="scheduler" daypilot-config="schedulerConfig" daypilot-events="events" ></daypilot-scheduler>
    </div>
 </div>
+
+<!-- Modal: hidden until user clicks select button -->
+<div class="modal fade" id="empSelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Select employees for invite list:</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+   
+            <!-- Form to update employee data inside modal -->
+            <form class="form">
+            <div class="row">
+               <div class="col-sm-4 col-sm-offset-1">
+                  <div class="form-group">
+                     <label for="sel2">Employees:</label>
+                     <select multiple class="form-control" size="10" id="sel2">
+                        <option ng-repeat="x in empList.unselectedEmp">{{ x.name }}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-sm-2 text-center">
+                  <br><br><br><br>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+               </div>
+               <div class="col-sm-4">
+                  <div class="form-group">
+                     <label for="sel1">Invite list:</label>
+                     <select multiple class="form-control" size="10" id="sel1">
+                        <option ng-repeat="x in empList.selectedEmp">{{ x.name }}</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
+            </form>
+   
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="updateEmp()">Select</button>
+         </div>
+      </div>
+   </div>
+   </div>
+
+   <!-- Modal: hidden until user clicks select button -->
+<div class="modal fade" id="roomSelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   <div class="modal-dialog" role="document">
+      <div class="modal-content">
+         <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Select rooms to consider for reservation:</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+               <span aria-hidden="true">&times;</span>
+            </button>
+         </div>
+         <div class="modal-body">
+   
+            <!-- Form to update room data inside modal -->
+            <form class="form">
+            <div class="row">
+               <div class="col-sm-4 col-sm-offset-1">
+                  <div class="form-group">
+                     <label for="sel2">Available rooms:</label>
+                     <select multiple class="form-control" size="10" id="sel2">
+                        <option ng-repeat="x in roomList.unselectedRooms">{{ x.name }}</option>
+                     </select>
+                  </div>
+               </div>
+               <div class="col-sm-2 text-center">
+                  <br><br><br><br>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+               </div>
+               <div class="col-sm-4">
+                  <div class="form-group">
+                     <label for="sel1">Selected rooms:</label>
+                     <select multiple class="form-control" size="10" id="sel1">
+                        <option ng-repeat="x in roomList.selectedRooms">{{ x.name }}</option>
+                     </select>
+                  </div>
+               </div>
+            </div>
+            </form>
+   
+         </div>
+         <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="updateEmp()">Select</button>
+         </div>
+      </div>
+   </div>
+</div>
+
+         <!-- <div class="col-sm-5" id="formPreview">
+            <p>Subject: {{event.subject}}<p>
+            <p>Start: {{event.startTime.toLocaleString()}}</p>
+            <p>End: {{event.endTime.toLocaleString()}}</p>
+            <p>Room: {{event.room}}</p>
+            <p>Attendees: {{event.attendees}}</p>
+         </div> -->

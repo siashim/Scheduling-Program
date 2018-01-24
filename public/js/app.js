@@ -9,6 +9,7 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
    // 4. controller - where to find the state's js controller (if any, it's optional)
 
 	$urlRouterProvider.otherwise('/login');
+   $urlRouterProvider.when('/admin','/admin/employees');
 
 	var home = {
       name: 'home',

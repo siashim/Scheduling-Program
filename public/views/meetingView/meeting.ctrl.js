@@ -1,168 +1,44 @@
 mainapp.controller('meetingCtrl', function ($scope, $http){
    $scope.event = {
       subject: '',
-      startDate: null,
-      endDate: null,
-      startTime: null,
-      endTime: null,
+      startDate: '',
+      endDate: '',
+      startTime: '',
+      endTime: '',
       room: '',
       attendees: [],
    }
-   $scope.times = ['8:00','9:00','10:00','11:00','12:00','1:00','2:00','3:00','4:00','5:00'];
-   $scope.selectedRooms = [
-      { number: '100', capacity:'20', 
-         events:[
-            {time:'8:00' , busy:'meet', class:'bg-danger'},
-            {time:'9:00' , busy:'',     class:'bg-success'},
-            {time:'10:00', busy:'',     class:'bg-success'},
-            {time:'11:00', busy:'meet', class:'bg-danger'},
-            {time:'12:00', busy:'',     class:'bg-success'},
-            {time:'1:00',  busy:'',     class:'bg-success'},
-            {time:'2:00',  busy:'meet', class:'bg-danger'},
-            {time:'3:00',  busy:'',     class:'bg-success'},
-            {time:'4:00',  busy:'',     class:'bg-success'},
-            {time:'5:00',  busy:'meet', class:'bg-danger'},
-            ] },
-      { number: '101', capacity:'10', 
-         events:[
-            {time:'8:00' , busy:'meet', class:'bg-danger'},
-            {time:'9:00' , busy:'meet', class:'bg-danger'},
-            {time:'10:00', busy:'meet', class:'bg-danger'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { number: '200', capacity:'6', 
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'meet', class:'bg-danger'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]},
-      { number: '201', capacity:'6', 
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'meet', class:'bg-danger'},
-            {time:'12:00', busy:'meet', class:'bg-danger'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'meet', class:'bg-danger'},
-            {time:'5:00',  busy:'meet', class:'bg-danger'},
-            ]},
-      { number: '300', capacity:'12', events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]},
-   ]
-   $scope.selectedEmployees = [
-      { FirstName: 'Abe', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { FirstName: 'Bob', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { FirstName: 'Cal', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { FirstName: 'Dav', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'meet', class:'bg-danger'},
-            {time:'2:00',  busy:'meet', class:'bg-danger'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { FirstName: 'Eve', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'meet', class:'bg-danger'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]
-      },
-      { FirstName: 'Fig', LastName: 'Burger',
-         events:[
-            {time:'8:00' , busy:'', class:'bg-success'},
-            {time:'9:00' , busy:'', class:'bg-success'},
-            {time:'10:00', busy:'', class:'bg-success'},
-            {time:'11:00', busy:'', class:'bg-success'},
-            {time:'12:00', busy:'', class:'bg-success'},
-            {time:'1:00',  busy:'', class:'bg-success'},
-            {time:'2:00',  busy:'', class:'bg-success'},
-            {time:'3:00',  busy:'', class:'bg-success'},
-            {time:'4:00',  busy:'', class:'bg-success'},
-            {time:'5:00',  busy:'', class:'bg-success'},
-            ]   
-      },
-   ]
-
+   $scope.empList = { 
+      selectedEmp:[
+         {name:'smith, sam'},
+         {name:'tree, tom'},
+         {name:'umbrella, uma'},
+      ],
+      unselectedEmp:[
+         {name:'kilo, kel'},
+         {name:'meadow, mel'},
+         {name:'standish, sky'},
+         {name:'vampire, vic'},
+         {name:'willow, wes'},
+         {name:'zillion, zoe'},
+      ],
+   };
+   $scope.roomList = { 
+      selectedRooms:[
+         {name:'201(10)'},
+         {name:'202(10)'},
+         {name:'302(8)'},
+      ],
+      unselectedRooms:[
+         {name:'100(100)'},
+         {name:'101(50)'},
+         {name:'102(26)'},
+         {name:'303(26)'},
+         {name:'304(20)'},
+         {name:'409(8)'},
+         {name:'410(6)'},
+      ],
+   };
    // initialize input widgets first
    $('#datetimepicker .date').datepicker({
       'format': 'm/d/yyyy',
@@ -208,9 +84,113 @@ mainapp.controller('meetingCtrl', function ($scope, $http){
    });
 
    $scope.selectRooms = function(){
-      alert('Here the user can add or remove rooms from schedule viewer');
+      $('#roomSelModal').modal({});
    }
+
+   // When the employeeSelect button is clicked, open a modal dialog for data entry
    $scope.selectEmployees = function(){
-      alert('Here the user can add or remove employees from schedule viewer');
+      $('#empSelModal').modal({});
    }
+
+   $scope.createMeeting = function(){
+      var string = 'Subject: ' + $scope.event.subject + '\n' + 
+         'Start: ' + $scope.event.startTime.toLocaleString() + '\n' +  
+         'End: ' + $scope.event.endTime.toLocaleString() +  '\n' + 
+         'Room:' + $scope.event.room +  '\n' + 
+         'Attendees:' + $scope.event.attendees;
+      alert(string);
+   }
+
+   // Daypilot scheduler
+   var dp_rooms = [
+      {id:'r1', name:'201(10)'},
+      {id:'r2', name:'202(10)'},
+      {id:'r3', name:'302(8)'},
+   ];
+   var dp_employees = [
+      {id:'e1', name:'Alpha, Ana'},
+      {id:'e2', name:'Bravo, Bob'},
+      {id:'e3', name:'Charlie, Cal'},
+      {id:'e4', name:'Delta, Del'},
+      {id:'e5', name:'Tango, Tom'},
+   ];
+   var dp_events = [
+      {
+         start: new DayPilot.Date("2018-01-01T10:00:00"),
+         end: new DayPilot.Date("2018-01-01T11:00:00"),
+         id: DayPilot.guid(),
+         resource: "r1",
+         text: "Meeting"
+      },
+      {
+         start: new DayPilot.Date("2018-01-01T13:00:00"),
+         end: new DayPilot.Date("2018-01-01T14:00:00"),
+         id: DayPilot.guid(),
+         resource: "r2",
+         text: "Meeting"
+      },
+      {
+         start: new DayPilot.Date("2018-01-01T10:00:00"),
+         end: new DayPilot.Date("2018-01-01T11:00:00"),
+         id: DayPilot.guid(),
+         resource: "e1",
+         text: "Meeting (?)",
+         backColor: "salmon",
+      },
+      {
+         start: new DayPilot.Date("2018-01-01T10:00:00"),
+         end: new DayPilot.Date("2018-01-01T11:00:00"),
+         id: DayPilot.guid(),
+         resource: "e2",
+         text: "Meeting",
+      },
+      {
+         start: new DayPilot.Date("2018-01-01T13:00:00"),
+         end: new DayPilot.Date("2018-01-01T14:00:00"),
+         id: DayPilot.guid(),
+         resource: "e3",
+         text: "Meeting",
+      },
+      {
+         start: new DayPilot.Date("2018-01-01T13:00:00"),
+         end: new DayPilot.Date("2018-01-01T14:00:00"),
+         id: DayPilot.guid(),
+         resource: "e4",
+         text: "Meeting",
+      },
+   ];
+   var resources = [
+      {
+         "id": "group_1",
+         "name": "Rooms",
+         "expanded": true,
+         "children": dp_rooms,
+      },
+      {
+         "id": "group_2",
+         "name": "Employees",
+         "expanded": true,
+         "children": dp_employees,
+      }
+   ]
+
+   $scope.schedulerConfig = {
+      scale: "Hour",
+      // days: new DayPilot.Date().daysInMonth(),
+      days: 1,
+      startDate: new DayPilot.Date().firstDayOfMonth(),
+      timeHeaders: [
+          { groupBy: "Day" },
+          { groupBy: "Hour", format: "hh:mm" }
+      ],
+      cellWidthSpec: 'Auto',
+
+      businessBeginsHour: 8,
+      businessEndsHour: 18,
+      showNonBusiness: false,
+
+      treeEnabled: true,
+      resources: resources,
+   };
+   $scope.events = dp_events;
 });
