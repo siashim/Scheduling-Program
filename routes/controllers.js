@@ -6,6 +6,8 @@
 
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
+var Meeting = require('../models/meeting.js');
+var Schedule = require('../models/schedule.js');
 
 // Find all employees in db
 exports.findAll_employees = function(req, res) {
@@ -17,7 +19,7 @@ exports.findAll_employees = function(req, res) {
     }
 
     Employee.find(query)
-    .select({ FirstName: 1, LastName: 1, EmployeeId: 1, Position: 1})
+    .select({ Password: 0}) // Purposely prevent sending all pwds to frontend
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
         return res.send(result)
@@ -123,14 +125,14 @@ exports.deleteOne_room = function(req, res){
 }
 
 exports.findAll_meeting = function(req, res) {
-    // Query validation: ensures returned reports have minimum set of required fields  
-    var query = {
-        Owner : { $exists: true, $ne: null },
-        Room : { $exists: true, $ne: null },
-        Dates : { $exists: true, $ne: null },
+   // Query validation: ensures returned reports have minimum set of required fields  
+   var query = {
+      Owner : { $exists: true, $ne: null },
+      Room : { $exists: true, $ne: null },
+      Dates : { $exists: true, $ne: null },
 		Duration : { $exists: true, $ne: null },
-        Attendees : { $exists: true, $ne: null,
-    }
+      Attendees : { $exists: true, $ne: null },
+   }
 
     Meeting.find(query)
     .exec(function(err, result){
