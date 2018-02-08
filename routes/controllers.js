@@ -126,6 +126,7 @@ exports.findAll_meeting = function(req, res) {
     var query = {
         Owner : { $exists: true, $ne: null },
         Room : { $exists: true, $ne: null },
+        Dates : { $exists: true, $ne: null },
 		Duration : { $exists: true, $ne: null },
         Attendees : { $exists: true, $ne: null,
     }
@@ -161,6 +162,7 @@ exports.updateOne_meeting = function(req, res){
    var update = {
       Owner: req.body.owner,
       Room: req.body.room,
+      Dates: req.body.dates,
       Duration: req.body.duration,
 	  attendees: req.body.attendees,
    }

@@ -34,6 +34,7 @@ var Schema = mongoose.Schema;
 var meetingSchema = new Schema({
     Owner: String, 
     Room: String,
+    Dates: Date,
     Duration: String,
     Attendees: []
 });
