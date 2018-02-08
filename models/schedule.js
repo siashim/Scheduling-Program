@@ -1,24 +1,10 @@
-function Schedule(id) {
-    this.grid = null;
-	this.employeeID = id;
-	var daysMax = 14;
-	var hoursMax = 12;
-	this.daysHoursArray = new Array();
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-	for (var i=0;i< daysMax;i++) {
-		this.daysHoursArray[i] = new Array();
-		for (var j=0;j< hoursMax;j++) {
-			this.daysHoursArray[i][j] = 0;
-		}
-	}
-}
-Schedule.prototype.SetVisibility = function(day, hour) {
-	this.daysHoursArray[day][hour] = 1;
-}
-Schedule.prototype.RespondToInvite = function()  {
-}
+var employeeSchema = new Schema({
+        Events: []
+});
 
-var schedule = new Schedule(1234);
+var Schedule = mongoose.model('Schedule', employeeSchema, 'schedule');
 
-console.log(schedule.daysHoursArray);
-
+module.exports = Schedule;
