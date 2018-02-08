@@ -17,7 +17,7 @@ exports.findAll_employees = function(req, res) {
     }
 
     Employee.find(query)
-    .select({ FirstName: 1, LastName: 1, EmployeeId: 1})
+    .select({ FirstName: 1, LastName: 1, EmployeeId: 1, Position: 1})
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
         return res.send(result)
@@ -50,6 +50,7 @@ exports.updateOne_employee = function(req, res){
       LastName: req.body.lastname,
       EmployeeId: req.body.employeeid,
       Password: req.body.password,
+      Position: req.body.position,
    }
    Employee.findByIdAndUpdate(id, {$set:update}, function(err, result){
       if(err){ return res.send(500); }

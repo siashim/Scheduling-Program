@@ -25,4 +25,6 @@ router.post('/admin/rooms', controller.createOne_room);
 router.put('/admin/rooms/:id', controller.updateOne_room);
 router.delete('/admin/rooms/:id', controller.deleteOne_room);
 
+router.get('/meeting/rooms', controller.findAll_rooms);
+
 module.exports = router;

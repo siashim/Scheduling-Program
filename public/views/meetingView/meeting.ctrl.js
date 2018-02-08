@@ -1,4 +1,42 @@
-mainapp.controller('meetingCtrl', function ($scope, $http){
+mainapp.controller('meetingCtrl', function ($scope, $http, meetingFactory, meetingService){
+   $scope.rooms = {
+      selected:[],
+      unselected:[],
+   };
+
+   $scope.selectRoom = function(){
+      var result = [];
+      var select = document.getElementById('unselOptions');
+      var options = select && select.options;
+      var opt;
+
+      for (var i=0, iLen=options.length; i<iLen; i++) {
+         opt = options[i];
+
+         if (opt.selected) {
+            result.push(opt.value || opt.text);
+         }
+      }
+      console.log(result);
+      return result;      
+   }
+   $scope.unselectRoom = function(){
+      console.log('Room unselected')
+   }
+
+   // Refresh data in browser with data from db
+   var refresh = function(){
+      meetingFactory.getAllRooms().then(function(response){
+         $scope.rooms.unselected = response.data; 
+      }), function(err){
+         console.log(err);
+      }
+   }
+
+   // Initialize the table with data
+   $(document).ready(refresh())
+
+   // Below this point is demo code
    $scope.event = {
       subject: '',
       startDate: '',

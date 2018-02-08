@@ -157,21 +157,21 @@
                <div class="col-sm-4 col-sm-offset-1">
                   <div class="form-group">
                      <label for="sel2">Available rooms:</label>
-                     <select multiple class="form-control" size="10" id="sel2">
-                        <option ng-repeat="x in roomList.unselectedRooms">{{ x.name }}</option>
+                     <select multiple class="form-control" size="10" id="unselOptions">
+                        <option ng-repeat="x in rooms.unselected | orderBy : 'Number'">{{ x.Number }}({{ x.Capacity }})</option>
                      </select>
                   </div>
                </div>
                <div class="col-sm-2 text-center">
                   <br><br><br><br>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true" ng-click="selectRoom()"></i></button>
+                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true" ng-click="unselectRoom()"></i></button>
                </div>
                <div class="col-sm-4">
                   <div class="form-group">
                      <label for="sel1">Selected rooms:</label>
-                     <select multiple class="form-control" size="10" id="sel1">
-                        <option ng-repeat="x in roomList.selectedRooms">{{ x.name }}</option>
+                     <select multiple class="form-control" size="10" id="selOptions">
+                        <option ng-repeat="x in rooms.selected | orderBy : 'Number'">{{ x.Number }}({{ x.Capacity }})</option>
                      </select>
                   </div>
                </div>
@@ -186,7 +186,8 @@
       </div>
    </div>
 </div>
-
+USR: {{rooms.unselected}}
+SR: {{rooms.selected}}
          <!-- <div class="col-sm-5" id="formPreview">
             <p>Subject: {{event.subject}}<p>
             <p>Start: {{event.startTime.toLocaleString()}}</p>
