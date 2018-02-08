@@ -24,5 +24,15 @@ router.get('/admin/rooms/:id', controller.findOne_room);
 router.post('/admin/rooms', controller.createOne_room);
 router.put('/admin/rooms/:id', controller.updateOne_room);
 router.delete('/admin/rooms/:id', controller.deleteOne_room);
+router.get('/admin/meeting', controller.findAll_rooms);
+router.get('/admin/meeting/:id', controller.findOne_room);
+router.post('/admin/meeting', controller.createOne_room);
+router.put('/admin/meeting/:id', controller.updateOne_room);
+router.delete('/admin/meeting/:id', controller.deleteOne_room);
+router.get('/admin/schedule', controller.findAll_rooms);
+router.get('/admin/schedule/:id', controller.findOne_room);
+router.post('/admin/schedule', controller.createOne_room);
+router.put('/admin/schedule/:id', controller.updateOne_room);
+router.delete('/admin/schedule/:id', controller.deleteOne_room);
 
 module.exports = router;

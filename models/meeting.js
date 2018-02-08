@@ -1,3 +1,4 @@
+/*
 var Meeting = function(owner, room, date, duration){
     this._owner = owner;
     this._room = room;
@@ -26,5 +27,16 @@ Meeting.prototype.numAttendees = function(){
 }
 Meeting.prototype.toString = function(){
     return this._owner + ' reserved room ' + this._room.number + '(' + this._room.capacity + ') on ' + this._date.toString() + ' for ' + this._duration + ' hours';
-}
+}*/
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
+var meetingSchema = new Schema({
+    Owner: String, 
+    Room: String,
+    Duration: String,
+    Attendees: []
+});
+var Meeting = mongoose.model('Meeting', employeeSchema, 'Meeting');
+
 module.exports = Meeting;
