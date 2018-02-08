@@ -121,3 +121,116 @@ exports.deleteOne_room = function(req, res){
       return res.sendStatus(200);
    })
 }
+
+exports.findAll_meeting = function(req, res) {
+    // Query validation: ensures returned reports have minimum set of required fields  
+    var query = {
+        Owner : { $exists: true, $ne: null },
+        Room : { $exists: true, $ne: null },
+        Dates : { $exists: true, $ne: null },
+		Duration : { $exists: true, $ne: null },
+        Attendees : { $exists: true, $ne: null,
+    }
+
+    Meeting.find(query)
+    .exec(function(err, result){
+        if(err){ return res.send(500, err); }
+        return res.send(result)
+    })
+}
+
+// Find one meeting
+exports.findOne_meeting = function(req, res){
+   var id = {_id: req.params.id};
+   MeetingById(id, function(err, result){
+      if(err){ return res.send(500, err); }
+      return res.send(result);
+   })
+}
+
+// Create one meeting
+exports.createOne_meeting = function(req, res){
+   var meeting = new Meeting(req.body);
+   meeting.save(function(err){
+      if(err){ return res.send(500, err); }
+      return res.sendStatus(200);
+   })
+}
+
+// Update one meeting
+exports.updateOne_meeting = function(req, res){
+   var id = { _id: req.params.id };
+   var update = {
+      Owner: req.body.owner,
+      Room: req.body.room,
+      Dates: req.body.dates,
+      Duration: req.body.duration,
+	  attendees: req.body.attendees,
+   }
+   Meeting.findByIdAndUpdate(id, {$set:update}, function(err, result){
+      if(err){ return res.send(500); }
+      return res.send(result);
+   })
+}
+
+// Delete one meeting
+exports.deleteOne_meeting = function(req, res){
+   Meeting.findByIdAndRemove(req.params.id, function(err){
+      if(err){ return res.send(500, err); }
+      return res.sendStatus(200);
+   })
+}
+
+// Find all schedules
+exports.findAll_schedule = function(req, res){
+   // Query validation: ensures returned reports have minimum set of required fields  
+   var query = {
+       Events : { $exists: true, $ne: null },
+   }
+
+   Schedule.find(query)
+   .exec(function(err, result){
+      if(err){ return res.send(500, err); }
+      return res.send(result)
+   })
+}
+
+// Find one schedule
+exports.findOne_schedule = function(req, res){
+   var id = {_id: req.params.id};
+   Schedule.findById(id, function(err, result){
+      if(err){ return res.send(500, err); }
+      return res.send(result);
+   })
+}
+
+// Create one schedule
+exports.createOne_schedule = function(req, res){
+   var schedule = new Schedule(req.body);
+   schedule.save(function(err){
+      if(err){ return res.send(500, err); }
+      return res.sendStatus(200);
+   })
+}
+
+// Update one schedule
+exports.updateOne_schedule = function(req, res){
+   console.log('id: ' + req.params.id);
+   console.log('body: ' + JSON.stringify(req.body));
+   var id = { _id: req.params.id };
+   var update = {
+      Events: req.body.events,
+   }
+   Evetns.findByIdAndUpdate(id, {$set:update}, function(err, result){
+      if(err){ return res.send(500); }
+      return res.send(result);
+   })
+}
+
+// Delete one schedule
+exports.deleteOne_schedule = function(req, res){
+   Schedule.findByIdAndRemove(req.params.id, function(err){
+      if(err){ return res.send(500, err); }
+      return res.sendStatus(200);
+   })
+}
