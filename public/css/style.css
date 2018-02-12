@@ -1,5 +1,5 @@
 body {
-  padding: 50px;
+  padding-top: 60px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
@@ -15,3 +15,30 @@ thead th {
 tbody td {
    background-color: #ffffff;
 }
+
+/* Div align=center-middle (added my MarkM) */
+.center-vertical {
+   padding: 15px 25px;
+   width: 100%;
+   max-width: 500px;    
+   position: absolute;
+   transform: translate(-50%, -50%);
+   left: 50%;
+   top: 50%;
+}
+.color-theme-background {
+   background-color:#0574ac; 
+}
+.color-theme-text {
+   color:white; 
+}
+
+/* Sticky footer (added by MarkM) */
+.wrapper {
+   min-height: 100%;
+   margin-bottom: -50px;
+ }
+   .footer,
+   .push {
+      height: 50px;
+ }

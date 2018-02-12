@@ -236,3 +236,57 @@ exports.deleteOne_schedule = function(req, res){
       return res.sendStatus(200);
    })
 }
+
+// Find one login
+exports.findOne_login = function(req, res){   
+   // TODO: implement find in db...
+   var list = [
+      {
+         FirstName: 'Test',
+         LastName: 'Admin',
+         EmployeeId: 'admin',
+         Password: 'admin',
+         Position: 'admin',
+      },
+      {
+         FirstName: 'Regular',
+         LastName: 'User',
+         EmployeeId: 'user',
+         Password: 'user',
+         Position: 'SW Developer',
+      },
+      {
+         FirstName: 'Ana',
+         LastName: 'Alpha',
+         EmployeeId: 'a100',
+         Password: 'a100',
+         Position: 'admin',
+      },
+   ]
+
+   var data = {
+      empId: '',
+      firstName: '',
+      lastName: '',
+      isLoggedIn: false, 
+      isAuthorized: false,
+      welcome: '',
+      errorMsg: 'Password incorrect.'
+   };
+   for(var i=0; i<list.length; i++){
+      if (req.body.username === list[i].EmployeeId && req.body.password === list[i].Password){
+         data = {
+            empId: list[i].EmployeeId,
+            firstName: list[i].FirstName,
+            lastName: list[i].LastName,
+            isLoggedIn: true, 
+            isAuthorized: (list[i].Position === 'admin'),
+            welcome: 'Welcome, ' + list[i].FirstName + ' ' + list[i].LastName,
+            errorMsg: ''
+         }
+         return res.send(data);
+      }
+   }
+
+   return (res.send(data));
+}

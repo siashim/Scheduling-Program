@@ -38,5 +38,6 @@ router.delete('/admin/schedule/:id', controller.deleteOne_room);
 router.get('/meeting/rooms', controller.findAll_rooms);
 router.get('/meeting/employees', controller.findAll_employees);
 router.post('/meeting/event', controller.createOne_meeting);
+router.post('/login', controller.findOne_login);
 
 module.exports = router;
