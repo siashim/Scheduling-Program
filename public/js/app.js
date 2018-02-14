@@ -13,7 +13,7 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
 
 	var home = {
       name: 'home',
-		// name:'home?empid', // later access by id
+		//name:'home?id', // later access by id
 		url:'/home',
 		templateUrl:'views/homeView/home.html',
       controller:'homeCtrl',
@@ -112,6 +112,26 @@ mainapp.run(function($rootScope, $transitions, $anchorScroll   ){
          return false;
       }
    });
+
+   // $transitions.onError({}, function(transition) {
+   //    console.log(
+   //        "Transition Error from " + transition.from().name +
+   //        " to " + transition.to().name
+   //    );
+   //    console.log(transition.error)
+   // });
+
+   // $transitions.onBefore({}, function(transition) {
+   //    // Don't mutate the current parameters
+   //    const paramsCopy = Object.assign({}, transition.params());
+   //    const stateService = transition.router.stateService;
+      
+   //    if (typeof paramsCopy.language === 'undefined') {
+   //      // supply 'en' as a default language
+   //      paramsCopy.language = 'en';
+   //      return stateService.target(transition.to(), paramsCopy);
+   //    }
+   // }
 
    // always scroll by extra pixels so content not hidden behind navbar
    $anchorScroll.yOffset = 70;

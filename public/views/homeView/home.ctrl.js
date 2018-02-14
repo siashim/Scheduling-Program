@@ -5,7 +5,9 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    // Calendar
    var calendar = new DayPilot.Month("dpm");
    calendar.cssClassPrefix = "month_green";
-   calendar.startDate = "2018-01-01";
+   calendar.startDate = new DayPilot.Date(Date.now()),
+   calendar.viewType = "Weeks";
+   calendar.weeks = 3;
    calendar.init();
 
    $scope.respondToNotification = function(id, val){
@@ -43,7 +45,6 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
       homeFactory.getAllNotifications(id).then(function(response){
          $scope.notifications = response.data;
-         console.log($scope.notifications); 
       }), function(err){
          console.log(err);
       }

@@ -394,43 +394,57 @@ exports.findAll_meetings = function(req, res){
    var empToSearch = req.params.id;
    console.log('Getting notifications for: ' + empToSearch);
 
-   // TODO: this should be the result of a db query ... 2 weeks of meetings... 
+   // TODO: this should be the result of a db query
+   // -> All meetings that user is owner or invitee
+   // -> All meetings in range today to two weeks
+   // -> All meetings that response is none/accept {0,1}
+   var hrs = (60*60*1000);
+   var days = (24*60*60*1000);
+   var response_1 = "#46EE00";
+   var response_0 = "#C0C0C0";
    var meetings = [
       {
-         start: "2018-01-01T08:00:00",
-         end: "2018-01-01T09:00:00",
+         start: Date.now() + 0*days + 1*hrs,
+         end: Date.now() + 0*days + 2*hrs,
          id: "1",
-         text: "Daily Scrum"
+         text: "Daily Scrum",
+         backColor: response_1,
       },
       {
-         start: "2018-01-02T08:00:00",
-         end: "2018-01-02T09:00:00",
+         start: Date.now() + 1*days + 1*hrs,
+         end: Date.now() + 1*days + 2*hrs,
          id: "2",
-         text: "Daily Scrum"
+         text: "Daily Scrum",
+         backColor: response_1,
       },
       {
-         start: "2018-01-04T08:00:00",
-         end: "2018-01-04T09:00:00",
+         start: Date.now() + 2*days + 1*hrs,
+         end: Date.now() + 2*days + 2*hrs,
          id: "3",
-         text: "Daily Scrum"
+         text: "Daily Scrum",
+         backColor: response_1,
       },
       {
-         start: "2018-01-05T08:00:00",
-         end: "2018-01-05T09:00:00",
+         start:  Date.now() + 3*days + 1*hrs,
+         end:  Date.now() + 3*days + 2*hrs,
          id: "4",
-         text: "Daily Scrum"
+         text: "Daily Scrum",
+         backColor: response_1,
       },
       {
-         start: "2018-01-02T13:00:00",
-         end: "2018-01-02T14:00:00",
+         start:  Date.now() + 7*days + 1*hrs,
+         end:  Date.now() + 7*days + 2*hrs,
          id: "5",
-         text: "Team Meeting"
+         text: "Team Meeting",
+         response: 0,
+         backColor: response_0,
       },
       {
-         start: "2018-01-05T15:00:00",
-         end: "2018-01-05T16:00:00",
+         start: Date.now() + 14*days + 1*hrs,
+         end:  Date.now() + 14*days + 2*hrs,
          id: "6",
-         text: "Weekly Review"
+         text: "Weekly Review",
+         backColor: response_0,
       },
    ];
 
