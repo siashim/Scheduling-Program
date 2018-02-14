@@ -103,8 +103,8 @@ exports.createOne_room = function(req, res){
 
 // Update one room
 exports.updateOne_room = function(req, res){
-   console.log('id: ' + req.params.id);
-   console.log('body: ' + JSON.stringify(req.body));
+   // console.log('id: ' + req.params.id);
+   // console.log('body: ' + JSON.stringify(req.body));
    var id = { _id: req.params.id };
    var update = {
       Number: req.body.number,
@@ -289,4 +289,150 @@ exports.findOne_login = function(req, res){
    }
 
    return (res.send(data));
+}
+
+// Find all reminders
+exports.findAll_reminders = function(req, res){
+   var empToSearch = req.params.id;
+
+   // TODO: this should be the result of a db query ... 
+   var reminders = [
+      {
+         _id: '12345678',
+         owner: 'a100100', 
+         subject: 'Meeting 1',
+         room: '121',
+         startDate: Date.now(),
+         endDate: Date.now() + (1*60*60*1000),
+         attendees: ['aa','bb','cc'],
+      },
+      {
+         _id: '12345679',
+         owner: 'a100100', 
+         subject: 'Meeting 2',
+         room: '221',
+         startDate: Date.now() + (3*60*60*1000),
+         endDate: Date.now() + (4*60*60*1000),
+         attendees: ['dd','ee','ff'],
+      },
+   ]
+
+   return res.send(reminders);
+}
+
+// Delete one reminder
+exports.deleteOne_reminder = function(req, res){
+   var id = req.params.id;
+   console.log('TODO: findByIdAndRemove meeting ' + id);
+
+   res.sendStatus(200);
+}
+
+// Find all notifications
+exports.findAll_notifications = function(req, res){
+   var empToSearch = req.params.id;
+
+   // TODO: this should be the result of a db query ... 
+   // -> meetings where user is on invite list
+   //    -> meetings where user has not responded yet (response = 0) 
+
+   var notifications = [
+      {
+         _id: '10000000',
+         requester: 'Boss',
+         subject: 'Daily Scrum',
+         date: 'Mon 1/15/2018',
+         time: '10:00 AM',
+         room: '121',
+         response: 0
+      },
+      {
+         _id: '10000001',
+         requester: 'Director',
+         subject: 'Project planning session',
+         date: 'Mon 1/15/2018',
+         time: '3:00 PM',
+         room: 'Bldg. 8 Room 102',
+         response: 0
+      },      
+      {
+         _id: '10000002',
+         requester: 'CEO',
+         subject: 'All hands meeting',
+         date: 'Mon 1/16/2018',
+         time: '3:00 PM',
+         room: '100',
+         response: 0
+      },
+      {
+         _id: '10000003',
+         requester: 'Boss',
+         subject: 'Daily Scrum',
+         date: 'Mon 1/16/2018',
+         time: '10:00 AM',
+         room: '121',
+         response: 0
+      },
+   ]
+
+   res.send(notifications);
+}
+
+// Update one notification
+exports.updateOne_notification = function(req, res){
+   var id = req.params.id;
+   var update = req.body.response;
+   console.log('Notification updated: '+ id + ' to ' + update);
+
+   // TODO: update notification accept/decline in db
+   
+   return res.send({value: update});
+}
+
+// Find all meetings
+exports.findAll_meetings = function(req, res){
+   var empToSearch = req.params.id;
+   console.log('Getting notifications for: ' + empToSearch);
+
+   // TODO: this should be the result of a db query ... 2 weeks of meetings... 
+   var meetings = [
+      {
+         start: "2018-01-01T08:00:00",
+         end: "2018-01-01T09:00:00",
+         id: "1",
+         text: "Daily Scrum"
+      },
+      {
+         start: "2018-01-02T08:00:00",
+         end: "2018-01-02T09:00:00",
+         id: "2",
+         text: "Daily Scrum"
+      },
+      {
+         start: "2018-01-04T08:00:00",
+         end: "2018-01-04T09:00:00",
+         id: "3",
+         text: "Daily Scrum"
+      },
+      {
+         start: "2018-01-05T08:00:00",
+         end: "2018-01-05T09:00:00",
+         id: "4",
+         text: "Daily Scrum"
+      },
+      {
+         start: "2018-01-02T13:00:00",
+         end: "2018-01-02T14:00:00",
+         id: "5",
+         text: "Team Meeting"
+      },
+      {
+         start: "2018-01-05T15:00:00",
+         end: "2018-01-05T16:00:00",
+         id: "6",
+         text: "Weekly Review"
+      },
+   ];
+
+   res.send(meetings);
 }

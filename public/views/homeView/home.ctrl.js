@@ -1,34 +1,6 @@
-mainapp.controller('homeCtrl', function ($scope, $http){
-    $scope.notifications = [
-       {
-            requester: 'Boss',
-            subject: 'Daily Scrum',
-            date: 'Mon 1/15/2018',
-            time: '10:00 AM',
-            room: '121',
-       },
-       {
-            requester: 'Director',
-            subject: 'Project planning session',
-            date: 'Mon 1/15/2018',
-            time: '3:00 PM',
-            room: 'Bldg. 8 Room 102',
-      },
-      {
-         requester: 'CEO',
-         subject: 'All hands meeting',
-         date: 'Mon 1/16/2018',
-         time: '3:00 PM',
-         room: '100',
-      },
-      {
-         requester: 'Boss',
-         subject: 'Daily Scrum',
-         date: 'Mon 1/16/2018',
-         time: '10:00 AM',
-         room: '121',
-      },
-   ]
+mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
+   $scope.reminders = [];
+   $scope.notifications = [];
 
    // Calendar
    var calendar = new DayPilot.Month("dpm");
@@ -36,56 +8,54 @@ mainapp.controller('homeCtrl', function ($scope, $http){
    calendar.startDate = "2018-01-01";
    calendar.init();
 
-   calendar.events.list = [
-      {
-         start: "2018-01-01T08:00:00",
-         end: "2018-01-01T09:00:00",
-         id: "1",
-         text: "Daily Scrum"
-      },
-      {
-         start: "2018-01-02T08:00:00",
-         end: "2018-01-02T09:00:00",
-         id: "2",
-         text: "Daily Scrum"
-      },
-      {
-         start: "2018-01-04T08:00:00",
-         end: "2018-01-04T09:00:00",
-         id: "3",
-         text: "Daily Scrum"
-      },
-      {
-         start: "2018-01-05T08:00:00",
-         end: "2018-01-05T09:00:00",
-         id: "4",
-         text: "Daily Scrum"
-      },
-      {
-         start: "2018-01-02T13:00:00",
-         end: "2018-01-02T14:00:00",
-         id: "5",
-         text: "Team Meeting"
-      },
-      {
-         start: "2018-01-05T15:00:00",
-         end: "2018-01-05T16:00:00",
-         id: "6",
-         text: "Weekly Review"
-      },
-   ];
-   calendar.update();
+   $scope.respondToNotification = function(id, val){
+      var data = {response: val};
+      homeFactory.putNotification(id, data).then(function(response){
+         refresh();
+      }), function(err){
+         console.log(err);
+      };
+   }
 
-   $scope.accept = function(){
-      alert('(TODO) Notify server of accept, add event to calendar, and remove from this list.');
+   $scope.deleteReminder = function(id){
+      if(confirm('OK to delete this event?')){
+         homeFactory.deleteReminder(id).then(function(response){
+            refresh();
+         }), function(err){
+            console.log(err);
+         }
+      };
    }
-   $scope.decline = function(){
-      alert('(TODO) Notify server of decline, and removefrom this list.');
+
+   $scope.gotoAnchor = function(x) {
+      $location.hash(x);
+   };
+
+   // Refresh data in browser with data from db
+   var refresh = function(){
+      var id = $rootScope.currentUser.empId;
+      
+      homeFactory.getAllReminders(id).then(function(response){
+         $scope.reminders = response.data; 
+      }), function(err){
+         console.log(err);
+      }
+
+      homeFactory.getAllNotifications(id).then(function(response){
+         $scope.notifications = response.data;
+         console.log($scope.notifications); 
+      }), function(err){
+         console.log(err);
+      }
+
+      homeFactory.getAllMeetings(id).then(function(response){
+         calendar.events.list = response.data;
+         calendar.update();
+      }), function(err){
+         console.log(err);
+      }
    }
-   $scope.edit = function(){
-      alert('(TODO) User will go the Meeting page to edit this event.');
-   }
-   $scope.delete = function(){
-      alert('Are you sure you want to delete this event?\n (TODO: delete this event)');
-   }
+
+   // Initialize the page with data
+   $(document).ready(refresh())
 });

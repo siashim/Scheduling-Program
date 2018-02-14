@@ -42,3 +42,8 @@ tbody td {
    .push {
       height: 50px;
  }
+
+/* Anchor link no underline */
+div.well a:hover{
+   text-decoration: none;
+}

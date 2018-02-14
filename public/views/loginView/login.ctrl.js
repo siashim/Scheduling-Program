@@ -9,6 +9,7 @@ mainapp.controller('loginCtrl', function($scope, $rootScope, $state, loginFactor
       loginFactory.getLogin(data).then(function(response){
          $rootScope.currentUser = response.data;
          if(response.data.isLoggedIn == true){
+            $scope.setCookie('empId',$rootScope.currentUser,30);
             $state.go('home');
          }
       }), function(err){

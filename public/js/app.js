@@ -95,12 +95,13 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
    $stateProvider.state(logout);
 });
 
-mainapp.run(function($rootScope, $transitions){
+mainapp.run(function($rootScope, $transitions, $anchorScroll   ){
    // Exceptions for state transitions: 
    // 1. if landing in default state, take no more action  
    // 2. if current user is not logged in (implied if non-exist), go to login
    // 3. prevent unauthorized user access to auth states 
    $transitions.onStart({}, function(trans){
+      // console.log(trans.from().name +'->'+trans.to().name);
       if(trans.to().name == "login"){
          return;
       }
@@ -111,4 +112,9 @@ mainapp.run(function($rootScope, $transitions){
          return false;
       }
    });
+
+   // always scroll by extra pixels so content not hidden behind navbar
+   $anchorScroll.yOffset = 70;
+
+   
 });
