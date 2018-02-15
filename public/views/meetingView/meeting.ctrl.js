@@ -23,6 +23,7 @@ mainapp.controller('meetingCtrl', function ($scope, $http, meetingFactory, meeti
          endDate: new Date($scope.event.endTime),
          attendees: meetingService.getAttendeeIds($scope.employees),
       }
+
       meetingFactory.postEvent(newEvent).then(function(){
          alert('Meeting sent to server:\n' + meetingService.eventToString(newEvent));
       }), function(err){

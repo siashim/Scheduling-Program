@@ -1,13 +1,14 @@
 
 
 //var Database = require('../util/db.js');
-//var db = new Database('meeting');
 
 
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
 var Meeting = require('../models/meeting.js');
 var Schedule = require('../models/schedule.js');
+var Attendance = require('../models/attendance.js');
+
 
 // Find all employees in db
 exports.findAll_employees = function(req, res) {
@@ -152,11 +153,30 @@ exports.findOne_meeting = function(req, res){
 
 // Create one meeting
 exports.createOne_meeting = function(req, res){
-   var meeting = new Meeting(req.body);
-   meeting.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+
+  var meeting = new Meeting(req.body);
+	meeting.save(function(err,doc){
+		if(err) { 
+				return res.send(500, err); 
+		} else {
+			var attendance = [];
+			var attendees = req.body.attendees;
+			for (var i = 0; i < attendees.length; ++i) {
+				attendance.push(new Attendance({
+					MeetingId: doc.id,
+					EmployeeId: attendees[i],
+					Status: 0
+				}));
+			}
+			Attendance.collection.insert(attendance,function(errs,docs) {
+				if (errs)
+					return res.send(500,errs);
+				else
+					return res.sendStatus(200);
+			});
+		}
+   });
+
 }
 
 // Update one meeting
