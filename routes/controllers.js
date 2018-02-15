@@ -251,66 +251,36 @@ exports.findOne_login = function(req, res){
       errorMsg: 'Password incorrect.'
    };
 
+   // Unlock full access. (DEV ONLY)
+   if( req.body.username === 'admin' && req.body.password === 'admin'){
+      var AdminData = {
+         empId: 'admin',
+         firstName: 'Admin',
+         lastName: 'Admin',
+         isLoggedIn: true, 
+         isAuthorized: true,
+         welcome: 'Welcome, admin admin',
+         errorMsg: ''
+      };
+      return res.send(AdminData);
+   }
+
    Employee.findOne(query)
    .exec(function(err, result){
       if(err){ return res.send(500, err); }
-      console.log('db result: ' + result);
-      
-      data.empId = result.EmployeeId,
-      data.firstName = result.FirstName;
-      data.lastName = result.LastName;
-      data.isLoggedIn = true; 
-      data.isAuthorized = (result.Position.toLowerCase() === 'admin');
-      data.welcome = 'Welcome, ' + result.FirstName + ' ' + result.LastName;
-      data.errorMsg = '';
-
-      if(result.Password === req.body.password){
+      if( result != null && result.Password === req.body.password){
+         data.empId = result.EmployeeId;
+         data.firstName = result.FirstName;
+         data.lastName = result.LastName;
+         data.isLoggedIn = true; 
+         data.isAuthorized = (result.Position.toLowerCase() === 'admin');
+         data.welcome = 'Welcome, ' + result.FirstName + ' ' + result.LastName;
+         data.errorMsg = '';
          return res.send(data)
       }
       
       return res.send(data);
    })
-   // var list = [
-   //    {
-   //       FirstName: 'Test',
-   //       LastName: 'Admin',
-   //       EmployeeId: 'admin',
-   //       Password: 'admin',
-   //       Position: 'admin',
-   //    },
-   //    {
-   //       FirstName: 'Regular',
-   //       LastName: 'User',
-   //       EmployeeId: 'user',
-   //       Password: 'user',
-   //       Position: 'SW Developer',
-   //    },
-   //    {
-   //       FirstName: 'Ana',
-   //       LastName: 'Alpha',
-   //       EmployeeId: 'a100',
-   //       Password: 'a100',
-   //       Position: 'admin',
-   //    },
-   // ]
-
-
-   // for(var i=0; i<list.length; i++){
-   //    if (req.body.username === list[i].EmployeeId && req.body.password === list[i].Password){
-   //       data = {
-   //          empId: list[i].EmployeeId,
-   //          firstName: list[i].FirstName,
-   //          lastName: list[i].LastName,
-   //          isLoggedIn: true, 
-   //          isAuthorized: (list[i].Position === 'admin'),
-   //          welcome: 'Welcome, ' + list[i].FirstName + ' ' + list[i].LastName,
-   //          errorMsg: ''
-   //       }
-   //       return res.send(data);
-   //    }
-   // }
-
-   // return (res.send(data));
 }
 
 // Find all reminders
