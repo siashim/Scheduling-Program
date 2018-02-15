@@ -1,19 +1,19 @@
-mainapp.controller('adminEmployeeCtrl', function($scope, adminEmplFactory, adminEmplService){
+mainapp.controller('adminEmployeeCtrl', function($scope, $timeout, adminEmplFactory, adminEmplService){
    $scope.employees = [];
    $scope.empModal = {};
-   
+
    // When the view button is clicked, open an alert messagebox
    $scope.viewEmp = function(empid, id){
       adminEmplFactory.getEmployee(id).then(function(response){
-         alert(adminEmplService.employeeToString(response.data));
+         alert(adminEmplService.employeeToString(response.data));s
       }), function(err){
          console.log(err);
       }
 	} 
-   
+
    // When the update button is clicked, open a modal dialog for data entry
    $scope.updateEmpDialog = function(empid, id){
-      adminEmplFactory.getEmployee(id).then(function(response){
+      adminEmplFactory.getEmployee(id).then(function(response){   
          $scope.empModal = adminEmplService.setEmployeeModalData(response.data);
          $('#empModal').modal({});
       }), function(err){

@@ -6,6 +6,8 @@
 
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
+var Meeting = require('../models/meeting.js');
+var Schedule = require('../models/schedule.js');
 
 // Find all employees in db
 exports.findAll_employees = function(req, res) {
@@ -17,7 +19,7 @@ exports.findAll_employees = function(req, res) {
     }
 
     Employee.find(query)
-    .select({ FirstName: 1, LastName: 1, EmployeeId: 1})
+    .select({ Password: 0}) // Purposely prevent sending all pwds to frontend
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
         return res.send(result)
@@ -50,6 +52,7 @@ exports.updateOne_employee = function(req, res){
       LastName: req.body.lastname,
       EmployeeId: req.body.employeeid,
       Password: req.body.password,
+      Position: req.body.position,
    }
    Employee.findByIdAndUpdate(id, {$set:update}, function(err, result){
       if(err){ return res.send(500); }
@@ -100,8 +103,8 @@ exports.createOne_room = function(req, res){
 
 // Update one room
 exports.updateOne_room = function(req, res){
-   console.log('id: ' + req.params.id);
-   console.log('body: ' + JSON.stringify(req.body));
+   // console.log('id: ' + req.params.id);
+   // console.log('body: ' + JSON.stringify(req.body));
    var id = { _id: req.params.id };
    var update = {
       Number: req.body.number,
@@ -122,14 +125,14 @@ exports.deleteOne_room = function(req, res){
 }
 
 exports.findAll_meeting = function(req, res) {
-    // Query validation: ensures returned reports have minimum set of required fields  
-    var query = {
-        Owner : { $exists: true, $ne: null },
-        Room : { $exists: true, $ne: null },
-        Dates : { $exists: true, $ne: null },
+   // Query validation: ensures returned reports have minimum set of required fields  
+   var query = {
+      Owner : { $exists: true, $ne: null },
+      Room : { $exists: true, $ne: null },
+      Dates : { $exists: true, $ne: null },
 		Duration : { $exists: true, $ne: null },
-        Attendees : { $exists: true, $ne: null,
-    }
+      Attendees : { $exists: true, $ne: null },
+   }
 
     Meeting.find(query)
     .exec(function(err, result){
@@ -232,4 +235,218 @@ exports.deleteOne_schedule = function(req, res){
       if(err){ return res.send(500, err); }
       return res.sendStatus(200);
    })
+}
+
+// Find one login
+exports.findOne_login = function(req, res){   
+   // TODO: implement find in db...
+   var list = [
+      {
+         FirstName: 'Test',
+         LastName: 'Admin',
+         EmployeeId: 'admin',
+         Password: 'admin',
+         Position: 'admin',
+      },
+      {
+         FirstName: 'Regular',
+         LastName: 'User',
+         EmployeeId: 'user',
+         Password: 'user',
+         Position: 'SW Developer',
+      },
+      {
+         FirstName: 'Ana',
+         LastName: 'Alpha',
+         EmployeeId: 'a100',
+         Password: 'a100',
+         Position: 'admin',
+      },
+   ]
+
+   var data = {
+      empId: '',
+      firstName: '',
+      lastName: '',
+      isLoggedIn: false, 
+      isAuthorized: false,
+      welcome: '',
+      errorMsg: 'Password incorrect.'
+   };
+   for(var i=0; i<list.length; i++){
+      if (req.body.username === list[i].EmployeeId && req.body.password === list[i].Password){
+         data = {
+            empId: list[i].EmployeeId,
+            firstName: list[i].FirstName,
+            lastName: list[i].LastName,
+            isLoggedIn: true, 
+            isAuthorized: (list[i].Position === 'admin'),
+            welcome: 'Welcome, ' + list[i].FirstName + ' ' + list[i].LastName,
+            errorMsg: ''
+         }
+         return res.send(data);
+      }
+   }
+
+   return (res.send(data));
+}
+
+// Find all reminders
+exports.findAll_reminders = function(req, res){
+   var empToSearch = req.params.id;
+
+   // TODO: this should be the result of a db query ... 
+   var reminders = [
+      {
+         _id: '12345678',
+         owner: 'a100100', 
+         subject: 'Meeting 1',
+         room: '121',
+         startDate: Date.now(),
+         endDate: Date.now() + (1*60*60*1000),
+         attendees: ['aa','bb','cc'],
+      },
+      {
+         _id: '12345679',
+         owner: 'a100100', 
+         subject: 'Meeting 2',
+         room: '221',
+         startDate: Date.now() + (3*60*60*1000),
+         endDate: Date.now() + (4*60*60*1000),
+         attendees: ['dd','ee','ff'],
+      },
+   ]
+
+   return res.send(reminders);
+}
+
+// Delete one reminder
+exports.deleteOne_reminder = function(req, res){
+   var id = req.params.id;
+   console.log('TODO: findByIdAndRemove meeting ' + id);
+
+   res.sendStatus(200);
+}
+
+// Find all notifications
+exports.findAll_notifications = function(req, res){
+   var empToSearch = req.params.id;
+
+   // TODO: this should be the result of a db query ... 
+   // -> meetings where user is on invite list
+   //    -> meetings where user has not responded yet (response = 0) 
+
+   var notifications = [
+      {
+         _id: '10000000',
+         requester: 'Boss',
+         subject: 'Daily Scrum',
+         date: 'Mon 1/15/2018',
+         time: '10:00 AM',
+         room: '121',
+         response: 0
+      },
+      {
+         _id: '10000001',
+         requester: 'Director',
+         subject: 'Project planning session',
+         date: 'Mon 1/15/2018',
+         time: '3:00 PM',
+         room: 'Bldg. 8 Room 102',
+         response: 0
+      },      
+      {
+         _id: '10000002',
+         requester: 'CEO',
+         subject: 'All hands meeting',
+         date: 'Mon 1/16/2018',
+         time: '3:00 PM',
+         room: '100',
+         response: 0
+      },
+      {
+         _id: '10000003',
+         requester: 'Boss',
+         subject: 'Daily Scrum',
+         date: 'Mon 1/16/2018',
+         time: '10:00 AM',
+         room: '121',
+         response: 0
+      },
+   ]
+
+   res.send(notifications);
+}
+
+// Update one notification
+exports.updateOne_notification = function(req, res){
+   var id = req.params.id;
+   var update = req.body.response;
+   console.log('Notification updated: '+ id + ' to ' + update);
+
+   // TODO: update notification accept/decline in db
+   
+   return res.send({value: update});
+}
+
+// Find all meetings
+exports.findAll_meetings = function(req, res){
+   var empToSearch = req.params.id;
+   console.log('Getting notifications for: ' + empToSearch);
+
+   // TODO: this should be the result of a db query
+   // -> All meetings that user is owner or invitee
+   // -> All meetings in range today to two weeks
+   // -> All meetings that response is none/accept {0,1}
+   var hrs = (60*60*1000);
+   var days = (24*60*60*1000);
+   var response_1 = "#46EE00";
+   var response_0 = "#C0C0C0";
+   var meetings = [
+      {
+         start: Date.now() + 0*days + 1*hrs,
+         end: Date.now() + 0*days + 2*hrs,
+         id: "1",
+         text: "Daily Scrum",
+         backColor: response_1,
+      },
+      {
+         start: Date.now() + 1*days + 1*hrs,
+         end: Date.now() + 1*days + 2*hrs,
+         id: "2",
+         text: "Daily Scrum",
+         backColor: response_1,
+      },
+      {
+         start: Date.now() + 2*days + 1*hrs,
+         end: Date.now() + 2*days + 2*hrs,
+         id: "3",
+         text: "Daily Scrum",
+         backColor: response_1,
+      },
+      {
+         start:  Date.now() + 3*days + 1*hrs,
+         end:  Date.now() + 3*days + 2*hrs,
+         id: "4",
+         text: "Daily Scrum",
+         backColor: response_1,
+      },
+      {
+         start:  Date.now() + 7*days + 1*hrs,
+         end:  Date.now() + 7*days + 2*hrs,
+         id: "5",
+         text: "Team Meeting",
+         response: 0,
+         backColor: response_0,
+      },
+      {
+         start: Date.now() + 14*days + 1*hrs,
+         end:  Date.now() + 14*days + 2*hrs,
+         id: "6",
+         text: "Weekly Review",
+         backColor: response_0,
+      },
+   ];
+
+   res.send(meetings);
 }

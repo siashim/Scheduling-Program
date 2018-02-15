@@ -6,7 +6,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 var router = express();
-var Employee = require('../models/employee.js');
 var controller = require('./controllers.js');
 
 // Use middleware
@@ -24,15 +23,26 @@ router.get('/admin/rooms/:id', controller.findOne_room);
 router.post('/admin/rooms', controller.createOne_room);
 router.put('/admin/rooms/:id', controller.updateOne_room);
 router.delete('/admin/rooms/:id', controller.deleteOne_room);
-router.get('/admin/meeting', controller.findAll_rooms);
-router.get('/admin/meeting/:id', controller.findOne_room);
-router.post('/admin/meeting', controller.createOne_room);
-router.put('/admin/meeting/:id', controller.updateOne_room);
-router.delete('/admin/meeting/:id', controller.deleteOne_room);
-router.get('/admin/schedule', controller.findAll_rooms);
-router.get('/admin/schedule/:id', controller.findOne_room);
-router.post('/admin/schedule', controller.createOne_room);
-router.put('/admin/schedule/:id', controller.updateOne_room);
-router.delete('/admin/schedule/:id', controller.deleteOne_room);
+
+// router.get('/admin/meeting', controller.findAll_rooms);
+// router.get('/admin/meeting/:id', controller.findOne_room);
+// router.post('/admin/meeting', controller.createOne_room);
+// router.put('/admin/meeting/:id', controller.updateOne_room);
+// router.delete('/admin/meeting/:id', controller.deleteOne_room);
+// router.get('/admin/schedule', controller.findAll_rooms);
+// router.get('/admin/schedule/:id', controller.findOne_room);
+// router.post('/admin/schedule', controller.createOne_room);
+// router.put('/admin/schedule/:id', controller.updateOne_room);
+// router.delete('/admin/schedule/:id', controller.deleteOne_room);
+
+router.get('/meeting/rooms', controller.findAll_rooms);
+router.get('/meeting/employees', controller.findAll_employees);
+router.post('/meeting/event', controller.createOne_meeting);
+router.post('/login', controller.findOne_login);
+router.get('/home/reminders/:id', controller.findAll_reminders);
+router.delete('/home/reminders/:id', controller.deleteOne_reminder);
+router.get('/home/notifications/:id', controller.findAll_notifications);
+router.put('/home/notification/:id', controller.updateOne_notification)
+router.get('/home/meetings/:id', controller.findAll_meetings);
 
 module.exports = router;

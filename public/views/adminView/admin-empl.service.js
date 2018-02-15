@@ -7,7 +7,8 @@ mainapp.service('adminEmplService', function(){
          FirstName: document.getElementById("fname").value,
          LastName: document.getElementById("lname").value,
          EmployeeId: document.getElementById("empid").value,
-         Password: ""
+         Password: "",
+         Position: document.getElementById("pos").value,
       };
       return data;
    }
@@ -16,7 +17,8 @@ mainapp.service('adminEmplService', function(){
          firstname: document.getElementById("diafname").value,
          lastname: document.getElementById("dialname").value,
          employeeid: document.getElementById("diaempid").value,
-         password: document.getElementById("diapwd").value
+         password: document.getElementById("diapwd").value,
+         position: document.getElementById("diapos").value, 
       }
       return value;
    }
@@ -26,7 +28,8 @@ mainapp.service('adminEmplService', function(){
             lastname: data.LastName,
             employeeid: data.EmployeeId,
             password: data.Password,
-            id: data._id
+            id: data._id,
+            position: data.Position,
       }
       return value;
    }
@@ -39,6 +42,7 @@ mainapp.service('adminEmplService', function(){
       return 'First Name: ' + data.FirstName + '\n' +  
              'Last Name: ' + data.LastName + '\n' + 
              'Employee Id: ' + data.EmployeeId + '\n' + 
-             'Password: ' + data.Password;
+             'Password: ' + data.Password + '\n' + 
+             'Position: ' + data.Position;
    }
 })

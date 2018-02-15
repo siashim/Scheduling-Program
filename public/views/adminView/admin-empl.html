@@ -14,6 +14,10 @@
             <label class="control-label" for="empid">Employee id:</label>
             <input class="form-control" id="empid" placeholder="Enter employee id">
          </div>
+         <div class="form-group">
+            <label class="control-label" for="pos">Position:</label>
+            <input class="form-control" id="pos" placeholder="Enter employee position">
+         </div>
          <div class="form-group"> 
             <button type="submit" class="btn btn-primary" ng-click="createEmp()">Create Employee</button>
          </div>
@@ -30,6 +34,7 @@
          <th>First Name</th>
          <th>Last Name</th>
          <th>Employee Id</th>
+         <th>Position</th>
          </tr>
       </thead>
       <tbody>
@@ -37,6 +42,7 @@
             <td>{{ x.FirstName }}</td>
             <td>{{ x.LastName }}</td>
             <td>{{ x.EmployeeId }}</td>
+            <td>{{ x.Position }}</td>
             <td><button type="button" class="btn btn-info" ng-click="viewEmp(x.EmployeeId, x._id)">View</button></td>
             <td><button type="button" class="btn btn-primary" ng-click="updateEmpDialog(x.EmployeeId, x._id)">Update</button></td>
             <td><button type="button" class="btn btn-danger" ng-click="deleteEmp(x.EmployeeId, x._id)">Delete</button></td>
@@ -76,6 +82,10 @@
             <label class="control-label" for="diapwd">Employee password:</label>
             <input class="form-control" id="diapwd" value={{empModal.password}}>
          </div>
+         <div class="form-group">
+            <label class="control-label" for="diapos">Employee position:</label>
+            <input class="form-control" id="diapos" value={{empModal.position}}>
+         </div>
          </form>
 
       </div>
@@ -87,4 +97,4 @@
 </div>
 </div>
 
-<!--{{employees}}-->
+<!-- {{employees}} -->

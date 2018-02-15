@@ -1,8 +1,25 @@
-<!-- Top title section -->
+<!-- Dashboard section -->
 <div class="container">
    <div class="well">
-      <h1 align="center">Employee Home Page</h1>
-      <h4 align="center">View meeting request notifications, manage created meetings, and view meetings on a calendar.</h4>
+      <h3 align="center">Employee Meeting Calendar:&nbsp
+         <a href="" ng-click='gotoAnchor("notifications")'><i class="fa fa-exclamation-triangle" title="Notifications"></i>Notifications</a>
+         <span class="badge">{{ notifications.length }}</span>|&nbsp
+         <a href="" ng-click='gotoAnchor("reminders")'><i class="fa fa-bell" title="Reminders"></i>Reminders</a>
+         <span class="badge">{{ reminders.length }}</span>
+      </h3>
+   </div>    
+</div>
+
+<!-- Calendar section-->
+<div class="container">
+   <div class="well">
+      <h3 align="center">Meeting Calendar&nbsp|&nbsp
+         <i class="fa fa-circle" style="font-size:1em; color:#46EE00" title="Accepted"></i>=Accepted,
+         <i class="fa fa-circle" style="font-size:1em; color:#C0C0C0"title="Pending"></i>=Pending
+      </h3>
+         
+         <daypilot-calendar id="dpm"></daypilot-calendar>
+      <div id="dp"></div>
    </div>    
 </div>
 
@@ -10,8 +27,9 @@
 <div class="container">
    <div class="well">
       
-      <!-- Notifications -->
-      <h1 align="center">Notifications</h1>
+      <!-- My Notifications -->
+      <div id="notifications"></div>
+      <h3 align="center">My Meeting Notifications</h3>
       <table  class="table table-bordered">
       <thead class="thead-inverse">
          <tr>
@@ -29,18 +47,18 @@
             <td>{{ x.date }}</td>
             <td>{{ x.time }}</td>
             <td>{{ x.room }}</td>
-            <td><button type="button" class="btn btn-success" ng-click="accept(x._id)">Accept</button></td>
-            <td><button type="button" class="btn btn-danger" ng-click="decline(x._id)">Decline</button></td>
+            <td><button type="button" class="btn btn-success" ng-click="respondToNotification(x._id,1)">Accept</button></td>
+            <td><button type="button" class="btn btn-danger" ng-click="respondToNotification(x._id,-1)">Decline</button></td>
          </tr>
       </tbody>
       </table>
 
-      <!-- My Meetings -->
-      <h1 align="center">My Meetings</h1>
+      <!-- My Reminders -->
+      <h3 id="reminders" align="center">My Meetings Reminders</h3>
       <table  class="table table-bordered">
       <thead class="thead-inverse">
          <tr>
-         <th>Requester</th>
+         <th>Owner</th>
          <th>Subject</th>
          <th>Date</th>
          <th>Time</th>
@@ -48,25 +66,17 @@
          </tr>
       </thead>
       <tbody>
-         <tr ng-repeat="x in notifications">
-            <td>{{ x.requester }}</td>
+         <tr ng-repeat="x in reminders">
+            <td>{{ currentUser.firstName }}&nbsp;{{ currentUser.lastName }}</td>
             <td>{{ x.subject }}</td>
-            <td>{{ x.date }}</td>
-            <td>{{ x.time }}</td>
+            <td>{{ x.startDate | date }}</td>
+            <td>{{ x.startDate | date : "h:mm a" }}</td>
             <td>{{ x.room }}</td>
             <!-- <td><button type="button" class="btn btn-success" ng-click="edit()">Edit</button></td> -->
-            <td><button type="button" class="btn btn-danger" ng-click="delete()">Delete</button></td>
+            <td><button type="button" class="btn btn-danger" ng-click="deleteReminder(x._id)">Delete</button></td>
          </tr>
       </tbody>
       </table>
    </div>    
 </div>
 
-<!-- Calendar section-->
-<div class="container">
-   <div class="well">
-      <h1 align="center">My Calendar</h1>
-         <daypilot-calendar id="dpm"></daypilot-calendar>
-      <div id="dp"></div>
-   </div>    
-</div>

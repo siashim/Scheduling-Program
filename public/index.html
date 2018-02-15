@@ -51,8 +51,12 @@
    <script src="views/adminView/admin-room.factory.js"></script>
    <script src="views/adminView/admin-room.service.js"></script>
    <script src="views/homeView/home.ctrl.js"></script>
+   <script src="views/homeView/home.factory.js"></script>
    <script src="views/loginView/login.ctrl.js"></script>
+   <script src="views/logoutView/logout.ctrl.js"></script>
    <script src="views/meetingView/meeting.ctrl.js"></script>
+   <script src="views/meetingView/meeting.factory.js"></script>
+   <script src="views/meetingView/meeting.service.js"></script>
 
    <!-- Custom stylesheets -->
    <link rel="stylesheet" href="css/style.css">
@@ -82,29 +86,35 @@
 </head>
 <body ng-controller="mainCtrl">
 
-  <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color: #0574ac; color: white;"> 
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="#" style="border-right: solid 1px black; color: white;"> MeetApp</strong></a>
+   <!-- Navbar -->
+   <nav class="navbar navbar-inverse navbar-fixed-top" style="background-color: #0574ac; color: white;"> 
+      <div class="container-fluid">
+         <div class="navbar-header">
+            <a class="navbar-brand" href="#" style="border-right: solid 1px black; color: white;"> MeetApp</strong></a>
+         </div>
+         <ul class="nav navbar-nav">
+            <li class="tab" ng-show="currentUser.isLoggedIn"><a ui-sref="home" style="color: white"><img src="img/home.png" style="width: 30px; height: 30px;"/> Home</a></li>
+            <li class="tab" ng-show="currentUser.isLoggedIn"><a ui-sref="meeting" style="color: white"><img src="img/meeting.png" style="width: 30px; height: 30px;"/> Meeting</a></li>
+            <li class="tab" ng-show="currentUser.isAuthorized"><a ui-sref="admin" style="color: white"><img src="img/admin.png" style="width: 30px; height: 30px;"/> Admin</a></li>
+         </ul>
+         <ul class="nav navbar-nav navbar-right">
+            <p class="navbar-text" style="color: white;">{{currentUser.welcome}}</p>
+            <li class="tab" ng-show="!currentUser.isLoggedIn"><a ui-sref="login" style="color: white"><img src="img/login.png" style="width: 30px; height: 30px;"/> Login</a></li>      
+            <li class="tab" ng-show="currentUser.isLoggedIn"><a ui-sref="logout" style="color: white"><img src="img/logout.png" style="width: 30px; height: 30px;"/> Logout</a></li>
+         </ul>
       </div>
-      <ul class="nav navbar-nav">
-        <li class="tab active"><a ui-sref="login" style="color: white"><img src="img/login.png" style="width: 30px; height: 30px;"/> Login</a></li>
-        <li class="tab"><a ui-sref="home" style="color: white"><img src="img/home.png" style="width: 30px; height: 30px;"/> Home</a></li>
-        <li class="tab"><a ui-sref="meeting" style="color: white"><img src="img/meeting.png" style="width: 30px; height: 30px;"/> Meeting</a></li>
-        <li class="tab"><a ui-sref="admin" style="color: white"><img src="img/admin.png" style="width: 30px; height: 30px;"/> Admin</a></li>
-      
-      </ul>
-    </div>
-  </nav>
+   </nav>
  
-<div ui-view></div>
- 
+   <div class="wrapper">
+      <div ui-view></div>
+      <div class="push"></div>
+   </div>
+   
+   <footer class="footer">
+      <p align="center">Meeting Scheduler Webapp  
+      <br>©2018 CPP Computer Science Department 
+      </p>
+   </footer>
+
 </body>
-
-<footer class="footer">
-   <p align="center">Meeting Scheduler Webapp  
-   <br>©2018 CPP Computer Science Department 
-   </p>
-</footer> 
-
 </html>
