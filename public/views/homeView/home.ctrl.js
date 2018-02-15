@@ -39,12 +39,32 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       
       homeFactory.getAllReminders(id).then(function(response){
          $scope.reminders = response.data; 
+
+
+
+         console.log('reminder controller',response.data);
+
+
+
+
       }), function(err){
          console.log(err);
       }
 
       homeFactory.getAllNotifications(id).then(function(response){
          $scope.notifications = response.data;
+
+
+
+
+        
+         console.log('notification controller',response.data);
+
+
+
+
+
+
       }), function(err){
          console.log(err);
       }

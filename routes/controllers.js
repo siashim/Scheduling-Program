@@ -135,6 +135,8 @@ exports.findAll_meeting = function(req, res) {
       Attendees : { $exists: true, $ne: null },
    }
 
+   console.log('find all meeting controller',req.body);
+
     Meeting.find(query)
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
@@ -152,31 +154,29 @@ exports.findOne_meeting = function(req, res){
 }
 
 // Create one meeting
-exports.createOne_meeting = function(req, res){
-
-  var meeting = new Meeting(req.body);
-	meeting.save(function(err,doc){
-		if(err) { 
-				return res.send(500, err); 
-		} else {
-			var attendance = [];
-			var attendees = req.body.attendees;
-			for (var i = 0; i < attendees.length; ++i) {
-				attendance.push(new Attendance({
-					MeetingId: doc.id,
-					EmployeeId: attendees[i],
-					Status: 0
-				}));
-			}
-			Attendance.collection.insert(attendance,function(errs,docs) {
-				if (errs)
-					return res.send(500,errs);
-				else
-					return res.sendStatus(200);
-			});
-		}
+exports.createOne_meeting = function(req, res) {
+   var meeting = new Meeting(req.body);
+   meeting.save(function(err,doc){
+      if(err) { 
+         return res.send(500, err); 
+      } else {
+         var attendance = [];
+         var attendees = req.body.attendees;
+         for (var i = 0; i < attendees.length; ++i) {
+            attendance.push(new Attendance({
+               MeetingId: doc.id,
+               EmployeeId: attendees[i],
+               Status: 0
+            }));
+         }
+         Attendance.collection.insert(attendance,function(errs,docs) {
+         if (errs)
+            return res.send(500,errs);
+         else
+            return res.sendStatus(200);
+         });
+      }
    });
-
 }
 
 // Update one meeting
@@ -305,8 +305,8 @@ exports.findOne_login = function(req, res){
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-   var empToSearch = req.params.id;
-
+	var empToSearch = req.params.id;
+	
    // TODO: this should be the result of a db query ... 
    var reminders = [
       {
@@ -327,7 +327,26 @@ exports.findAll_reminders = function(req, res){
          endDate: Date.now() + (4*60*60*1000),
          attendees: ['dd','ee','ff'],
       },
-   ]
+	]
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    return res.send(reminders);
 }
@@ -346,9 +365,12 @@ exports.findAll_notifications = function(req, res){
 
    // TODO: this should be the result of a db query ... 
    // -> meetings where user is on invite list
-   //    -> meetings where user has not responded yet (response = 0) 
+	//    -> meetings where user has not responded yet (response = 0) 
+	
 
-   var notifications = [
+	/*
+	
+	var notifications = [
       {
          _id: '10000000',
          requester: 'Boss',
@@ -385,9 +407,51 @@ exports.findAll_notifications = function(req, res){
          room: '121',
          response: 0
       },
-   ]
+	]
 
-   res.send(notifications);
+	*/
+	
+
+
+	// TODO
+	//		- perhaps save Employee _id field for fewer queries
+	//		- get date and time to work properly
+	//		- break into smaller functions for reusability/readability
+	//		- filter meetings by response type, i.e. only includes non-response meetings
+	Employee.findOne({
+		EmployeeId: req.params.id
+	},function(erre,empl) {
+		if (erre) { return res.send(500, erre); }
+		Attendance.find({
+			EmployeeId: empl.id
+		},function(erra,att) {
+			if (erra) { return res.send(500,erra); }
+			var attending = [];
+			for (var i = 0; i < att.length; ++i)
+				attending.push(att[i].MeetingId);
+			Meeting.find({
+				'_id':{ $in: attending }
+			},function(errm,meetings) {
+				if (errm) { return res.send(500,errm); }
+				var notifications = [];
+				for (var i = 0; i < meetings.length; ++i) {
+					var meeting = meetings[i];
+					notifications.push({
+						_id: meeting.id,
+						requester: meeting.owner,
+						subject: meeting.subject,
+						date: meeting.startDate,
+						time: meeting.startDate,
+						room: meeting.room,
+						response: 0
+					});
+				}
+				res.send(notifications);
+			});
+		});
+	});
+
+   //res.send(notifications);
 }
 
 // Update one notification
