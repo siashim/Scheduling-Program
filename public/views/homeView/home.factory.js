@@ -5,8 +5,11 @@ mainapp.factory('homeFactory', function($http){
       return $http.get('/home/reminders/'+id);
    }
 
-   factory.getAllNotifications = function(id){
-      return $http.get('/home/notifications/'+id);
+   factory.getAllNotifications = function(user){
+       console.log('CURRENT USER FACTORY',user);
+      return $http.get('/home/notifications/'+user.empId,{
+          params: {mid: user.mid}
+      });
    }
 
    factory.getAllMeetings = function(id){

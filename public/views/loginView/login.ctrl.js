@@ -7,7 +7,15 @@ mainapp.controller('loginCtrl', function($scope, $rootScope, $state, loginFactor
          password: $scope.password,
       }
       loginFactory.getLogin(data).then(function(response){
+
+
+
          $rootScope.currentUser = response.data;
+         console.log('CURRENT USER LOGIN');
+         console.log($rootScope.currentUser);
+
+
+
          if(response.data.isLoggedIn == true){
             $scope.setCookie('empId',$rootScope.currentUser,30);
             $state.go('home');

@@ -268,7 +268,8 @@ exports.findOne_login = function(req, res){
       isLoggedIn: false, 
       isAuthorized: false,
       welcome: '',
-      errorMsg: 'Password incorrect.'
+      errorMsg: 'Password incorrect.',
+      mid: ''
    };
 
    // Unlock full access. (DEV ONLY)
@@ -296,6 +297,7 @@ exports.findOne_login = function(req, res){
          data.isAuthorized = (result.Position.toLowerCase() === 'admin');
          data.welcome = 'Welcome, ' + result.FirstName + ' ' + result.LastName;
          data.errorMsg = '';
+         data.mid = result._id;
          return res.send(data)
       }
       
@@ -361,98 +363,49 @@ exports.deleteOne_reminder = function(req, res){
 
 // Find all notifications
 exports.findAll_notifications = function(req, res){
-   var empToSearch = req.params.id;
 
-   // TODO: this should be the result of a db query ... 
-   // -> meetings where user is on invite list
-	//    -> meetings where user has not responded yet (response = 0) 
-	
+    //if (req.params.id == 'admin')
+    //    return res.send(200);
 
-	/*
-	
-	var notifications = [
-      {
-         _id: '10000000',
-         requester: 'Boss',
-         subject: 'Daily Scrum',
-         date: 'Mon 1/15/2018',
-         time: '10:00 AM',
-         room: '121',
-         response: 0
-      },
-      {
-         _id: '10000001',
-         requester: 'Director',
-         subject: 'Project planning session',
-         date: 'Mon 1/15/2018',
-         time: '3:00 PM',
-         room: 'Bldg. 8 Room 102',
-         response: 0
-      },      
-      {
-         _id: '10000002',
-         requester: 'CEO',
-         subject: 'All hands meeting',
-         date: 'Mon 1/16/2018',
-         time: '3:00 PM',
-         room: '100',
-         response: 0
-      },
-      {
-         _id: '10000003',
-         requester: 'Boss',
-         subject: 'Daily Scrum',
-         date: 'Mon 1/16/2018',
-         time: '10:00 AM',
-         room: '121',
-         response: 0
-      },
-	]
 
-	*/
-	
+    function assignNotifications(meeting) {
+        return {
+            _id: meeting.id,
+            requester: meeting.owner,
+            subject: meeting.subject,
+            date: meeting.startDate,
+            time: meeting.startDate,
+            room: meeting.room,
+            response: 0
+        };
+    }
 
 
 	// TODO
-	//		- perhaps save Employee _id field for fewer queries
 	//		- get date and time to work properly
-	//		- break into smaller functions for reusability/readability
 	//		- filter meetings by response type, i.e. only includes non-response meetings
-	Employee.findOne({
-		EmployeeId: req.params.id
-	},function(erre,empl) {
-		if (erre) { return res.send(500, erre); }
-		Attendance.find({
-			EmployeeId: empl.id
-		},function(erra,att) {
-			if (erra) { return res.send(500,erra); }
-			var attending = [];
-			for (var i = 0; i < att.length; ++i)
-				attending.push(att[i].MeetingId);
-			Meeting.find({
-				'_id':{ $in: attending }
-			},function(errm,meetings) {
-				if (errm) { return res.send(500,errm); }
-				var notifications = [];
-				for (var i = 0; i < meetings.length; ++i) {
-					var meeting = meetings[i];
-					notifications.push({
-						_id: meeting.id,
-						requester: meeting.owner,
-						subject: meeting.subject,
-						date: meeting.startDate,
-						time: meeting.startDate,
-						room: meeting.room,
-						response: 0
-					});
-				}
-				res.send(notifications);
-			});
-		});
-	});
+    
+    Attendance.find({
+        EmployeeId: req.query.mid
+    },function(erra,att) {
+        if (erra) { return res.send(500,erra); }
+        var attending = att.map(x => x.MeetingId);            
+        Meeting.find({
+            '_id': { $in: attending }
+        })
+        .select({Status: 0})
+        .exec(function(errm,mtg) {
+            if (errm) { return res.send(500,errm); }
+            var notifications = mtg.map(x => assignNotifications(x));
+            res.send(notifications);
+        });
+    });
 
-   //res.send(notifications);
 }
+
+
+
+
 
 // Update one notification
 exports.updateOne_notification = function(req, res){
@@ -461,9 +414,26 @@ exports.updateOne_notification = function(req, res){
    console.log('Notification updated: '+ id + ' to ' + update);
 
    // TODO: update notification accept/decline in db
+
    
+
+
+    // UPDATE NOTIFICATION HERE
+
+    console.log(req.body);
+
+
+
+
+
+
    return res.send({value: update});
 }
+
+
+
+
+
 
 // Find all meetings
 exports.findAll_meetings = function(req, res){
