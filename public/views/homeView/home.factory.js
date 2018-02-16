@@ -1,12 +1,13 @@
 mainapp.factory('homeFactory', function($http){
    var factory = {};
 
-   factory.getAllReminders = function(id){
-      return $http.get('/home/reminders/'+id);
+   factory.getAllReminders = function(user){
+      return $http.get('/home/reminders/'+user.empId, {
+          params: {mid: user.mid}
+      });
    }
 
    factory.getAllNotifications = function(user){
-       console.log('CURRENT USER FACTORY',user);
       return $http.get('/home/notifications/'+user.empId,{
           params: {mid: user.mid}
       });
@@ -16,8 +17,8 @@ mainapp.factory('homeFactory', function($http){
       return $http.get('/home/meetings/'+id);
    }
 
-   factory.putNotification = function(id, data){
-      return $http.put('/home/notification/'+id, data);
+   factory.putNotification = function(msg){      
+      return $http.put('/home/notification/'+msg._id, msg);
    }
    
    factory.deleteReminder = function(id){

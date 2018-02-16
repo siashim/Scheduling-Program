@@ -10,13 +10,18 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    calendar.weeks = 3;
    calendar.init();
 
-   $scope.respondToNotification = function(id, val){
-      var data = {response: val};
-      homeFactory.putNotification(id, data).then(function(response){
+   $scope.respondToNotification = function(msg, val) {
+
+      msg.status = val;
+      msg.empId = $rootScope.currentUser.empId;
+      msg.mid = $rootScope.currentUser.mid;
+
+      homeFactory.putNotification(msg).then(function(response){
          refresh();
       }), function(err){
          console.log(err);
       };
+
    }
 
    $scope.deleteReminder = function(id){
@@ -35,10 +40,11 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
    // Refresh data in browser with data from db
    var refresh = function(){
-      var id = $rootScope.currentUser.empId;
+
+    var id = $rootScope.currentUser.empId;
       var mid = $rootScope.currentUser.mid;
 
-      homeFactory.getAllReminders(id).then(function(response){
+      homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
          $scope.reminders = response.data; 
       }), function(err){
          console.log(err);

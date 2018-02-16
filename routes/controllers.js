@@ -157,25 +157,20 @@ exports.findOne_meeting = function(req, res){
 exports.createOne_meeting = function(req, res) {
    var meeting = new Meeting(req.body);
    meeting.save(function(err,doc){
-      if(err) { 
-         return res.send(500, err); 
-      } else {
-         var attendance = [];
-         var attendees = req.body.attendees;
-         for (var i = 0; i < attendees.length; ++i) {
-            attendance.push(new Attendance({
-               MeetingId: doc.id,
-               EmployeeId: attendees[i],
-               Status: 0
-            }));
-         }
-         Attendance.collection.insert(attendance,function(errs,docs) {
-         if (errs)
-            return res.send(500,errs);
-         else
-            return res.sendStatus(200);
-         });
-      }
+      if(err) { return res.send(500, err); }
+      var attendance = [];
+      var attendees = req.body.attendees;
+      for (var i = 0; i < attendees.length; ++i) {
+         attendance.push(new Attendance({
+            MeetingId: doc.id,
+            EmployeeId: attendees[i],
+            Status: 0
+          }));
+       }
+       Attendance.collection.insert(attendance,function(errs,docs) {
+          if (errs) { return res.send(500,errs); }
+          return res.sendStatus(200);
+       });
    });
 }
 
@@ -308,8 +303,13 @@ exports.findOne_login = function(req, res){
 // Find all reminders
 exports.findAll_reminders = function(req, res){
 	var empToSearch = req.params.id;
-	
-   // TODO: this should be the result of a db query ... 
+
+    
+    // used for database query
+    var mid = req.query.mid;
+
+   
+    // TODO: this should be the result of a db query ... 
    var reminders = [
       {
          _id: '12345678',
@@ -331,19 +331,6 @@ exports.findAll_reminders = function(req, res){
       },
 	]
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -381,19 +368,16 @@ exports.findAll_notifications = function(req, res){
     }
 
 
-	// TODO
-	//		- get date and time to work properly
-	//		- filter meetings by response type, i.e. only includes non-response meetings
-    
+	// TODO get date and time to work properly!
     Attendance.find({
-        EmployeeId: req.query.mid
+        EmployeeId: req.query.mid,
+        Status: 0
     },function(erra,att) {
         if (erra) { return res.send(500,erra); }
         var attending = att.map(x => x.MeetingId);            
         Meeting.find({
             '_id': { $in: attending }
         })
-        .select({Status: 0})
         .exec(function(errm,mtg) {
             if (errm) { return res.send(500,errm); }
             var notifications = mtg.map(x => assignNotifications(x));
@@ -409,30 +393,20 @@ exports.findAll_notifications = function(req, res){
 
 // Update one notification
 exports.updateOne_notification = function(req, res){
-   var id = req.params.id;
-   var update = req.body.response;
-   console.log('Notification updated: '+ id + ' to ' + update);
-
-   // TODO: update notification accept/decline in db
-
+    var update = req.body.response;
+   Attendance.findOneAndUpdate({
+      MeetingId: req.body._id,
+      EmployeeId: req.body.mid
+   }, {
+      Status: req.body.status
+   }, { new: true }, function(err,docs) {
+      if (err) { return res.send(500,err); }
+      
+      // TODO something other than this should be returned?
+      return res.send({value: update});
+   });
    
-
-
-    // UPDATE NOTIFICATION HERE
-
-    console.log(req.body);
-
-
-
-
-
-
-   return res.send({value: update});
 }
-
-
-
-
 
 
 // Find all meetings
