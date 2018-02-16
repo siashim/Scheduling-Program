@@ -300,53 +300,63 @@ exports.findOne_login = function(req, res){
    })
 }
 
+
+function notificatonFilter(id,status,assign,res) {
+	// TODO get date and time to work properly
+    Attendance.find({
+        EmployeeId: id,
+        Status: status
+    },function(erra,att) {
+        if (erra) { return res.send(500,erra); }
+        var attending = att.map(x => x.MeetingId);            
+        Meeting.find({
+            '_id': { $in: attending }
+        }).exec(function(errm,mtg) {
+            if (errm) { return res.send(500,errm); }
+            var notifications = mtg.map(x => assign(x));
+            return res.send(notifications);
+        });
+    });
+}
+
+
+
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-	var empToSearch = req.params.id;
-
     
-    // used for database query
-    var mid = req.query.mid;
+    function assign(meeting) {
+        return {
+            _id: meeting.id,
+            owner: meeting.owner,
+            subject: meeting.subject,
+            startDate: meeting.startDate,
+            endDate: meeting.startDate,
+            room: meeting.room,
+            attendees: []
+        };
+    }
 
-   
-    // TODO: this should be the result of a db query ... 
-   var reminders = [
-      {
-         _id: '12345678',
-         owner: 'a100100', 
-         subject: 'Meeting 1',
-         room: '121',
-         startDate: Date.now(),
-         endDate: Date.now() + (1*60*60*1000),
-         attendees: ['aa','bb','cc'],
-      },
-      {
-         _id: '12345679',
-         owner: 'a100100', 
-         subject: 'Meeting 2',
-         room: '221',
-         startDate: Date.now() + (3*60*60*1000),
-         endDate: Date.now() + (4*60*60*1000),
-         attendees: ['dd','ee','ff'],
-      },
-	]
-	
-
-
-
-
-
-
-   return res.send(reminders);
+    notificatonFilter(req.query.mid,1,assign,res);    
 }
 
 // Delete one reminder
 exports.deleteOne_reminder = function(req, res){
    var id = req.params.id;
+
+
    console.log('TODO: findByIdAndRemove meeting ' + id);
+   
+   //Attendance.find({
+   //    MeetingId: req.query.mid,
+//
+   //})
+
 
    res.sendStatus(200);
 }
+
+
+
 
 // Find all notifications
 exports.findAll_notifications = function(req, res){
@@ -354,8 +364,7 @@ exports.findAll_notifications = function(req, res){
     //if (req.params.id == 'admin')
     //    return res.send(200);
 
-
-    function assignNotifications(meeting) {
+    function assign(meeting) {
         return {
             _id: meeting.id,
             requester: meeting.owner,
@@ -367,23 +376,7 @@ exports.findAll_notifications = function(req, res){
         };
     }
 
-
-	// TODO get date and time to work properly!
-    Attendance.find({
-        EmployeeId: req.query.mid,
-        Status: 0
-    },function(erra,att) {
-        if (erra) { return res.send(500,erra); }
-        var attending = att.map(x => x.MeetingId);            
-        Meeting.find({
-            '_id': { $in: attending }
-        })
-        .exec(function(errm,mtg) {
-            if (errm) { return res.send(500,errm); }
-            var notifications = mtg.map(x => assignNotifications(x));
-            res.send(notifications);
-        });
-    });
+    notificatonFilter(req.query.mid,0,assign,res);
 
 }
 
