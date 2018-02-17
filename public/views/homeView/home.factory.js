@@ -21,8 +21,14 @@ mainapp.factory('homeFactory', function($http){
       return $http.put('/home/notification/'+msg._id, msg);
    }
    
-   factory.deleteReminder = function(id){
-      return $http.delete('/home/reminders/'+id);
+   factory.deleteReminder = function(msg){
+      console.log('delete reminder frontend',msg);
+      return $http.delete('/home/reminders/'+msg.empId, {
+         params: { 
+            empId: msg.mid,
+            id: msg._id
+          }
+      });
    }
 
    return factory;

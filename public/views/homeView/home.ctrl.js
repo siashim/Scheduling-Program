@@ -24,15 +24,32 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
    }
 
-   $scope.deleteReminder = function(id){
-      if(confirm('OK to delete this event?')){
+   $scope.deleteReminder = function(msg){
+      
+      /*
+      if (confirm('OK to delete this event?')){
          homeFactory.deleteReminder(id).then(function(response){
             refresh();
          }), function(err){
             console.log(err);
          }
       };
+      */
+
+      msg.mid = $rootScope.currentUser.mid;
+      msg.empId = $rootScope.currentUser.empId;
+      console.log('DELETE REMINDER ID',msg._id);
+
+      homeFactory.deleteReminder(msg).then(function(response) {
+         refresh();
+      },function(err) {
+         console.log(err);
+      });
+
+
    }
+
+
 
    $scope.gotoAnchor = function(x) {
       $location.hash(x);
