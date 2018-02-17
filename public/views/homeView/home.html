@@ -42,10 +42,10 @@
       </thead>
       <tbody>
          <tr ng-repeat="x in notifications">
-            <td>{{ x.requester }}</td>
+            <td>{{ x.ownerFirst }}&nbsp;{{ x.ownerLast }}</td>
             <td>{{ x.subject }}</td>
-            <td>{{ x.date }}</td>
-            <td>{{ x.time }}</td>
+            <td>{{ x.startDate | date }}</td>
+            <td>{{ x.startDate | date : "h:mm a" }}</td>
             <td>{{ x.room }}</td>
             <td><button type="button" class="btn btn-success" ng-click="respondToNotification(x,1)">Accept</button></td>
             <td><button type="button" class="btn btn-danger" ng-click="respondToNotification(x,-1)">Decline</button></td>

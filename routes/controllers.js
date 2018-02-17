@@ -1,7 +1,5 @@
 
 
-//var Database = require('../util/db.js');
-
 
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
@@ -155,7 +153,31 @@ exports.findOne_meeting = function(req, res){
 
 // Create one meeting
 exports.createOne_meeting = function(req, res) {
+   console.log('BACKEND req.body',req.body);
    var meeting = new Meeting(req.body);
+   console.log('BACKEND MEETING SCHEMA',meeting);
+   function invite(mtg,atts) {
+      return new Attendance({
+         MeetingId: mtg.id,
+         EmployeeId: atts,
+         Status: 0
+      });
+   }
+
+   meeting.save(function(err, mtg) {
+      if (err) { return res.send(500,err); }
+      var atts = req.body.attendees;
+      var attendance = atts.map(x => invite(mtg,x));      
+      console.log('IN SAVE DB',attendance);
+      Attendance.collection.insert(attendance, function(errs, docs) {
+         if (errs) { return res.send(500,errs); }
+         console.log('IN ATTENDANCE COLLECTION INSERT',docs);
+         return res.send(docs);
+      });
+            
+   });
+
+   /*
    meeting.save(function(err,doc){
       if(err) { return res.send(500, err); }
       var attendance = [];
@@ -166,12 +188,15 @@ exports.createOne_meeting = function(req, res) {
             EmployeeId: attendees[i],
             Status: 0
           }));
-       }
-       Attendance.collection.insert(attendance,function(errs,docs) {
-          if (errs) { return res.send(500,errs); }
-          return res.sendStatus(200);
-       });
+      }
+      Attendance.collection.insert(attendance,function(errs,docs) {
+         if (errs) { return res.send(500,errs); }
+         return res.sendStatus(200);
+      });
    });
+   */
+
+
 }
 
 // Update one meeting
@@ -343,15 +368,8 @@ exports.findAll_reminders = function(req, res){
 exports.deleteOne_reminder = function(req, res){
    var id = req.params.id;
 
-
    console.log('TODO: findByIdAndRemove meeting ' + id);
    
-   //Attendance.find({
-   //    MeetingId: req.query.mid,
-//
-   //})
-
-
    res.sendStatus(200);
 }
 
@@ -364,24 +382,22 @@ exports.findAll_notifications = function(req, res){
     //if (req.params.id == 'admin')
     //    return res.send(200);
 
-    function assign(meeting) {
-        return {
-            _id: meeting.id,
-            requester: meeting.owner,
-            subject: meeting.subject,
-            date: meeting.startDate,
-            time: meeting.startDate,
-            room: meeting.room,
-            response: 0
-        };
-    }
+   function assign(meeting) {
+      return {
+         _id: meeting.ownerID,
+         ownerFirst: meeting.ownerFirst, 
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         time: meeting.startDate,
+         room: meeting.room,
+         response: 0
+      };
+   }
 
-    notificatonFilter(req.query.mid,0,assign,res);
+   notificatonFilter(req.query.mid,0,assign,res);
 
 }
-
-
-
 
 
 // Update one notification
@@ -390,11 +406,9 @@ exports.updateOne_notification = function(req, res){
    Attendance.findOneAndUpdate({
       MeetingId: req.body._id,
       EmployeeId: req.body.mid
-   }, {
-      Status: req.body.status
+   }, { Status: req.body.status
    }, { new: true }, function(err,docs) {
       if (err) { return res.send(500,err); }
-      
       // TODO something other than this should be returned?
       return res.send({value: update});
    });
