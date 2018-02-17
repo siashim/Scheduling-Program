@@ -153,9 +153,8 @@ exports.findOne_meeting = function(req, res){
 
 // Create one meeting
 exports.createOne_meeting = function(req, res) {
-   console.log('BACKEND req.body',req.body);
+
    var meeting = new Meeting(req.body);
-   console.log('BACKEND MEETING SCHEMA',meeting);
    function invite(mtg,atts) {
       return new Attendance({
          MeetingId: mtg.id,
@@ -168,34 +167,12 @@ exports.createOne_meeting = function(req, res) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
       var attendance = atts.map(x => invite(mtg,x));      
-      console.log('IN SAVE DB',attendance);
       Attendance.collection.insert(attendance, function(errs, docs) {
          if (errs) { return res.send(500,errs); }
-         console.log('IN ATTENDANCE COLLECTION INSERT',docs);
          return res.send(docs);
       });
             
    });
-
-   /*
-   meeting.save(function(err,doc){
-      if(err) { return res.send(500, err); }
-      var attendance = [];
-      var attendees = req.body.attendees;
-      for (var i = 0; i < attendees.length; ++i) {
-         attendance.push(new Attendance({
-            MeetingId: doc.id,
-            EmployeeId: attendees[i],
-            Status: 0
-          }));
-      }
-      Attendance.collection.insert(attendance,function(errs,docs) {
-         if (errs) { return res.send(500,errs); }
-         return res.sendStatus(200);
-      });
-   });
-   */
-
 
 }
 
@@ -327,7 +304,6 @@ exports.findOne_login = function(req, res){
 
 
 function notificatonFilter(id,status,assign,res) {
-	// TODO get date and time to work properly
     Attendance.find({
         EmployeeId: id,
         Status: status
@@ -345,23 +321,23 @@ function notificatonFilter(id,status,assign,res) {
 }
 
 
-
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-    
-    function assign(meeting) {
-        return {
-            _id: meeting.id,
-            owner: meeting.owner,
-            subject: meeting.subject,
-            startDate: meeting.startDate,
-            endDate: meeting.startDate,
-            room: meeting.room,
-            attendees: []
-        };
-    }
 
-    notificatonFilter(req.query.mid,1,assign,res);    
+   function assign(meeting) {
+      //console.log('REMINDER',meeting);
+      return {
+         _id: meeting._id,
+         ownerFirst: meeting.ownerFirst,
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         endDate: meeting.startDate,
+         room: meeting.room,
+         attendees: []
+      };
+   }
+   notificatonFilter(req.query.mid,1,assign,res);    
 }
 
 // Delete one reminder
@@ -384,7 +360,7 @@ exports.findAll_notifications = function(req, res){
 
    function assign(meeting) {
       return {
-         _id: meeting.ownerID,
+         _id: meeting._id,
          ownerFirst: meeting.ownerFirst, 
          ownerLast: meeting.ownerLast,
          subject: meeting.subject,
@@ -402,12 +378,14 @@ exports.findAll_notifications = function(req, res){
 
 // Update one notification
 exports.updateOne_notification = function(req, res){
-    var update = req.body.response;
+
+   var update = req.body.response;
    Attendance.findOneAndUpdate({
       MeetingId: req.body._id,
       EmployeeId: req.body.mid
-   }, { Status: req.body.status
-   }, { new: true }, function(err,docs) {
+   },
+   { Status: req.body.status}, { new: true }, 
+   function(err,docs) {
       if (err) { return res.send(500,err); }
       // TODO something other than this should be returned?
       return res.send({value: update});

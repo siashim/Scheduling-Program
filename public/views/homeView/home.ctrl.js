@@ -41,7 +41,7 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    // Refresh data in browser with data from db
    var refresh = function(){
 
-    var id = $rootScope.currentUser.empId;
+      var id = $rootScope.currentUser.empId;
       var mid = $rootScope.currentUser.mid;
 
       homeFactory.getAllReminders($rootScope.currentUser).then(function(response){

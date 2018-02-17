@@ -67,7 +67,7 @@
       </thead>
       <tbody>
          <tr ng-repeat="x in reminders">
-            <td>{{ currentUser.firstName }}&nbsp;{{ currentUser.lastName }}</td>
+            <td>{{ x.ownerFirst }}&nbsp;{{ x.ownerFirst }}</td>
             <td>{{ x.subject }}</td>
             <td>{{ x.startDate | date }}</td>
             <td>{{ x.startDate | date : "h:mm a" }}</td>
