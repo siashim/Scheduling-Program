@@ -13,5 +13,4 @@ var meetingSchema = new Schema({
 });
 
 var Meeting = mongoose.model('Meeting', meetingSchema, 'meeting');
-
 module.exports = Meeting;

@@ -46,12 +46,22 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
       homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
          $scope.reminders = response.data; 
+
+
+         console.log('REMINDERS RESPONSE',response.data);
+
+
       }), function(err){
          console.log(err);
       }
 
       homeFactory.getAllNotifications($rootScope.currentUser).then(function(response){
          $scope.notifications = response.data;
+
+
+         console.log('NOTIFICATION RESPONSE',response.data);
+
+         
       }), function(err){
          console.log(err);
       }

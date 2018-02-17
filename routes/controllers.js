@@ -166,7 +166,7 @@ exports.createOne_meeting = function(req, res) {
    meeting.save(function(err, mtg) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
-      var attendance = atts.map(x => invite(mtg,x));      
+      var attendance = atts.map(x => invite(mtg,x));
       Attendance.collection.insert(attendance, function(errs, docs) {
          if (errs) { return res.send(500,errs); }
          return res.send(docs);
@@ -303,14 +303,18 @@ exports.findOne_login = function(req, res){
 }
 
 
+
+/*
+
 function notificatonFilter(id,status,res) {
 
    function assign(meeting,rooms) {
 
+      console.log('ROOMS NOTIFICATION',rooms);
       rooms = rooms || [];
-      var room = rooms.find(x => x._id == meeting.room );
+      var room = rooms.find(x => { return x._id == meeting.room });
+      console.log('ROOM NOTIFICATION FILTER',room);
       room = room || { Number: '' };
-
       return {
          _id: meeting._id,
          ownerFirst: meeting.ownerFirst,
@@ -337,17 +341,156 @@ function notificatonFilter(id,status,res) {
             Room.find({
                '_id': { $in: roomIDs }
             }).exec(function(errr,rooms) {
+               if (errr) { return res.send(500,errr); }
                var notifications = mtg.map(x => assign(x,rooms));
                return res.send(notifications);
             });
         });
     });
+
 }
 
+*/
+
+
+
+// A WORKING EXAMPLE!
+
+function notificatonFilter(id,status,res) {
+
+
+
+   function matchRooms(mtgs) {
+      return new Promise(function(resolve,reject) {
+         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
+         
+
+      });
+   }
+
+   
+
+
+   function assign(meeting,rooms) {
+      var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
+      return {
+         _id: meeting._id,
+         ownerFirst: meeting.ownerFirst,
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         endDate: meeting.startDate,
+         room: room.Number
+      };
+   }
+
+
+   Attendance.find({
+      EmployeeId: id,
+      Status: status
+   })
+   .then(function(atts) {
+
+      var attending = atts.map(x => x.MeetingId);
+      
+      Meeting.find({
+         '_id': { $in: attending }
+      })
+      .then(function(mtgs) {
+         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
+         Room.find({
+            '_id': { $in: roomIDs }
+         })
+         .then(function(rooms) {
+            console.log('ROOMS!',rooms);
+            var notices = mtgs.map(x => assign(x,rooms));
+            return res.send(notices);
+         });
+      });
+   })
+   .catch(function(err){ return res.send(500,err); });
+   
+   /*
+   Attendance.find({
+        EmployeeId: id,
+        Status: status
+    },function(erra,att) {
+        if (erra) { return res.send(500,erra); }
+        var attending = att.map(x => x.MeetingId);            
+        Meeting.find({
+            '_id': { $in: attending }
+        }).exec(function(errm,mtg) {
+            if (errm) { return res.send(500,errm); }
+
+
+
+            var notifications = mtg.map(x => assign(x));
+            return res.send(notifications);
+
+        }).then(function(first,second) {
+           console.log('PROMISES!!!')
+            console.log('FIRST',first);
+            console.log('SECOND',second);
+        });
+    });
+    */
+
+}
+
+
+/*
+
+function notificatonFilter(id,status,res) {
+
+   function assign(meeting) {
+
+
+      return {
+         _id: meeting._id,
+         ownerFirst: meeting.ownerFirst,
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         endDate: meeting.startDate,
+         room: meeting.room.Number
+      };
+
+   }
+
+   
+
+
+
+
+   Attendance.find({
+        EmployeeId: id,
+        Status: status
+    },function(erra,att) {
+        if (erra) { return res.send(500,erra); }
+        var attending = att.map(x => x.MeetingId);            
+        Meeting.find({
+            '_id': { $in: attending }
+        })
+        .populate('Room')
+        .exec(function(errm,mtgs) {
+            if (errm) { return res.send(500,errm); }
+            return res.send(mtgs);
+            //var notification = mtgs.map(x => assign(x));
+            //return res.send(notifications);
+        });
+    });
+
+
+}
+
+*/
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
 
+   // TODO figure out how to display number
+
+   console.log('REMINDERS CONTROLLER');
    notificatonFilter(req.query.mid,1,res);    
 
 }
@@ -362,11 +505,10 @@ exports.deleteOne_reminder = function(req, res){
 }
 
 
-
-
 // Find all notifications
 exports.findAll_notifications = function(req, res){
 
+   console.log('NOTIFICATION CONTROLLER');
    notificatonFilter(req.query.mid,0,res);
 
 }
