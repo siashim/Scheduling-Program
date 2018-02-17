@@ -303,8 +303,27 @@ exports.findOne_login = function(req, res){
 }
 
 
-function notificatonFilter(id,status,assign,res) {
-    Attendance.find({
+function notificatonFilter(id,status,res) {
+
+   function assign(meeting,rooms) {
+
+      rooms = rooms || [];
+      var room = rooms.find(x => x._id == meeting.room );
+      room = room || { Number: '' };
+
+      return {
+         _id: meeting._id,
+         ownerFirst: meeting.ownerFirst,
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         endDate: meeting.startDate,
+         room: room.Number
+      };
+
+   }
+   
+   Attendance.find({
         EmployeeId: id,
         Status: status
     },function(erra,att) {
@@ -314,8 +333,13 @@ function notificatonFilter(id,status,assign,res) {
             '_id': { $in: attending }
         }).exec(function(errm,mtg) {
             if (errm) { return res.send(500,errm); }
-            var notifications = mtg.map(x => assign(x));
-            return res.send(notifications);
+            var roomIDs = mtg.map(x => x.room);
+            Room.find({
+               '_id': { $in: roomIDs }
+            }).exec(function(errr,rooms) {
+               var notifications = mtg.map(x => assign(x,rooms));
+               return res.send(notifications);
+            });
         });
     });
 }
@@ -324,20 +348,8 @@ function notificatonFilter(id,status,assign,res) {
 // Find all reminders
 exports.findAll_reminders = function(req, res){
 
-   function assign(meeting) {
-      //console.log('REMINDER',meeting);
-      return {
-         _id: meeting._id,
-         ownerFirst: meeting.ownerFirst,
-         ownerLast: meeting.ownerLast,
-         subject: meeting.subject,
-         startDate: meeting.startDate,
-         endDate: meeting.startDate,
-         room: meeting.room,
-         attendees: []
-      };
-   }
-   notificatonFilter(req.query.mid,1,assign,res);    
+   notificatonFilter(req.query.mid,1,res);    
+
 }
 
 // Delete one reminder
@@ -355,23 +367,7 @@ exports.deleteOne_reminder = function(req, res){
 // Find all notifications
 exports.findAll_notifications = function(req, res){
 
-    //if (req.params.id == 'admin')
-    //    return res.send(200);
-
-   function assign(meeting) {
-      return {
-         _id: meeting._id,
-         ownerFirst: meeting.ownerFirst, 
-         ownerLast: meeting.ownerLast,
-         subject: meeting.subject,
-         startDate: meeting.startDate,
-         time: meeting.startDate,
-         room: meeting.room,
-         response: 0
-      };
-   }
-
-   notificatonFilter(req.query.mid,0,assign,res);
+   notificatonFilter(req.query.mid,0,res);
 
 }
 
@@ -383,12 +379,11 @@ exports.updateOne_notification = function(req, res){
    Attendance.findOneAndUpdate({
       MeetingId: req.body._id,
       EmployeeId: req.body.mid
-   },
-   { Status: req.body.status}, { new: true }, 
-   function(err,docs) {
-      if (err) { return res.send(500,err); }
-      // TODO something other than this should be returned?
-      return res.send({value: update});
+   }, { Status: req.body.status}, { new: true }, 
+      function(err,docs) {
+         if (err) { return res.send(500,err); }
+         // TODO something other than this should be returned?
+         return res.send({value: update});
    });
    
 }
@@ -455,3 +450,5 @@ exports.findAll_meetings = function(req, res){
 
    res.send(meetings);
 }
+
+
