@@ -1,6 +1,5 @@
 
 
-
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
 var Meeting = require('../models/meeting.js');
@@ -368,7 +367,7 @@ exports.deleteOne_reminder = function(req, res){
       if (mtg.ownerID != empId)
          query.EmployeeId = empId;      
       Attendance.update(query,
-         { $set: { Status: -2 }},
+         { $set: { Status: REPLY.CANCEL }},
          { multi: true },
          function(errs) {
             if (errs) { return res.send(500,errs); }
@@ -402,64 +401,40 @@ exports.updateOne_notification = function(req, res){
 
 // Find all meetings
 exports.findAll_meetings = function(req, res){
-   var empToSearch = req.params.id;
-   console.log('Getting notifications for: ' + empToSearch);
 
-   // TODO: this should be the result of a db query
-   // -> All meetings that user is owner or invitee
-   // -> All meetings in range today to two weeks
-   // -> All meetings that response is none/accept {0,1}
-   var hrs = (60*60*1000);
-   var days = (24*60*60*1000);
-   var response_1 = "#46EE00";
-   var response_0 = "#C0C0C0";
-   var meetings = [
-      {
-         start: Date.now() + 0*days + 1*hrs,
-         end: Date.now() + 0*days + 2*hrs,
-         id: "1",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start: Date.now() + 1*days + 1*hrs,
-         end: Date.now() + 1*days + 2*hrs,
-         id: "2",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start: Date.now() + 2*days + 1*hrs,
-         end: Date.now() + 2*days + 2*hrs,
-         id: "3",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start:  Date.now() + 3*days + 1*hrs,
-         end:  Date.now() + 3*days + 2*hrs,
-         id: "4",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start:  Date.now() + 7*days + 1*hrs,
-         end:  Date.now() + 7*days + 2*hrs,
-         id: "5",
-         text: "Team Meeting",
-         response: 0,
-         backColor: response_0,
-      },
-      {
-         start: Date.now() + 14*days + 1*hrs,
-         end:  Date.now() + 14*days + 2*hrs,
-         id: "6",
-         text: "Weekly Review",
-         backColor: response_0,
-      },
-   ];
+   var accpt_clr = "#46EE00";
+   var pnd_clr = "#C0C0C0";
 
-   res.send(meetings);
+   function shape(mtg,atts) {
+      var attrib = atts.find(x => x.MeetingId == mtg._id) || { Status: 0 };
+      var backColor = attrib.Status == REPLY.ACCEPT ? accpt_clr : pnd_clr;
+      return {
+         start: mtg.startDate,
+         end: mtg.endDate,
+         id: mtg.subject,
+         text: mtg.subject,
+         backColor: backColor
+      };
+   }
+
+   var mid = req.query.mid;
+   Attendance.find({
+      EmployeeId: mid,
+      $or: [
+         { Status: REPLY.NEUTRAL },
+         { Status: REPLY.ACCEPT }
+      ]
+   })
+   .exec(function(err,atts) {
+      if (err) { return res.send(500,err); }
+      var attending = atts.map(x => x.MeetingId);
+      Meeting.find({'_id':{ $in: attending }})
+      .exec(function(err,mtgs) {
+         var dsp = mtgs.map(x => shape(x,atts));
+         return res.send(dsp);
+      });
+   });
+
 }
 
 

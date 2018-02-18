@@ -25,28 +25,15 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    }
 
    $scope.deleteReminder = function(msg){
-      
-      /*
-      if (confirm('OK to delete this event?')){
-         homeFactory.deleteReminder(id).then(function(response){
+      if (confirm('OK to delete this event?')) {
+         msg.mid = $rootScope.currentUser.mid;
+         msg.empId = $rootScope.currentUser.empId;
+         homeFactory.deleteReminder(msg).then(function(response) {
             refresh();
-         }), function(err){
+         },function(err) {
             console.log(err);
-         }
-      };
-      */
-
-      msg.mid = $rootScope.currentUser.mid;
-      msg.empId = $rootScope.currentUser.empId;
-      console.log('DELETE REMINDER ID',msg._id);
-
-      homeFactory.deleteReminder(msg).then(function(response) {
-         refresh();
-      },function(err) {
-         console.log(err);
-      });
-
-
+         });
+      } 
    }
 
 
@@ -62,30 +49,26 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       var mid = $rootScope.currentUser.mid;
 
       homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
-         $scope.reminders = response.data; 
-
-
-         console.log('REMINDERS RESPONSE',response.data);
-
-
+         $scope.reminders = response.data;
       }), function(err){
          console.log(err);
       }
 
       homeFactory.getAllNotifications($rootScope.currentUser).then(function(response){
          $scope.notifications = response.data;
-
-
-         console.log('NOTIFICATION RESPONSE',response.data);
-
-         
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllMeetings(id).then(function(response){
+      homeFactory.getAllMeetings($rootScope.currentUser).then(function(response){
+
+         
+         
          calendar.events.list = response.data;
          calendar.update();
+
+
+
       }), function(err){
          console.log(err);
       }

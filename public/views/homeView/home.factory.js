@@ -3,18 +3,20 @@ mainapp.factory('homeFactory', function($http){
 
    factory.getAllReminders = function(user){
       return $http.get('/home/reminders/'+user.empId, {
-          params: {mid: user.mid}
+          params: { mid: user.mid }
       });
    }
 
    factory.getAllNotifications = function(user){
       return $http.get('/home/notifications/'+user.empId,{
-          params: {mid: user.mid}
+          params: { mid: user.mid }
       });
    }
 
-   factory.getAllMeetings = function(id){
-      return $http.get('/home/meetings/'+id);
+   factory.getAllMeetings = function(user){
+      return $http.get('/home/meetings/'+user.empId, {
+         params: { mid: user.mid }
+      });
    }
 
    factory.putNotification = function(msg){      
