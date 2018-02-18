@@ -28,11 +28,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          endDate: new Date($scope.event.endTime),
          attendees: meetingService.getAttendeeIds($scope.employees),
       }
-
-      console.log('FRONTEND NEW EVENT ATTENDEES SERVICE');
-      console.log(newEvent.attendees);
-      console.log(typeof newEvent.attendees);
-
+      
       meetingFactory.postEvent(newEvent).then(function(){
          alert('Meeting sent to server:\n' + meetingService.eventToString(newEvent));
       }), function(err){

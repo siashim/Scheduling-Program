@@ -8,6 +8,14 @@ var Schedule = require('../models/schedule.js');
 var Attendance = require('../models/attendance.js');
 
 
+var REPLY = Object.freeze({
+    ACCEPT: 1,
+    NEUTRAL: 0,
+    DECLINE: -1,
+    CANCEL: -2
+});
+
+
 // Find all employees in db
 exports.findAll_employees = function(req, res) {
     // Query validation: ensures returned reports have minimum set of required fields  
@@ -125,11 +133,13 @@ exports.deleteOne_room = function(req, res){
 
 exports.findAll_meeting = function(req, res) {
    // Query validation: ensures returned reports have minimum set of required fields  
+   
+   // TODO update validation
    var query = {
       Owner : { $exists: true, $ne: null },
       Room : { $exists: true, $ne: null },
       Dates : { $exists: true, $ne: null },
-		Duration : { $exists: true, $ne: null },
+      Duration : { $exists: true, $ne: null },
       Attendees : { $exists: true, $ne: null },
    }
 
@@ -154,15 +164,17 @@ exports.findOne_meeting = function(req, res){
 // Create one meeting
 exports.createOne_meeting = function(req, res) {
 
-   var meeting = new Meeting(req.body);
    function invite(mtg,atts) {
+      var response = atts == mtg.ownerID ? 
+         REPLY.ACCEPT : REPLY.NEUTRAL;
       return new Attendance({
          MeetingId: mtg.id,
          EmployeeId: atts,
-         Status: 0
+         Status: response
       });
    }
 
+   var meeting = new Meeting(req.body);
    meeting.save(function(err, mtg) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
@@ -324,7 +336,6 @@ function notificatonFilter(id,status,res) {
       Status: status
    })
    .then(function(atts) {
-      console.log('\n\n\n','ATTENDANCES',atts,'\n\n\n');
       var attending = atts.map(x => x.MeetingId);
       Meeting.find({ '_id': { $in: attending } })
       .then(function(mtgs) {
@@ -342,9 +353,7 @@ function notificatonFilter(id,status,res) {
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-
-   notificatonFilter(req.query.mid,1,res);    
-
+   notificatonFilter(req.query.mid,REPLY.ACCEPT,res);    
 }
 
 
@@ -365,25 +374,13 @@ exports.deleteOne_reminder = function(req, res){
             if (errs) { return res.send(500,errs); }
             return res.send(200);
          });
-      
-      /*
-      Attendance.findOneAndUpdate({ 
-         MeetingId: mtgId,
-         EmployeeId: empId
-      },{ Status: -2 }, { new: true }, 
-        function(err, doc) {
-           if (err) { return res.send(500,err); }
-           console.log('ATTENDANCE FIND AND UPDATE',doc);
-           return res.send(doc);
-        });
-        */
    });
 
 }
 
 // Find all notifications
 exports.findAll_notifications = function(req, res){
-   notificatonFilter(req.query.mid,0,res);
+   notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
 }
 
 // Update one notification
