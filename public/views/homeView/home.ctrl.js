@@ -10,24 +10,33 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    calendar.weeks = 3;
    calendar.init();
 
-   $scope.respondToNotification = function(id, val){
-      var data = {response: val};
-      homeFactory.putNotification(id, data).then(function(response){
+   $scope.respondToNotification = function(msg, val) {
+
+      msg.status = val;
+      msg.empId = $rootScope.currentUser.empId;
+      msg.mid = $rootScope.currentUser.mid;
+
+      homeFactory.putNotification(msg).then(function(response){
          refresh();
       }), function(err){
          console.log(err);
       };
+
    }
 
-   $scope.deleteReminder = function(id){
-      if(confirm('OK to delete this event?')){
-         homeFactory.deleteReminder(id).then(function(response){
+   $scope.deleteReminder = function(msg){
+      if (confirm('OK to delete this event?')) {
+         msg.mid = $rootScope.currentUser.mid;
+         msg.empId = $rootScope.currentUser.empId;
+         homeFactory.deleteReminder(msg).then(function(response) {
             refresh();
-         }), function(err){
+         },function(err) {
             console.log(err);
-         }
-      };
+         });
+      } 
    }
+
+
 
    $scope.gotoAnchor = function(x) {
       $location.hash(x);
@@ -35,23 +44,31 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
    // Refresh data in browser with data from db
    var refresh = function(){
+
       var id = $rootScope.currentUser.empId;
-      
-      homeFactory.getAllReminders(id).then(function(response){
-         $scope.reminders = response.data; 
+      var mid = $rootScope.currentUser.mid;
+
+      homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
+         $scope.reminders = response.data;
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllNotifications(id).then(function(response){
+      homeFactory.getAllNotifications($rootScope.currentUser).then(function(response){
          $scope.notifications = response.data;
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllMeetings(id).then(function(response){
+      homeFactory.getAllMeetings($rootScope.currentUser).then(function(response){
+
+         
+         
          calendar.events.list = response.data;
          calendar.update();
+
+
+
       }), function(err){
          console.log(err);
       }

@@ -1,24 +1,36 @@
 mainapp.factory('homeFactory', function($http){
    var factory = {};
 
-   factory.getAllReminders = function(id){
-      return $http.get('/home/reminders/'+id);
+   factory.getAllReminders = function(user){
+      return $http.get('/home/reminders/'+user.empId, {
+          params: { mid: user.mid }
+      });
    }
 
-   factory.getAllNotifications = function(id){
-      return $http.get('/home/notifications/'+id);
+   factory.getAllNotifications = function(user){
+      return $http.get('/home/notifications/'+user.empId,{
+          params: { mid: user.mid }
+      });
    }
 
-   factory.getAllMeetings = function(id){
-      return $http.get('/home/meetings/'+id);
+   factory.getAllMeetings = function(user){
+      return $http.get('/home/meetings/'+user.empId, {
+         params: { mid: user.mid }
+      });
    }
 
-   factory.putNotification = function(id, data){
-      return $http.put('/home/notification/'+id, data);
+   factory.putNotification = function(msg){      
+      return $http.put('/home/notification/'+msg._id, msg);
    }
    
-   factory.deleteReminder = function(id){
-      return $http.delete('/home/reminders/'+id);
+   factory.deleteReminder = function(msg){
+      console.log('delete reminder frontend',msg);
+      return $http.delete('/home/reminders/'+msg.empId, {
+         params: { 
+            empId: msg.mid,
+            id: msg._id
+          }
+      });
    }
 
    return factory;

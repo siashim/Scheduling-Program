@@ -1,13 +1,19 @@
 
 
-//var Database = require('../util/db.js');
-//var db = new Database('meeting');
-
-
 var Employee = require('../models/employee.js');
 var Room = require('../models/room.js');
 var Meeting = require('../models/meeting.js');
 var Schedule = require('../models/schedule.js');
+var Attendance = require('../models/attendance.js');
+
+
+var REPLY = Object.freeze({
+    ACCEPT: 1,
+    NEUTRAL: 0,
+    DECLINE: -1,
+    CANCEL: -2
+});
+
 
 // Find all employees in db
 exports.findAll_employees = function(req, res) {
@@ -126,13 +132,17 @@ exports.deleteOne_room = function(req, res){
 
 exports.findAll_meeting = function(req, res) {
    // Query validation: ensures returned reports have minimum set of required fields  
+   
+   // TODO update validation
    var query = {
       Owner : { $exists: true, $ne: null },
       Room : { $exists: true, $ne: null },
       Dates : { $exists: true, $ne: null },
-		Duration : { $exists: true, $ne: null },
+      Duration : { $exists: true, $ne: null },
       Attendees : { $exists: true, $ne: null },
    }
+
+   console.log('find all meeting controller',req.body);
 
     Meeting.find(query)
     .exec(function(err, result){
@@ -151,12 +161,30 @@ exports.findOne_meeting = function(req, res){
 }
 
 // Create one meeting
-exports.createOne_meeting = function(req, res){
+exports.createOne_meeting = function(req, res) {
+
+   function invite(mtg,atts) {
+      var response = atts == mtg.ownerID ? 
+         REPLY.ACCEPT : REPLY.NEUTRAL;
+      return new Attendance({
+         MeetingId: mtg.id,
+         EmployeeId: atts,
+         Status: response
+      });
+   }
+
    var meeting = new Meeting(req.body);
-   meeting.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+   meeting.save(function(err, mtg) {
+      if (err) { return res.send(500,err); }
+      var atts = req.body.attendees;
+      var attendance = atts.map(x => invite(mtg,x));
+      Attendance.collection.insert(attendance, function(errs, docs) {
+         if (errs) { return res.send(500,errs); }
+         return res.send(docs);
+      });
+            
+   });
+
 }
 
 // Update one meeting
@@ -239,31 +267,8 @@ exports.deleteOne_schedule = function(req, res){
 
 // Find one login
 exports.findOne_login = function(req, res){   
-   // TODO: implement find in db...
-   var list = [
-      {
-         FirstName: 'Test',
-         LastName: 'Admin',
-         EmployeeId: 'admin',
-         Password: 'admin',
-         Position: 'admin',
-      },
-      {
-         FirstName: 'Regular',
-         LastName: 'User',
-         EmployeeId: 'user',
-         Password: 'user',
-         Position: 'SW Developer',
-      },
-      {
-         FirstName: 'Ana',
-         LastName: 'Alpha',
-         EmployeeId: 'a100',
-         Password: 'a100',
-         Position: 'admin',
-      },
-   ]
-
+   var pwd = req.body.password;
+   var query = { EmployeeId: req.body.username }
    var data = {
       empId: '',
       firstName: '',
@@ -271,182 +276,165 @@ exports.findOne_login = function(req, res){
       isLoggedIn: false, 
       isAuthorized: false,
       welcome: '',
-      errorMsg: 'Password incorrect.'
+      errorMsg: 'Password incorrect.',
+      mid: ''
    };
-   for(var i=0; i<list.length; i++){
-      if (req.body.username === list[i].EmployeeId && req.body.password === list[i].Password){
-         data = {
-            empId: list[i].EmployeeId,
-            firstName: list[i].FirstName,
-            lastName: list[i].LastName,
-            isLoggedIn: true, 
-            isAuthorized: (list[i].Position === 'admin'),
-            welcome: 'Welcome, ' + list[i].FirstName + ' ' + list[i].LastName,
-            errorMsg: ''
-         }
-         return res.send(data);
-      }
+
+   // Unlock full access. (DEV ONLY)
+   if( req.body.username === 'admin' && req.body.password === 'admin'){
+      var AdminData = {
+         empId: 'admin',
+         firstName: 'Admin',
+         lastName: 'Admin',
+         isLoggedIn: true, 
+         isAuthorized: true,
+         welcome: 'Welcome, admin admin',
+         errorMsg: ''
+      };
+      return res.send(AdminData);
    }
 
-   return (res.send(data));
+   Employee.findOne(query)
+   .exec(function(err, result){
+      if(err){ return res.send(500, err); }
+      if( result != null && result.Password === req.body.password){
+         data.empId = result.EmployeeId;
+         data.firstName = result.FirstName;
+         data.lastName = result.LastName;
+         data.isLoggedIn = true; 
+         data.isAuthorized = (result.Position.toLowerCase() === 'admin');
+         data.welcome = 'Welcome, ' + result.FirstName + ' ' + result.LastName;
+         data.errorMsg = '';
+         data.mid = result._id;
+         return res.send(data)
+      }
+      
+      return res.send(data);
+   })
+}
+
+
+// A WORKING EXAMPLE!
+function notificatonFilter(id,status,res) {
+
+   function assign(meeting,rooms) {
+      var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
+      return {
+         _id: meeting._id,
+         ownerFirst: meeting.ownerFirst,
+         ownerLast: meeting.ownerLast,
+         subject: meeting.subject,
+         startDate: meeting.startDate,
+         endDate: meeting.startDate,
+         room: room.Number
+      };
+   }
+
+   Attendance.find({
+      EmployeeId: id,
+      Status: status
+   })
+   .then(function(atts) {
+      var attending = atts.map(x => x.MeetingId);
+      Meeting.find({ '_id': { $in: attending } })
+      .then(function(mtgs) {
+         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
+         Room.find({ '_id': { $in: roomIDs } })
+         .then(function(rooms) {
+            var notices = mtgs.map(x => assign(x,rooms));
+            return res.send(notices);
+         });
+      });
+   })
+   .catch(function(err){ return res.send(500,err); });
+
 }
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-   var empToSearch = req.params.id;
-
-   // TODO: this should be the result of a db query ... 
-   var reminders = [
-      {
-         _id: '12345678',
-         owner: 'a100100', 
-         subject: 'Meeting 1',
-         room: '121',
-         startDate: Date.now(),
-         endDate: Date.now() + (1*60*60*1000),
-         attendees: ['aa','bb','cc'],
-      },
-      {
-         _id: '12345679',
-         owner: 'a100100', 
-         subject: 'Meeting 2',
-         room: '221',
-         startDate: Date.now() + (3*60*60*1000),
-         endDate: Date.now() + (4*60*60*1000),
-         attendees: ['dd','ee','ff'],
-      },
-   ]
-
-   return res.send(reminders);
+   notificatonFilter(req.query.mid,REPLY.ACCEPT,res);    
 }
+
 
 // Delete one reminder
 exports.deleteOne_reminder = function(req, res){
-   var id = req.params.id;
-   console.log('TODO: findByIdAndRemove meeting ' + id);
+   
+   var empId = req.query.empId;
+   var mtgId = req.query.id;
+   Meeting.findById(mtgId,function(err,mtg) {
+      if (err) { return res.send(500,err); }
+      var query = { MeetingId: mtgId };
+      if (mtg.ownerID != empId)
+         query.EmployeeId = empId;      
+      Attendance.update(query,
+         { $set: { Status: REPLY.CANCEL }},
+         { multi: true },
+         function(errs) {
+            if (errs) { return res.send(500,errs); }
+            return res.send(200);
+         });
+   });
 
-   res.sendStatus(200);
 }
 
 // Find all notifications
 exports.findAll_notifications = function(req, res){
-   var empToSearch = req.params.id;
-
-   // TODO: this should be the result of a db query ... 
-   // -> meetings where user is on invite list
-   //    -> meetings where user has not responded yet (response = 0) 
-
-   var notifications = [
-      {
-         _id: '10000000',
-         requester: 'Boss',
-         subject: 'Daily Scrum',
-         date: 'Mon 1/15/2018',
-         time: '10:00 AM',
-         room: '121',
-         response: 0
-      },
-      {
-         _id: '10000001',
-         requester: 'Director',
-         subject: 'Project planning session',
-         date: 'Mon 1/15/2018',
-         time: '3:00 PM',
-         room: 'Bldg. 8 Room 102',
-         response: 0
-      },      
-      {
-         _id: '10000002',
-         requester: 'CEO',
-         subject: 'All hands meeting',
-         date: 'Mon 1/16/2018',
-         time: '3:00 PM',
-         room: '100',
-         response: 0
-      },
-      {
-         _id: '10000003',
-         requester: 'Boss',
-         subject: 'Daily Scrum',
-         date: 'Mon 1/16/2018',
-         time: '10:00 AM',
-         room: '121',
-         response: 0
-      },
-   ]
-
-   res.send(notifications);
+   notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
 }
 
 // Update one notification
 exports.updateOne_notification = function(req, res){
-   var id = req.params.id;
-   var update = req.body.response;
-   console.log('Notification updated: '+ id + ' to ' + update);
 
-   // TODO: update notification accept/decline in db
+   var update = req.body.response;
+   Attendance.findOneAndUpdate({
+      MeetingId: req.body._id,
+      EmployeeId: req.body.mid
+   }, { Status: req.body.status }, { new: true }, 
+      function(err,docs) {
+         if (err) { return res.send(500,err); }
+         // TODO something other than this should be returned?
+         return res.send({value: update});
+   });
    
-   return res.send({value: update});
 }
+
 
 // Find all meetings
 exports.findAll_meetings = function(req, res){
-   var empToSearch = req.params.id;
-   console.log('Getting notifications for: ' + empToSearch);
 
-   // TODO: this should be the result of a db query
-   // -> All meetings that user is owner or invitee
-   // -> All meetings in range today to two weeks
-   // -> All meetings that response is none/accept {0,1}
-   var hrs = (60*60*1000);
-   var days = (24*60*60*1000);
-   var response_1 = "#46EE00";
-   var response_0 = "#C0C0C0";
-   var meetings = [
-      {
-         start: Date.now() + 0*days + 1*hrs,
-         end: Date.now() + 0*days + 2*hrs,
-         id: "1",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start: Date.now() + 1*days + 1*hrs,
-         end: Date.now() + 1*days + 2*hrs,
-         id: "2",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start: Date.now() + 2*days + 1*hrs,
-         end: Date.now() + 2*days + 2*hrs,
-         id: "3",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start:  Date.now() + 3*days + 1*hrs,
-         end:  Date.now() + 3*days + 2*hrs,
-         id: "4",
-         text: "Daily Scrum",
-         backColor: response_1,
-      },
-      {
-         start:  Date.now() + 7*days + 1*hrs,
-         end:  Date.now() + 7*days + 2*hrs,
-         id: "5",
-         text: "Team Meeting",
-         response: 0,
-         backColor: response_0,
-      },
-      {
-         start: Date.now() + 14*days + 1*hrs,
-         end:  Date.now() + 14*days + 2*hrs,
-         id: "6",
-         text: "Weekly Review",
-         backColor: response_0,
-      },
-   ];
+   var accpt_clr = "#46EE00";
+   var pnd_clr = "#C0C0C0";
 
-   res.send(meetings);
+   function shape(mtg,atts) {
+      var attrib = atts.find(x => x.MeetingId == mtg._id) || { Status: 0 };
+      var backColor = attrib.Status == REPLY.ACCEPT ? accpt_clr : pnd_clr;
+      return {
+         start: mtg.startDate,
+         end: mtg.endDate,
+         id: mtg.subject,
+         text: mtg.subject,
+         backColor: backColor
+      };
+   }
+
+   var mid = req.query.mid;
+   Attendance.find({
+      EmployeeId: mid,
+      $or: [
+         { Status: REPLY.NEUTRAL },
+         { Status: REPLY.ACCEPT }
+      ]
+   })
+   .exec(function(err,atts) {
+      if (err) { return res.send(500,err); }
+      var attending = atts.map(x => x.MeetingId);
+      Meeting.find({'_id':{ $in: attending }})
+      .exec(function(err,mtgs) {
+         var dsp = mtgs.map(x => shape(x,atts));
+         return res.send(dsp);
+      });
+   });
+
 }
+
+

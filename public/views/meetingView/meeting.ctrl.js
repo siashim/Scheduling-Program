@@ -1,4 +1,4 @@
-mainapp.controller('meetingCtrl', function ($scope, $http, meetingFactory, meetingService){
+mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFactory, meetingService){
    $scope.rooms = [];
    $scope.employees = [];
    $scope.event = {
@@ -15,14 +15,20 @@ mainapp.controller('meetingCtrl', function ($scope, $http, meetingFactory, meeti
    $scope.createMeeting = function(){
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
+
+      var user = $rootScope.currentUser;
+
       var newEvent = {
-         owner: 'TODO',
+         ownerFirst: user.firstName,
+         ownerLast: user.lastName,
+         ownerID: user.mid,
          subject: $scope.event.subject,
          room: options[options.selectedIndex].value,
          startDate: new Date($scope.event.startTime),
          endDate: new Date($scope.event.endTime),
          attendees: meetingService.getAttendeeIds($scope.employees),
       }
+      
       meetingFactory.postEvent(newEvent).then(function(){
          alert('Meeting sent to server:\n' + meetingService.eventToString(newEvent));
       }), function(err){
