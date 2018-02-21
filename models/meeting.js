@@ -6,7 +6,7 @@ var meetingSchema = new Schema({
    ownerLast: String,
    ownerID: String,
    subject: String,
-   room: String,
+   room: { type: Schema.Types.ObjectId, ref: 'Room' },
    startDate: Date,
    endDate: Date,
    attendees: Array

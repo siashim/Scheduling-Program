@@ -64,4 +64,16 @@ mainapp.service('meetingService', function(){
       'Room:' + event.room +  '\n' + 
       'Attendees:' + event.attendees;
    }
+
+	// Helper function to combine date and time into single Date object
+	this.combineDateTime = function(date, time){
+		if (date === null || time === null){
+			return;
+		}
+		
+		var date = new Date(date);
+		date.setHours(time.getHours());
+      date.setMinutes(time.getMinutes());
+		return date;
+	}
 })

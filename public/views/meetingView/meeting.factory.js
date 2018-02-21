@@ -14,5 +14,10 @@ mainapp.factory('meetingFactory', function($http){
       return $http.post('/meeting/event', data);
    }
 
+   factory.postSelectedRoomEvents = function(date, rooms){
+      var data = {date: date, rooms: rooms};
+      return $http.post('/meeting/selRoomEvents', data);
+   }
+
    return factory;
 })

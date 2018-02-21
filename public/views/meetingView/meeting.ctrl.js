@@ -1,85 +1,70 @@
 mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFactory, meetingService){
    $scope.rooms = [];
    $scope.employees = [];
-   $scope.event = {
-      subject: '',
-      startDate: '',
-      endDate: '',
-      startTime: '',
-      endTime: '',
-      room: '',
-      attendees: [],
-   }
+   $scope.subject = '';
 
    // On create meeting button click, post data to server
    $scope.createMeeting = function(){
+      if (validateForm() == false){
+        return;
+      }
+
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
 
       var user = $rootScope.currentUser;
-
+      
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+		var endDate = $('#datetimepicker .date.end').datepicker('getDate');
+      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+      
       var newEvent = {
          ownerFirst: user.firstName,
          ownerLast: user.lastName,
          ownerID: user.mid,
-         subject: $scope.event.subject,
+         subject: $scope.subject,
          room: options[options.selectedIndex].value,
-         startDate: new Date($scope.event.startTime),
-         endDate: new Date($scope.event.endTime),
+         startDate: meetingService.combineDateTime(startDate, startTime),
+         endDate: meetingService.combineDateTime(endDate, endTime),
          attendees: meetingService.getAttendeeIds($scope.employees),
       }
       
       meetingFactory.postEvent(newEvent).then(function(){
-         alert('Meeting sent to server:\n' + meetingService.eventToString(newEvent));
+         formMessage('Meeting created: ' + newEvent.subject, 'black');
       }), function(err){
+         formMessage('Error. Server responded: ' + err,'red');
          console.log(err);
       }
    }
 
-   // Initialize form input datetime widgets first
-   $('#datetimepicker .date').datepicker({
-      'format': 'm/d/yyyy',
-      'autoclose': true
-   });
-   $('#datetimepicker .time').timepicker({
-      'showDuration': true,
-      'timeFormat': 'g:ia'
-   });
-   var startDatetimepicker = document.getElementById('datetimepicker');
-   var endDatetimepicker = new Datepair(startDatetimepicker, {
-      'defaultDateDelta': 0,      // 0 days
-      'defaultTimeDelta': 3600000 // 1 hour
-   });
+   // Form validators
+   function validateForm(){
+      if ($scope.subject === ''){
+         formMessage('Subject required to create meeting.', 'red');
+         return false;
+      }
+      var listOfSelected = $scope.employees.filter(function(emp){
+         return emp.selected;
+      });
+      if (listOfSelected.length == 0){
+         formMessage('At least one invitee required to create meeting.', 'red');
+         return false;
+      }
+      var select = document.getElementById('sel1Room');
+      var options = select && select.options;
+      if (options[options.selectedIndex].value == ''){
+         formMessage('A room is required to create meeting.', 'red');
+         return false;
+      }
+   }
 
-   // Watch for datetime widget change events
-   $('#datetimepicker .date.start').datepicker()
-   .on('changeDate', function(e){
-      $scope.$apply(function(){
-         $scope.event.startDate = $('#datetimepicker .date.start').datepicker('getDate');
-         $scope.event.endDate = $scope.event.startDate;
-         $scope.schedulerConfig.startDate = $scope.event.startDate;
-      })
-   });
-   $('#datetimepicker .date.end').datepicker()
-   .on('changeDate', function(e){
-      $scope.$apply(function(){
-         $scope.event.endDate = $('#datetimepicker .date.end').datepicker('getDate');
-         $scope.schedulerConfig.startDate = $scope.event.endDate;
-      })   
-   });
-   $('#datetimepicker .time.start').timepicker()
-   .on('changeTime', function(e){
-      $scope.$apply(function(){
-         $scope.event.startTime = $('#datetimepicker .time.start').timepicker('getTime', $scope.event.startDate);
-      })   
-   });
-   $('#datetimepicker .time.end').timepicker()
-   .on('changeTime', function(e){
-      $scope.$apply(function(){
-         $scope.event.endTime = $('#datetimepicker .time.end').timepicker('getTime', $scope.event.endDate);
-      })
-   });
-   
+   // Form message
+   function formMessage(message, color){
+      document.getElementById("formmsg").style.color = color;
+      document.getElementById('formmsg').innerHTML = message;
+   }
+ 
    // On button click to select (or deselect) an option, update its 'selected' value 
    $scope.selectOption = function(type, selectId, val){
       var select = document.getElementById(selectId);
@@ -139,11 +124,35 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       }), function(err){
          console.log(err);
       }
+
+      // Initialize form input datetime widgets first
+      $('#datetimepicker .date').datepicker({
+         'format': 'm/d/yyyy',
+         'autoclose': true,
+      });
+      $('#datetimepicker .time').timepicker({
+         'showDuration': true,
+         'timeFormat': 'g:ia',
+         'scrollDefault': 'now'
+      });
+      // Initialize datepair so date and time widgets can interact
+      var startDatetimepicker = document.getElementById('datetimepicker');
+      var endDatetimepicker = new Datepair(startDatetimepicker, {
+         'defaultDateDelta': 0,      // 0 days
+         'defaultTimeDelta': 3600000 // 1 hour
+      });
    }
 
    // Initialize the table with data
    $(document).ready(refresh())
 
+   var somedate = Date.now();
+   var someroom = {rooms: ['5a5fefc055c4fd19e88a551a']};
+   meetingFactory.postSelectedRoomEvents(somedate, someroom).then(function(response){
+      console.log(response.data);
+   }, function(err){
+      console.log(err);
+   })
 
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////

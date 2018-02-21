@@ -44,5 +44,6 @@ router.delete('/home/reminders/:id', controller.deleteOne_reminder);
 router.get('/home/notifications/:id', controller.findAll_notifications);
 router.put('/home/notification/:id', controller.updateOne_notification)
 router.get('/home/meetings/:id', controller.findAll_meetings);
+router.post('/meeting/selRoomEvents', controller.findAll_eventRooms);
 
 module.exports = router;

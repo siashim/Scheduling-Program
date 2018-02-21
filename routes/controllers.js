@@ -172,14 +172,15 @@ exports.createOne_meeting = function(req, res) {
          Status: response
       });
    }
-
+console.log('Body: '+JSON.stringify(req.body));
    var meeting = new Meeting(req.body);
+   console.log('Meeting '+ meeting);
    meeting.save(function(err, mtg) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
       var attendance = atts.map(x => invite(mtg,x));
       Attendance.collection.insert(attendance, function(errs, docs) {
-         if (errs) { return res.send(500,errs); }
+         if (errs) { console.log('Error: '+err); return res.send(500,errs); }
          return res.send(docs);
       });
             
@@ -437,4 +438,24 @@ exports.findAll_meetings = function(req, res){
 
 }
 
+// Find all rooms that have meeting events today and return those events
+exports.findAll_eventRooms = function(req, res){
+   var thisDate = new Date(req.body.date).setHours(0,0,0,0);
+   var nextDate = new Date(req.body.date).setHours(24,0,0,0);
+   var conditions = {
+      path: 'MeetingId',
+      match: { 
+         startDate: { $gte: thisDate }, 
+         endDate: { $lte: nextDate },
+      }
+   };
+
+   Attendance.find().populate(conditions).exec(function(err, result){
+      if(err){return console.log(err)};
+      result = result.filter(function(item){
+         return item.MeetingId;
+      })
+      return res.send(result);
+   });
+}
 

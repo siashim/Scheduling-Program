@@ -9,7 +9,7 @@
             <form class="form">
                <div class="input-group">
                   <span class="input-group-addon">Subject</span>
-                  <input id="subject" type="text" class="form-control" name="subject" placeholder="Subject of meeting..." ng-model="event.subject">
+                  <input id="subject" type="text" class="form-control" name="subject" placeholder="Subject of meeting..." ng-model="subject" required>
                </div>
             </form>
       
@@ -50,17 +50,29 @@
                   </div>
                </form>
             </div>
-
          </div>
       </div>
+      
+      <div class="row">
+         <div class="col-sm-3">
+            <button type="button" class="btn btn-success pull-right" ng-click="selectEmployees()">Add Employees</button>
+         </div>
+         <div class="col-sm-9">
+            <label>Invitees: </label>
+            <span ng-repeat="x in employees | filter:{'selected':true}">{{x.LastName}},&nbsp;{{x.FirstName}};&nbsp;</span>
+         </div>
+      </div><br>
 
       <div class="row">
-         <div class="col-sm-6 col-sm-offset-3" id="formInput3">
+         <div class="col-sm-3">
+            <button type="button" class="btn btn-success pull-right" ng-click="selectRooms()">Add Rooms</button>
+         </div>
 
+         <div class="col-sm-6" id="formInput3">
             <!-- Form: Room select list -->
             <form class="form">
                <div class="input-group">
-                  <span class="input-group-addon">Room</span>
+                  <span class="input-group-addon">Select Room</span>
                   <select class="form-control" id="sel1Room">
                      <option value=''>None</option>
                      <option value={{x._id}} ng-repeat="x in rooms | filter:{selected:true}">{{ x.Number }}({{x.Capacity}})</option>
@@ -68,11 +80,16 @@
                </div>
             </form>
 
-
-
          </div>   
       </div>
       
+      <!-- Form success/error messages shown here -->
+      <div class="row">
+         <div class="col-sm-12" style="text-align:center;">
+            <span id="formmsg"></span>
+         </div>
+      </div>
+
    </div>    
 </div>
 
@@ -80,8 +97,6 @@
 <div class="container">
    <div class="well">
       <h3 align="center">Check Availability</h3>
-      <button type="button" class="btn btn-primary" ng-click="selectRooms()">Check Rooms</button>
-      <button type="button" class="btn btn-primary" ng-click="selectEmployees()">Check Employees</button>
       <p>&nbsp</p>
       <daypilot-scheduler id="scheduler" daypilot-config="schedulerConfig" daypilot-events="events" ></daypilot-scheduler>
    </div>
