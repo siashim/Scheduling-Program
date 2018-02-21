@@ -54,8 +54,8 @@
       </div>
       
       <div class="row">
-         <div class="col-sm-3">
-            <button type="button" class="btn btn-success pull-right" ng-click="selectEmployees()">Add Employees</button>
+         <div class="col-sm-offset-1 col-sm-2">
+            <button type="button" class="btn btn-success btn-block pull-right" ng-click="selectEmployees()">Add Employees</button>
          </div>
          <div class="col-sm-9">
             <label>Invitees: </label>
@@ -64,8 +64,8 @@
       </div><br>
 
       <div class="row">
-         <div class="col-sm-3">
-            <button type="button" class="btn btn-success pull-right" ng-click="selectRooms()">Add Rooms</button>
+         <div class="col-sm-offset-1 col-sm-2">
+            <button type="button" class="btn btn-success btn-block pull-right" ng-click="selectRooms()">Add Rooms</button>
          </div>
 
          <div class="col-sm-6" id="formInput3">
@@ -127,8 +127,9 @@
                </div>
                <div class="col-sm-2 text-center">
                   <br><br><br><br>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true" ng-click="selectOption('emp','selEmpF',true)"></i></button>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true" ng-click="selectOption('emp','selEmpT',false)"></i></button>
+                  <button type="button" class="btn btn-basic" ng-click="selectOption('emp','selEmpF',true)"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                  <br><br>
+                  <button type="button" class="btn btn-basic" ng-click="selectOption('emp','selEmpT',false)"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
                </div>
                <div class="col-sm-4">
                   <div class="form-group">
@@ -175,8 +176,9 @@
                </div>
                <div class="col-sm-2 text-center">
                   <br><br><br><br>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-right" aria-hidden="true" ng-click="selectOption('room','selRoomF',true)"></i></button>
-                  <button type="button" class="btn btn-basic"><i class="fa fa-chevron-left" aria-hidden="true" ng-click="selectOption('room','selRoomT',false)"></i></button>
+                  <button type="button" class="btn btn-basic" ng-click="selectOption('room','selRoomF',true)"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
+                  <br><br>
+                  <button type="button" class="btn btn-basic" ng-click="selectOption('room','selRoomT',false)"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
                </div>
                <div class="col-sm-4">
                   <div class="form-group">
