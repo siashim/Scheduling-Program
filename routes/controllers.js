@@ -438,8 +438,17 @@ exports.findAll_meetings = function(req, res){
 
 }
 
-// Find all rooms that have meeting events today and return those events
-exports.findAll_eventRooms = function(req, res){
+// Find all events that are scheduled on given date, and return those events
+exports.findAll_selectedEvents = function(req, res){
+   d = new Date(req.body.date);
+   console.log('SelEventDates: '+d.toLocaleString());
+   // console.log('SelEventEmps: '+JSON.stringify(req.body.employees));
+   // console.log('SelEventRms: '+JSON.stringify(req.body.rooms));
+   
+   // TODO: improve this function to return 2 arrays of events: 
+   // 1. a Meeting array for the req.body.employees on date req.body.date
+   // 2. a Meeting array containing the req.body.rooms on date req.body.date
+   
    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
    var conditions = {

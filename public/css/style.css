@@ -8,7 +8,7 @@ a {
 }
 
 /* Table formatting (added by MarkM) */
-thead th {
+thead.table-css-style th {
    background-color: #006DCC;
    color: white;
 }

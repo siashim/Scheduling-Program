@@ -13,40 +13,73 @@ mainapp.service('meetingService', function(){
    }
 
    // Accessors:
-
-   // Get list for Daypilot scheduler of only 'selected' items from master list
-   this.getSelected = function(listName, list){
+   // Set Daypilot scheduler resource children, the table left column items
+   this.setSchedulerResourcesChildren = function(list, type, prefix){
       var ary = [];
-      
-      for (i=0; i<list.length; i++){
-         if(list[i].selected == true){
-            var element = {};
-            if (listName == 'room'){
-               element = {
-                  id: 'r' + i,
-                  name: this.roomToString(list[i]),
-               }
+      for(i=0; i<list.length; i++){
+         var element;
+         if (type == 'Rooms'){
+            element = {
+               id: prefix + i,
+               name: this.roomToString(list[i]),
             }
-            else if (listName == 'employee'){
-               element = {
-                  id: 'e' + i,
-                  name: this.employeeToString(list[i]),
-               }
-            }            
-            ary.push(element);
          }
+         else if (type == 'Employees'){
+            element = {
+               id: prefix + i,
+               name: this.employeeToString(list[i]),
+            }
+         }
+         ary.push(element);
       }
       return ary;
+   };
+
+   // Set DayPilot scheduler resources, the table left column
+   this.setSchedulerResources = function(list, type, group, prefix){
+      var resource = {
+         "id": group,
+         "name": type,
+         "expanded": true,
+         "children": this.setSchedulerResourcesChildren(list, type, prefix),
+      };
+      return resource;
    }
-   // Get all 'selected' employee _id's from list
-   this.getAttendeeIds = function(list){
-      var result = [];
-      for(var i=0; i<list.length; i++){
-         if(list[i].selected == true){
-            result.push(list[i]._id);
+
+   // Convert UTC time to local time
+   // this.toLocaltime = function(data){
+   //    var date = new Date(data);
+   //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+   // };
+
+   // Convert database event format to DayPilot event format
+   this.eventToSchedulerEvent = function(events){
+      var schEvent = [];
+      var roomNum = 1;
+      var empNum = 1;
+
+      for(var i=0; i<events.length; i++){
+         var resource;
+         if (true){
+            resource = 'e' + empNum;
+            empNum++;
+         } else {
+            resource = 'r' + roomNum
+            roomNum++;
          }
+
+         var newEvent = {
+            start: new DayPilot.Date(new Date(events[i].MeetingId.startDate), true),
+            end: new DayPilot.Date(new Date(events[i].MeetingId.endDate), true),
+            id: DayPilot.guid(),
+            resource: resource,
+            text: events[i].MeetingId.subject,
+            backColor: colorList[events[i].Status],
+         };
+         schEvent.push(newEvent);
+         
       }
-      return result;
+      return schEvent;
    }
 
    // Strings:
@@ -71,9 +104,20 @@ mainapp.service('meetingService', function(){
 			return;
 		}
 		
-		var date = new Date(date);
-		date.setHours(time.getHours());
+		//var newdate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+      //var adate = new Date();
+      var date = new Date(date);
+      date.setHours(time.getHours());
       date.setMinutes(time.getMinutes());
-		return date;
-	}
+      var utcDate = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+      return date;
+   }
+   
+   // colors
+   var colorList = {
+      '-2': 'red',
+      '-1': 'blue',
+      '0': 'salmon',
+      '1': 'grey',
+   }
 })
