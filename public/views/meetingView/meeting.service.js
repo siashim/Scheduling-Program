@@ -53,6 +53,7 @@ mainapp.service('meetingService', function(){
    // };
 
    // Convert database event format to DayPilot event format
+   // the rearranging of meetings happens here potentially
    this.eventToSchedulerEvent = function(events){
       var schEvent = [];
       var roomNum = 1;
@@ -79,6 +80,9 @@ mainapp.service('meetingService', function(){
          schEvent.push(newEvent);
          
       }
+
+      //console.log('scheduled events\n',schEvent);
+
       return schEvent;
    }
 

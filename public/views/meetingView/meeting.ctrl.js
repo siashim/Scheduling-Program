@@ -144,8 +144,17 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    // Refresh Daypilot schedule events by request from database
    var refreshScheduleEvents = function(date, employees, rooms){
       var data = {date: date, employees: employees, rooms: rooms};
+
       meetingFactory.postSelectedEvents(data).then(function(response){
+
+
+         console.log('response data\n',response.data);
+         response.data = response.data.employees;
+         
+
          $scope.schedulerEvents = meetingService.eventToSchedulerEvent(response.data);
+
+
       }, function(err){
          console.log(err);
       })

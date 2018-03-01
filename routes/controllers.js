@@ -440,6 +440,7 @@ exports.findAll_meetings = function(req, res){
 
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
+
    d = new Date(req.body.date);
    console.log('SelEventDates: '+d.toLocaleString());
    // console.log('SelEventEmps: '+JSON.stringify(req.body.employees));
@@ -451,6 +452,12 @@ exports.findAll_selectedEvents = function(req, res){
    
    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
+
+   var employees = req.body.employees;
+   var rooms = req.body.rooms;
+   var employeeIDs = employees.map(x => x._id);
+   var roomIDs = rooms.map(x => x._id);
+
    var conditions = {
       path: 'MeetingId',
       match: { 
@@ -459,12 +466,57 @@ exports.findAll_selectedEvents = function(req, res){
       }
    };
 
+   Meeting.find({
+      room: { $in: roomIDs },
+      startDate: { $gte: thisDate },
+      endDate: { $lte: nextDate }
+   })
+   .populate({ path: 'room' })
+   .exec(function(err,roomMtgs) {
+      if (err) { return res.send(500,err); }
+
+      Attendance.find({ 
+         EmployeeId: { $in: employeeIDs }
+      })
+      .populate(conditions)
+      .exec(function(err,empMtgs) {
+         if (err) { return res.send(500,err); }
+
+         console.log('ROOM MTGS',roomMtgs);
+         console.log('EMPLOYEE MTGS',empMtgs);
+
+         empMtgs = empMtgs.filter(x => x.MeetingId);
+         roomMtgs = roomMtgs.filter(x => x.room);
+
+
+         //roomMtgs = roomMtgs.filter(function(item))
+
+         var results = {
+            employees: empMtgs,
+            rooms: roomMtgs
+         };
+
+
+         return res.send(results);
+
+      });
+
+
+   });
+
+   /*
+
    Attendance.find().populate(conditions).exec(function(err, result){
       if(err){return console.log(err)};
+      //console.log('attendance query',result);
       result = result.filter(function(item){
          return item.MeetingId;
       })
+      //console.log('attendance filter',result);
       return res.send(result);
    });
+
+   */
+
 }
 
