@@ -52,41 +52,61 @@ mainapp.service('meetingService', function(){
    //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
    // };
 
-   // Convert database event format to DayPilot event format
-   // the rearranging of meetings happens here potentially
-   this.eventToSchedulerEvent = function(events){
-      var schEvent = [];
-      var roomNum = 1;
-      var empNum = 1;
 
-      for(var i=0; i<events.length; i++){
-         var resource;
-         if (true){
-            resource = 'e' + empNum;
-            empNum++;
-         } else {
-            resource = 'r' + roomNum
-            roomNum++;
-         }
 
-         var newEvent = {
-            start: new DayPilot.Date(new Date(events[i].MeetingId.startDate), true),
-            end: new DayPilot.Date(new Date(events[i].MeetingId.endDate), true),
+
+	// Convert database event format to DayPilot event format
+   this.eventToSchedulerEvent = function(event,empCol,roomCol){
+
+		var schEvent = [];
+		
+		var employees = event.employees;
+		var rooms = event.rooms;
+
+		for (var i = 0; i < employees.length; i++) {
+
+			var empID = employees[i].EmployeeId;
+			var empIndex = empCol.findIndex(x => empID == x._id);
+			var resource = 'e'+empIndex;
+
+			var newEvent = {
+            start: new DayPilot.Date(new Date(employees[i].MeetingId.startDate), true),
+            end: new DayPilot.Date(new Date(employees[i].MeetingId.endDate), true),
             id: DayPilot.guid(),
             resource: resource,
-            text: events[i].MeetingId.subject,
-            backColor: colorList[events[i].Status],
-         };
-         schEvent.push(newEvent);
-         
-      }
+            text: employees[i].MeetingId.subject,
+            backColor: colorList[employees[i].Status],
+			};
+			
+			schEvent.push(newEvent);
 
-      //console.log('scheduled events\n',schEvent);
+		}
 
-      return schEvent;
-   }
+		for (var i = 0; i < rooms.length; i++) {
+			var roomID = rooms[i].room._id;
+			var roomIndex = roomCol.findIndex(x => roomID == x._id);
+			var resource = 'r'+roomIndex;
 
-   // Strings:
+			var newEvent = {
+            start: new DayPilot.Date(new Date(rooms[i].startDate), true),
+            end: new DayPilot.Date(new Date(rooms[i].endDate), true),
+            id: DayPilot.guid(),
+            resource: resource,
+            text: rooms[i].subject,
+            backColor: colorList['1'],
+			};
+			
+			schEvent.push(newEvent);
+
+		}
+
+		return schEvent;
+
+	}
+
+
+
+	// Strings:
    this.roomToString = function(data){
       return data.Number + '(' + data.Capacity + ')';
    }
