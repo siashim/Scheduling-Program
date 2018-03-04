@@ -68,9 +68,28 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
          console.log(err);
       }
 
-      homeFactory.getAllMeetings($rootScope.currentUser).then(function(response){
-         calendar.events.list = response.data;
+      homeFactory.getAllMeetings($rootScope.currentUser).then(function(res){
+
+         function parseMeetingData(data) {
+            var accept_clr = "#46EE00";
+            var pending_clr = "#C0C0C0";
+            var mtgs = data.map(function(meeting) {
+               var mtg = meeting.MeetingId;
+               return {
+                  start: mtg.startDate,
+                  end: mtg.endDate,
+                  id: mtg.subject,
+                  text: mtg.subject,
+                  backColor:  meeting.Status ? 
+                     accept_clr : pending_clr
+               };
+            });
+            return mtgs;
+         }
+
+         calendar.events.list = parseMeetingData(res.data);
          calendar.update();
+
       }), function(err){
          console.log(err);
       }

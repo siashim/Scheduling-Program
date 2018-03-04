@@ -318,89 +318,30 @@ exports.findOne_login = function(req, res){
 // A WORKING EXAMPLE!
 function notificatonFilter(id,status,res) {
 
-   Attendance.find({
-      EmployeeId: id,
-		Status: status
+	if (!Array.isArray(status))
+		status = [ { Status: status } ]
+
+	Attendance.find({
+		EmployeeId: id,
+		$or: status
 	})
 	.populate({
 		path: 'MeetingId',
 		populate: { path: 'room' }
 	})
    .exec(function(err,mtgs) {
-      if (err) { return res.send(500,err); }
+		if (err) { return res.send(500,err); }
 		
-		//console.log('MEETINGS',mtgs);
-		//console.log('NESTED MEETING',mtgs[0].MeetingId.room);
-		
+		console.log('MEETINGS GOE HERE!',mtgs);
+
 		return res.send(mtgs);
-
-
    });
- 
-	//Attendance
-	//.find({})
-	//.populate({ 
-	//	path : 'userId', 
-	//	populate : { 
-	//		path : 'reviewId'}
-	//	})
-	//	.exec(function (err, res) {
-	//})
-
-
-
-    /*
-
-    function assign(meeting,rooms) {
-      var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
-      return {
-         _id: meeting._id,
-         ownerFirst: meeting.ownerFirst,
-         ownerLast: meeting.ownerLast,
-         subject: meeting.subject,
-         startDate: meeting.startDate,
-         endDate: meeting.startDate,
-         room: room.Number
-      };
-   }
-
-   */
-
-   /*
-   
-   Attendance.find({
-      EmployeeId: id,
-      Status: status
-   })
-   .then(function(atts) {
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({ '_id': { $in: attending } })
-      .then(function(mtgs) {
-         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
-         Room.find({ '_id': { $in: roomIDs } })
-         .then(function(rooms) {
-
-            console.log('MEETINGS',mtgs);
-
-            var notices = mtgs.map(x => assign(x,rooms));
-
-            //console.log('NOTICES',notices);
-
-            return res.send(notices);
-         });
-      });
-   })
-   .catch(function(err){ return res.send(500,err); });
-
-   */
-
-
 
 }
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-   notificatonFilter(req.query.mid,REPLY.ACCEPT,res);    
+   notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);    
 }
 
 
@@ -426,7 +367,7 @@ exports.deleteOne_reminder = function(req, res){
 }
 
 // Find all notifications
-exports.findAll_notifications = function(req, res){
+exports.findAll_notifications = function(req, res) {
    notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
 }
 
@@ -446,6 +387,17 @@ exports.updateOne_notification = function(req, res){
    
 }
 
+
+exports.findAll_meetings = function(req, res) {
+	var status = [
+		{ Status: REPLY.ACCEPT },
+		{ Status: REPLY.NEUTRAL } 
+	]
+	notificatonFilter(req.query.mid,status,res);
+}
+
+
+/*
 
 // Find all meetings
 exports.findAll_meetings = function(req, res){
@@ -484,6 +436,9 @@ exports.findAll_meetings = function(req, res){
    });
 
 }
+
+*/
+
 
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
