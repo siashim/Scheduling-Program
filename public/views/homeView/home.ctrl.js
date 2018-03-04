@@ -1,4 +1,5 @@
 mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
+
    $scope.reminders = [];
    $scope.notifications = [];
 
@@ -48,27 +49,28 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       var id = $rootScope.currentUser.empId;
       var mid = $rootScope.currentUser.mid;
 
-      homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
-         $scope.reminders = response.data;
+      function shapeMeetings(data) {
+         var mtgs = data.map(x => x.MeetingId);
+         return mtgs.sort(function(a,b){ 
+            return new Date(a.startDate) - new Date(b.startDate) 
+         });
+      }
+
+      homeFactory.getAllReminders($rootScope.currentUser).then(function(res){
+         $scope.reminders = shapeMeetings(res.data);
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllNotifications($rootScope.currentUser).then(function(response){
-         $scope.notifications = response.data;
+      homeFactory.getAllNotifications($rootScope.currentUser).then(function(res){
+         $scope.notifications = shapeMeetings(res.data);
       }), function(err){
          console.log(err);
       }
 
       homeFactory.getAllMeetings($rootScope.currentUser).then(function(response){
-
-         
-         
          calendar.events.list = response.data;
          calendar.update();
-
-
-
       }), function(err){
          console.log(err);
       }

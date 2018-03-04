@@ -70,12 +70,12 @@ mainapp.service('meetingService', function(){
 			var resource = 'e'+empIndex;
 
 			var newEvent = {
-            start: new DayPilot.Date(new Date(employees[i].MeetingId.startDate), true),
-            end: new DayPilot.Date(new Date(employees[i].MeetingId.endDate), true),
-            id: DayPilot.guid(),
-            resource: resource,
-            text: employees[i].MeetingId.subject,
-            backColor: colorList[employees[i].Status],
+                start: new DayPilot.Date(new Date(employees[i].MeetingId.startDate), true),
+                end: new DayPilot.Date(new Date(employees[i].MeetingId.endDate), true),
+                id: DayPilot.guid(),
+                resource: resource,
+                text: employees[i].MeetingId.subject,
+                backColor: colorList[employees[i].Status],
 			};
 			
 			schEvent.push(newEvent);
@@ -88,12 +88,12 @@ mainapp.service('meetingService', function(){
 			var resource = 'r'+roomIndex;
 
 			var newEvent = {
-            start: new DayPilot.Date(new Date(rooms[i].startDate), true),
-            end: new DayPilot.Date(new Date(rooms[i].endDate), true),
-            id: DayPilot.guid(),
-            resource: resource,
-            text: rooms[i].subject,
-            backColor: colorList['1'],
+                start: new DayPilot.Date(new Date(rooms[i].startDate), true),
+                end: new DayPilot.Date(new Date(rooms[i].endDate), true),
+                id: DayPilot.guid(),
+                resource: resource,
+                text: rooms[i].subject,
+                backColor: colorList['1'],
 			};
 			
 			schEvent.push(newEvent);

@@ -318,7 +318,40 @@ exports.findOne_login = function(req, res){
 // A WORKING EXAMPLE!
 function notificatonFilter(id,status,res) {
 
-   function assign(meeting,rooms) {
+   Attendance.find({
+      EmployeeId: id,
+		Status: status
+	})
+	.populate({
+		path: 'MeetingId',
+		populate: { path: 'room' }
+	})
+   .exec(function(err,mtgs) {
+      if (err) { return res.send(500,err); }
+		
+		//console.log('MEETINGS',mtgs);
+		//console.log('NESTED MEETING',mtgs[0].MeetingId.room);
+		
+		return res.send(mtgs);
+
+
+   });
+ 
+	//Attendance
+	//.find({})
+	//.populate({ 
+	//	path : 'userId', 
+	//	populate : { 
+	//		path : 'reviewId'}
+	//	})
+	//	.exec(function (err, res) {
+	//})
+
+
+
+    /*
+
+    function assign(meeting,rooms) {
       var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
       return {
          _id: meeting._id,
@@ -331,6 +364,10 @@ function notificatonFilter(id,status,res) {
       };
    }
 
+   */
+
+   /*
+   
    Attendance.find({
       EmployeeId: id,
       Status: status
@@ -342,12 +379,22 @@ function notificatonFilter(id,status,res) {
          var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
          Room.find({ '_id': { $in: roomIDs } })
          .then(function(rooms) {
+
+            console.log('MEETINGS',mtgs);
+
             var notices = mtgs.map(x => assign(x,rooms));
+
+            //console.log('NOTICES',notices);
+
             return res.send(notices);
          });
       });
    })
    .catch(function(err){ return res.send(500,err); });
+
+   */
+
+
 
 }
 
@@ -481,42 +528,17 @@ exports.findAll_selectedEvents = function(req, res){
       .populate(conditions)
       .exec(function(err,empMtgs) {
          if (err) { return res.send(500,err); }
-
-         console.log('ROOM MTGS',roomMtgs);
-         console.log('EMPLOYEE MTGS',empMtgs);
-
          empMtgs = empMtgs.filter(x => x.MeetingId);
          roomMtgs = roomMtgs.filter(x => x.room);
-
-
-         //roomMtgs = roomMtgs.filter(function(item))
-
          var results = {
             employees: empMtgs,
             rooms: roomMtgs
          };
-
-
          return res.send(results);
-
       });
 
 
    });
-
-   /*
-
-   Attendance.find().populate(conditions).exec(function(err, result){
-      if(err){return console.log(err)};
-      //console.log('attendance query',result);
-      result = result.filter(function(item){
-         return item.MeetingId;
-      })
-      //console.log('attendance filter',result);
-      return res.send(result);
-   });
-
-   */
 
 }
 
