@@ -47,6 +47,11 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
       function shapeMeetings(data) {
          var mtgs = data.map(x => x.MeetingId);
+
+         // temporary bandaid to prevent displaying bygone meetings
+         var now = new Date();      
+         mtgs = mtgs.filter(x => new Date(x.startDate) > now);
+
          return mtgs.sort(function(a,b){ 
             return new Date(a.startDate) - new Date(b.startDate) 
          });

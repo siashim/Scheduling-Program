@@ -52,14 +52,11 @@ mainapp.service('meetingService', function(){
    //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
    // };
 
-
-
-
+   
 	// Convert database event format to DayPilot event format
    this.eventToSchedulerEvent = function(event,empCol,roomCol){
 
-		var schEvent = [];
-		
+		var schEvent = [];		
 		var employees = event.employees;
 		var rooms = event.rooms;
 
@@ -141,7 +138,7 @@ mainapp.service('meetingService', function(){
    var colorList = {
       '-2': 'red',
       '-1': 'blue',
-      '0': 'salmon',
-      '1': 'grey',
+      '0': 'light grey',
+      '1': 'salmon',
    }
 })
