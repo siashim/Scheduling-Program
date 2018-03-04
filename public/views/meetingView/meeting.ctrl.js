@@ -24,19 +24,20 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
 
    // On create meeting button click, post data to server
    $scope.createMeeting = function(){
+
       if (validateForm() == false){
         return;
       }
 
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
-
       var user = $rootScope.currentUser;
       
       var startDate = $('#datetimepicker .date.start').datepicker('getDate');
 		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
 		var endDate = $('#datetimepicker .date.end').datepicker('getDate');
       var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+
       var selectedEmployees = $scope.employees.filter(function(item){
          return item.selected == true;
       });
@@ -61,24 +62,57 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    }
 
    // Form validators
-   function validateForm(){
+   function validateForm() {
+
       if ($scope.subject == undefined || $scope.subject === ''){
          formMessage('Subject required to create meeting.', 'red');
          return false;
       }
+
+      // employee must be selected
       var listOfSelected = $scope.employees.filter(function(emp){
          return emp.selected;
       });
+
       if (listOfSelected.length == 0){
          formMessage('At least one invitee required to create meeting.', 'red');
          return false;
       }
+
+      // can this be removed?
+      // ex, personal days don't need a room?
+      // or perhaps the room can be 'personal'
+      // room must be selected
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
       if (options[options.selectedIndex].value == ''){
          formMessage('A room is required to create meeting.', 'red');
          return false;
       }
+
+
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+
+      if (startDate === null) {
+         formMessage('A starting date is required.','red');
+         return false;
+      }
+
+      if (startTime === null) {
+         formMessage('A starting time is required.','red');
+         return false;
+      }
+
+      var startDateTime = new Date(meetingService.combineDateTime(startDate, startTime));
+      var currentDate = new Date();
+      if (startDateTime < currentDate) {
+         formMessage('The date selected has passed. Select a new date.','red');
+         return false;
+      }
+
+
+
    }
 
    // Form message
@@ -129,9 +163,11 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var selectedRooms = $scope.rooms.filter(function(item){
          return item.selected;
       });
+
       var selectedEmployees = $scope.employees.filter(function(item){
          return item.selected;
       });
+
       $scope.scheduler.resources = [
          meetingService.setSchedulerResources(selectedRooms, 'Rooms', 'group_1', 'r'),
          meetingService.setSchedulerResources(selectedEmployees, 'Employees', 'group_2','e'),

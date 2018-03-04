@@ -1,3 +1,4 @@
+
 mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
 
    $scope.reminders = [];
@@ -37,17 +38,12 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       } 
    }
 
-
-
    $scope.gotoAnchor = function(x) {
       $location.hash(x);
    };
 
    // Refresh data in browser with data from db
    var refresh = function(){
-
-      var id = $rootScope.currentUser.empId;
-      var mid = $rootScope.currentUser.mid;
 
       function shapeMeetings(data) {
          var mtgs = data.map(x => x.MeetingId);

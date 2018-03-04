@@ -315,11 +315,10 @@ exports.findOne_login = function(req, res){
 }
 
 
-// A WORKING EXAMPLE!
 function notificatonFilter(id,status,res) {
 
 	if (!Array.isArray(status))
-		status = [ { Status: status } ]
+		status = [ { Status: status } ];
 
 	Attendance.find({
 		EmployeeId: id,
@@ -331,9 +330,6 @@ function notificatonFilter(id,status,res) {
 	})
    .exec(function(err,mtgs) {
 		if (err) { return res.send(500,err); }
-		
-		console.log('MEETINGS GOE HERE!',mtgs);
-
 		return res.send(mtgs);
    });
 
@@ -341,7 +337,7 @@ function notificatonFilter(id,status,res) {
 
 // Find all reminders
 exports.findAll_reminders = function(req, res){
-   notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);    
+   notificatonFilter(req.query.mid,REPLY.ACCEPT,res);    
 }
 
 
@@ -396,50 +392,6 @@ exports.findAll_meetings = function(req, res) {
 	notificatonFilter(req.query.mid,status,res);
 }
 
-
-/*
-
-// Find all meetings
-exports.findAll_meetings = function(req, res){
-
-   var accpt_clr = "#46EE00";
-   var pnd_clr = "#C0C0C0";
-
-   function shape(mtg,atts) {
-      var attrib = atts.find(x => x.MeetingId == mtg._id) || { Status: 0 };
-      var backColor = attrib.Status == REPLY.ACCEPT ? accpt_clr : pnd_clr;
-      return {
-         start: mtg.startDate,
-         end: mtg.endDate,
-         id: mtg.subject,
-         text: mtg.subject,
-         backColor: backColor
-      };
-   }
-
-   var mid = req.query.mid;
-   Attendance.find({
-      EmployeeId: mid,
-      $or: [
-         { Status: REPLY.NEUTRAL },
-         { Status: REPLY.ACCEPT }
-      ]
-   })
-   .exec(function(err,atts) {
-      if (err) { return res.send(500,err); }
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({'_id':{ $in: attending }})
-      .exec(function(err,mtgs) {
-         var dsp = mtgs.map(x => shape(x,atts));
-         return res.send(dsp);
-      });
-   });
-
-}
-
-*/
-
-
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
 
@@ -468,7 +420,9 @@ exports.findAll_selectedEvents = function(req, res){
       }
    };
 
-   Meeting.find({
+	// almost certain this can be simplified...
+
+	Meeting.find({
       room: { $in: roomIDs },
       startDate: { $gte: thisDate },
       endDate: { $lte: nextDate }
@@ -491,7 +445,6 @@ exports.findAll_selectedEvents = function(req, res){
          };
          return res.send(results);
       });
-
 
    });
 
