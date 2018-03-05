@@ -35,7 +35,10 @@ router.get('/home/meetings/:id', controller.findAll_meetings);
 router.get('/home/reminders/:id', controller.findAll_reminders);
 router.delete('/home/reminders/:id', controller.deleteOne_reminder);
 router.get('/home/notifications/:id', controller.findAll_notifications);
-router.put('/home/notification/:id', controller.updateOne_notification)
+router.put('/home/notification/:id', controller.updateOne_notification);
 
+router.post('/profile/details', controller.findOne_profile);
+router.put('/profile/details/:id', controller.updateOne_profile);
+// router.put('/profile/available', controller.updateOne_available);
 
 module.exports = router;
