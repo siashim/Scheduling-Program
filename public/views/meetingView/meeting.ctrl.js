@@ -124,19 +124,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
 
       var bookings = $scope.roomBookings;
       var candidateMtgs = bookings.filter(x => x.room._id == roomID);
-      var roomConflicts = candidateMtgs.find(function(x) {
-         var start = new Date(x.startDate);
-         var end = new Date(x.endDate);
-         if ((startDateTime >= start && startDateTime < end) ||
-            (endDateTime > start && endDateTime <= end) ||
-            (startDateTime <= start && endDateTime >= end)) 
-         {
-            return true;
-         }
-      });
-
-      if (roomConflicts != undefined) {
-         return formError('This room selected is already booked during this time.','red');
+      if (meetingConflicts(candidateMtgs,startDateTime,endDateTime)) {
+         return formError('The room selected is already booked during this time.');
       }
 
       return true;

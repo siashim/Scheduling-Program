@@ -14,6 +14,15 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
 
    $scope.respondToNotification = function(msg, val) {
 
+      var reminds = $scope.reminders.filter(x => x._id != msg._id);
+      var startDate = new Date(msg.startDate);
+      var endDate = new Date(msg.endDate);
+
+      if (meetingConflicts(reminds,startDate,endDate)) {
+         alert('Meeting conflicts with a previously scheduled meeting.');
+         return;
+      }
+      
       msg.status = val;
       msg.empId = $rootScope.currentUser.empId;
       msg.mid = $rootScope.currentUser.mid;

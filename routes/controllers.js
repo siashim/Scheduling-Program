@@ -8,10 +8,10 @@ var Attendance = require('../models/attendance.js');
 
 
 var REPLY = Object.freeze({
-    ACCEPT: 1,
-    NEUTRAL: 0,
-    DECLINE: -1,
-    CANCEL: -2
+   ACCEPT: 1,
+   NEUTRAL: 0,
+   DECLINE: -1,
+   CANCEL: -2
 });
 
 
