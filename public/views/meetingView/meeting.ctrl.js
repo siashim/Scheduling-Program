@@ -25,9 +25,9 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    $scope.schedulerEvents = [];
 
    // On create meeting button click, post data to server
-   $scope.createMeeting = function(){
+   $scope.createMeeting = function() {
 
-      if (validateForm() == false){
+      if (validateForm() == false) {
         return;
       }
 
@@ -57,12 +57,14 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       
       meetingFactory.postEvent(newEvent).then(function(){
          formMessage('Meeting created: ' + newEvent.subject, 'black');
+         resetForm();
       }), function(err){
          formMessage('Error. Server responded: ' + err,'red');
          console.log(err);
       }
    }
 
+   // TODO break this into smaller functions
    // Form validators
    function validateForm() {
 
@@ -81,17 +83,20 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          return false;
       }
 
-      // can this be removed?
-      // ex, personal days may not need a room
-      // or perhaps the room can be 'Personal'
-      // room must be selected
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
       var roomID = options[options.selectedIndex].value;
+      
+      
+      // this can this be removed?
+      // ex, personal days may not need a room
+      // or perhaps the room can be 'Personal'
+      // room must be selected
       if (roomID == ''){
          formMessage('A room is required to create meeting.', 'red');
          return false;
       }
+
 
       // TODO check this, there is probably a better way
       var room = options[options.selectedIndex].textContent;
@@ -102,7 +107,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       }
 
       var startDate = $('#datetimepicker .date.start').datepicker('getDate');
-		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+	   var startTime = $('#datetimepicker .time.start').timepicker('getTime');
       var startDateTime = meetingService.combineDateTime(startDate, startTime);
 		
       if (startDate === null) {
@@ -149,6 +154,18 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    function formMessage(message, color){
       document.getElementById("formmsg").style.color = color;
       document.getElementById('formmsg').innerHTML = message;
+   }
+
+
+   function resetForm() {
+
+      // TOOD add more functionality to this, perhaps
+
+      $('#subject.form-control').val('');
+      $('#date.form-control').val('');
+      $('#time.form-control').val('');
+      $('#sel1Room.form-control').val('');
+      
    }
  
    // On button click to select (or deselect) an option, update its 'selected' value 

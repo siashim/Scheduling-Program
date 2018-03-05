@@ -25,7 +25,7 @@ exports.findAll_employees = function(req, res) {
     }
 
     Employee.find(query)
-    .select({ Password: 0}) // Purposely prevent sending all pwds to frontend
+    .select({ Password: 0 }) // Purposely prevent sending all pwds to frontend
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
         return res.send(result)
@@ -42,12 +42,22 @@ exports.findOne_employee = function(req, res){
 }
 
 // Create one employee
-exports.createOne_employee = function(req, res){
-   var employee = new Employee(req.body);
-   employee.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+exports.createOne_employee = function(req, res) {
+
+   var empID = req.body.EmployeeId;
+   Employee.find({ EmployeeId: empID })
+   .exec(function(err,docs) {
+      if (err) { return res.send(500,err); }
+      if (docs.length > 0)
+         return res.send({ found: true });
+      var employee = new Employee(req.body);
+      employee.save(function(err){
+         if(err){ return res.send(500, err); }
+         return res.sendStatus(200,{ found: false} );
+      });
+
+   });
+
 }
 
 // Update one employee
@@ -99,12 +109,22 @@ exports.findOne_room = function(req, res){
 }
 
 // Create one room
-exports.createOne_room = function(req, res){
-   var room = new Room(req.body);
-   room.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+exports.createOne_room = function(req, res) {
+
+   Room.find({ Number: req.body.Number })
+   .exec(function(err, docs) {
+      if (err) { return res.send(500,err); }
+      if (docs.length > 0)
+         return res.send({ found: true });
+      
+      var room = new Room(req.body);
+      room.save(function(err){
+         if(err){ return res.send(500, err); }
+         return res.send({ found: false });
+      });
+
+   });
+
 }
 
 // Update one room
@@ -392,8 +412,13 @@ exports.findAll_meetings = function(req, res) {
 	notificatonFilter(req.query.mid,status,res);
 }
 
+
+
+/*
+
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
+<<<<<<< HEAD
    console.log('SelEventEmps: '+JSON.stringify(req.body.date));
    d = new Date(req.body.date);
    console.log('SelEventDates: '+d.toLocaleString());
@@ -404,15 +429,69 @@ exports.findAll_selectedEvents = function(req, res){
    // 1. a Meeting array for the req.body.employees on date req.body.date
    // 2. a Meeting array containing the req.body.rooms on date req.body.date
    
+=======
+
+    
+    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
+    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
+ 
+    var employeeIDs = req.body.employees.map(x => x._id);
+    var roomIDs = req.body.rooms.map(x => x._id);
+    
+    var conditions = {
+       path: 'MeetingId',
+       match: { 
+          startDate: { $gte: thisDate }, 
+          endDate: { $lte: nextDate },
+       }
+    };
+
+    var A = {};
+
+     Meeting.find({
+       room: { $in: roomIDs },
+       startDate: { $gte: thisDate },
+       endDate: { $lte: nextDate }
+    })
+    .populate({ path: 'room' })
+    .exec(function(err,roomMtgs) {
+       if (err) { return res.send(500,err); }
+ 
+       Attendance.find({ 
+          EmployeeId: { $in: employeeIDs },
+          startDate: { $gte: thisDate }, 
+          endDate: { $lte: nextDate }
+       })
+       .populate({ path: 'MeetingId' })
+       .exec(function(err,empMtgs) {
+          if (err) { return res.send(500,err); }
+          empMtgs = empMtgs.filter(x => x.MeetingId);
+          roomMtgs = roomMtgs.filter(x => x.room);
+          var results = {
+             employees: empMtgs,
+             rooms: roomMtgs
+          };
+          return res.send(results);
+       });
+ 
+    });
+ 
+ }
+ 
+*/
+
+
+
+// Find all events that are scheduled on given date, and return those events
+exports.findAll_selectedEvents = function(req, res){
+
+   var employeeIDs = req.body.employees.map(x => x._id);
+   var roomIDs = req.body.rooms.map(x => x._id);
+>>>>>>> 9edc41484609e42659e0facefe1beb189ab55a6f
    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
 
-   var employees = req.body.employees;
-   var rooms = req.body.rooms;
-   var employeeIDs = employees.map(x => x._id);
-   var roomIDs = rooms.map(x => x._id);
-
-   var conditions = {
+   var meetingConditions = {
       path: 'MeetingId',
       match: { 
          startDate: { $gte: thisDate }, 
@@ -432,9 +511,13 @@ exports.findAll_selectedEvents = function(req, res){
       if (err) { return res.send(500,err); }
 
       Attendance.find({ 
-         EmployeeId: { $in: employeeIDs }
+         EmployeeId: { $in: employeeIDs },
+         $or: [ 
+            { Status: REPLY.ACCEPT }, 
+            { Status: REPLY.NEUTRAL }
+         ]
       })
-      .populate(conditions)
+      .populate(meetingConditions)
       .exec(function(err,empMtgs) {
          if (err) { return res.send(500,err); }
          empMtgs = empMtgs.filter(x => x.MeetingId);
@@ -449,4 +532,5 @@ exports.findAll_selectedEvents = function(req, res){
    });
 
 }
+
 
