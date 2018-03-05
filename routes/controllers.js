@@ -414,7 +414,8 @@ exports.findAll_meetings = function(req, res){
          end: mtg.endDate,
          id: mtg.subject,
          text: mtg.subject,
-         backColor: backColor
+         backColor: backColor,
+         moveDisabled: true,
       };
    }
 
@@ -440,7 +441,7 @@ exports.findAll_meetings = function(req, res){
 
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
-
+   console.log('SelEventEmps: '+JSON.stringify(req.body.date));
    d = new Date(req.body.date);
    console.log('SelEventDates: '+d.toLocaleString());
    // console.log('SelEventEmps: '+JSON.stringify(req.body.employees));

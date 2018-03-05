@@ -46,15 +46,6 @@ mainapp.service('meetingService', function(){
       return resource;
    }
 
-   // Convert UTC time to local time
-   // this.toLocaltime = function(data){
-   //    var date = new Date(data);
-   //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-   // };
-
-
-
-
 	// Convert database event format to DayPilot event format
    this.eventToSchedulerEvent = function(event,empCol,roomCol){
 
@@ -76,6 +67,7 @@ mainapp.service('meetingService', function(){
             resource: resource,
             text: employees[i].MeetingId.subject,
             backColor: colorList[employees[i].Status],
+            moveDisabled: true,
 			};
 			
 			schEvent.push(newEvent);

@@ -124,7 +124,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       if(date === undefined){
          date = Date.now();
       }
-
+      
       // Update scheduler left column
       var selectedRooms = $scope.rooms.filter(function(item){
          return item.selected;
@@ -137,7 +137,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          meetingService.setSchedulerResources(selectedEmployees, 'Employees', 'group_2','e'),
       ];
 
-      refreshScheduleEvents(startDate, selectedEmployees, selectedRooms);
+      refreshScheduleEvents(date, selectedEmployees, selectedRooms);
       $scope.scheduler.update();
 
    }
@@ -146,9 +146,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    var refreshScheduleEvents = function(date, employees, rooms){
       var data = {date: date, employees: employees, rooms: rooms};
       meetingFactory.postSelectedEvents(data).then(function(response){
-
          $scope.schedulerEvents = meetingService.eventToSchedulerEvent(response.data,employees,rooms);
-
+         // console.log($scope.schedulerEvents);
       }, function(err){
          console.log(err);
       })

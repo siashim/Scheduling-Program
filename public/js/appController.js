@@ -1,9 +1,11 @@
-mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state){
+mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state, $timeout){
    window.onload = function(){
       var lastUser = getCookie('empId');
       if(lastUser != ''){
          $rootScope.currentUser = JSON.parse(lastUser);
-         $state.go('home');
+         $timeout(function(){
+            $state.go('home');
+         });
       }
    }
    
