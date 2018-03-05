@@ -32,4 +32,12 @@ mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state, $tim
       }
       return "";
    }
+
+   $rootScope.colors = {
+      '-2': 'red', // Error
+      '-1': 'blue', // Declined
+      '0': 'lightGrey', // Neutral
+      '1': 'salmon', // Accepted
+      '99': 'lime', // Owner
+   };
 });

@@ -11,6 +11,11 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    calendar.viewType = "Weeks";
    calendar.weeks = 3;
    calendar.init();
+   
+   // Legend
+   document.getElementById("legendAccept").style.color = $rootScope.colors[1];
+   document.getElementById("legendPending").style.color = $rootScope.colors[0];
+   document.getElementById("legendOwner").style.color = $rootScope.colors[99];
 
    $scope.respondToNotification = function(msg, val) {
 
@@ -81,17 +86,22 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       homeFactory.getAllMeetings($rootScope.currentUser).then(function(res){
 
          function parseMeetingData(data) {
-            var accept_clr = "#46EE00";
-            var pending_clr = "#C0C0C0";
+            
             var mtgs = data.map(function(meeting) {
                var mtg = meeting.MeetingId;
+
+               // Set event colors
+               var event_clr = $rootScope.colors[meeting.Status];
+               if(meeting.EmployeeId === meeting.MeetingId.ownerID){
+                  event_clr = $rootScope.colors[99]; // The owner color
+               }
+               
                return {
                   start: mtg.startDate,
                   end: mtg.endDate,
                   id: mtg.subject,
                   text: mtg.subject,
-                  backColor:  meeting.Status ? 
-                     accept_clr : pending_clr,
+                  backColor:  event_clr,
                   moveDisabled: true,
                };
             });
