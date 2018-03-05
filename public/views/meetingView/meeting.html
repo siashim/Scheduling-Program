@@ -58,9 +58,8 @@
             <button type="button" class="btn btn-success btn-block pull-right" ng-click="selectEmployees()">Add Employees</button>
          </div>
          <div class="col-sm-9">
-            <label>Invitees: </label>
-            <span ng-repeat="x in employees | filter:{'selected':true}">{{x.LastName}},&nbsp;{{x.FirstName}};&nbsp;</span>
-         </div>
+
+          </div>
       </div><br>
 
       <div class="row">
@@ -80,16 +79,14 @@
                </div>
             </form>
 
+            <!-- a hook to display invitees -->
+            <div id="formInfo" ></div>
+            <!-- a hook to dipslay meeting booking success/failure -->
+            <div id="formResponse"></div>
+
          </div>   
       </div>
       
-      <!-- Form success/error messages shown here -->
-      <div class="row">
-         <div class="col-sm-12" style="text-align:center;">
-            <span id="formmsg"></span>
-         </div>
-      </div>
-
    </div>    
 </div>
 

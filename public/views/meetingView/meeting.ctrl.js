@@ -27,7 +27,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    // On create meeting button click, post data to server
    $scope.createMeeting = function() {
 
-      if (validateForm() == false) {
+      if (validateForm() === false) {
         return;
       }
 
@@ -56,10 +56,10 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       }
       
       meetingFactory.postEvent(newEvent).then(function(){
-         formMessage('Meeting created: ' + newEvent.subject, 'black');
+         formSuccess('Meeting created: ' + newEvent.subject);
          resetForm();
       }), function(err){
-         formMessage('Error. Server responded: ' + err,'red');
+         formError('Inernal server error!');
          console.log(err);
       }
    }
@@ -69,8 +69,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    function validateForm() {
 
       if ($scope.subject == undefined || $scope.subject === ''){
-         formMessage('Subject required to create meeting.', 'red');
-         return false;
+         return formError('Subject required to create meeting.');
       }
 
       // employee must be selected
@@ -79,8 +78,7 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       });
 
       if (listOfSelected.length == 0){
-         formMessage('At least one invitee required to create meeting.', 'red');
-         return false;
+         return formError('At least one invitee required to create meeting.');
       }
 
       var select = document.getElementById('sel1Room');
@@ -93,17 +91,14 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       // or perhaps the room can be 'Personal'
       // room must be selected
       if (roomID == ''){
-         formMessage('A room is required to create meeting.', 'red');
-         return false;
+         return formError('A room is required to create meeting.');
       }
-
 
       // TODO check this, there is probably a better way
       var room = options[options.selectedIndex].textContent;
       var roomSize = parseInt(room.split(/\(|\)/)[1]);
       if (listOfSelected.length > roomSize) {
-         formMessage('The room is not large enough to hold this meeting.','red');
-         return false;
+         return formError('The room is not large enough to hold this meeting.');
       }
 
       var startDate = $('#datetimepicker .date.start').datepicker('getDate');
@@ -111,19 +106,16 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var startDateTime = meetingService.combineDateTime(startDate, startTime);
 		
       if (startDate === null) {
-         formMessage('A starting date is required.','red');
-         return false;
+         return formError('A starting date is required.');
       }
 
       if (startTime === null) {
-         formMessage('A starting time is required.','red');
-         return false;
+         return formError('A starting time is required.');
       }
 
       var currentDate = new Date();
       if (startDateTime < currentDate) {
-         formMessage('The date selected has passed. Select a new date.','red');
-         return false;
+         return formError('The date selected has passed. Select a new date.');
       }
 
       var endDate = $('#datetimepicker .date.end').datepicker('getDate');
@@ -144,9 +136,10 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       });
 
       if (roomConflicts != undefined) {
-         formMessage('This room selected is already booked during this time.','red');
-         return false;
+         return formError('This room selected is already booked during this time.','red');
       }
+
+      return true;
 
    }
 
@@ -160,16 +153,28 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    function resetForm() {
 
       // TOOD add more functionality to this, perhaps
-
       $('#subject.form-control').val('');
       $('#date.form-control').val('');
       $('#time.form-control').val('');
       $('#sel1Room.form-control').val('');
       
    }
- 
+
+   
+   function displayInvitees() {
+      var inviteesStr = $scope.employees.reduce(function(accum,elem) {
+         if (elem.selected)
+            return accum + '; ' + elem.LastName+', '+elem.FirstName;
+         else 
+            return accum;
+      },'').substr(1);
+      formInfo('<strong>Invitees:</strong> '+inviteesStr);
+   }
+
+
    // On button click to select (or deselect) an option, update its 'selected' value 
    $scope.selectOption = function(type, selectId, val){
+
       var select = document.getElementById(selectId);
       var options = select && select.options;
 
@@ -184,6 +189,9 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
             }
          }  
       }
+
+      displayInvitees();
+
    }
 
    // When user changes date, update scheduler date and resources too

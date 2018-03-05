@@ -414,80 +414,12 @@ exports.findAll_meetings = function(req, res) {
 
 
 
-/*
-
-// Find all events that are scheduled on given date, and return those events
-exports.findAll_selectedEvents = function(req, res){
-<<<<<<< HEAD
-   console.log('SelEventEmps: '+JSON.stringify(req.body.date));
-   d = new Date(req.body.date);
-   console.log('SelEventDates: '+d.toLocaleString());
-   // console.log('SelEventEmps: '+JSON.stringify(req.body.employees));
-   // console.log('SelEventRms: '+JSON.stringify(req.body.rooms));
-   
-   // TODO: improve this function to return 2 arrays of events: 
-   // 1. a Meeting array for the req.body.employees on date req.body.date
-   // 2. a Meeting array containing the req.body.rooms on date req.body.date
-   
-=======
-
-    
-    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
-    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
- 
-    var employeeIDs = req.body.employees.map(x => x._id);
-    var roomIDs = req.body.rooms.map(x => x._id);
-    
-    var conditions = {
-       path: 'MeetingId',
-       match: { 
-          startDate: { $gte: thisDate }, 
-          endDate: { $lte: nextDate },
-       }
-    };
-
-    var A = {};
-
-     Meeting.find({
-       room: { $in: roomIDs },
-       startDate: { $gte: thisDate },
-       endDate: { $lte: nextDate }
-    })
-    .populate({ path: 'room' })
-    .exec(function(err,roomMtgs) {
-       if (err) { return res.send(500,err); }
- 
-       Attendance.find({ 
-          EmployeeId: { $in: employeeIDs },
-          startDate: { $gte: thisDate }, 
-          endDate: { $lte: nextDate }
-       })
-       .populate({ path: 'MeetingId' })
-       .exec(function(err,empMtgs) {
-          if (err) { return res.send(500,err); }
-          empMtgs = empMtgs.filter(x => x.MeetingId);
-          roomMtgs = roomMtgs.filter(x => x.room);
-          var results = {
-             employees: empMtgs,
-             rooms: roomMtgs
-          };
-          return res.send(results);
-       });
- 
-    });
- 
- }
- 
-*/
-
-
 
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
 
    var employeeIDs = req.body.employees.map(x => x._id);
    var roomIDs = req.body.rooms.map(x => x._id);
->>>>>>> 9edc41484609e42659e0facefe1beb189ab55a6f
    var thisDate = new Date(req.body.date).setHours(0,0,0,0);
    var nextDate = new Date(req.body.date).setHours(24,0,0,0);
 
