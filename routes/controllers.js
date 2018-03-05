@@ -315,39 +315,23 @@ exports.findOne_login = function(req, res){
 }
 
 
-// A WORKING EXAMPLE!
 function notificatonFilter(id,status,res) {
 
-   function assign(meeting,rooms) {
-      var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
-      return {
-         _id: meeting._id,
-         ownerFirst: meeting.ownerFirst,
-         ownerLast: meeting.ownerLast,
-         subject: meeting.subject,
-         startDate: meeting.startDate,
-         endDate: meeting.startDate,
-         room: room.Number
-      };
-   }
+	if (!Array.isArray(status))
+		status = [ { Status: status } ];
 
-   Attendance.find({
-      EmployeeId: id,
-      Status: status
-   })
-   .then(function(atts) {
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({ '_id': { $in: attending } })
-      .then(function(mtgs) {
-         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
-         Room.find({ '_id': { $in: roomIDs } })
-         .then(function(rooms) {
-            var notices = mtgs.map(x => assign(x,rooms));
-            return res.send(notices);
-         });
-      });
-   })
-   .catch(function(err){ return res.send(500,err); });
+	Attendance.find({
+		EmployeeId: id,
+		$or: status
+	})
+	.populate({
+		path: 'MeetingId',
+		populate: { path: 'room' }
+	})
+   .exec(function(err,mtgs) {
+		if (err) { return res.send(500,err); }
+		return res.send(mtgs);
+   });
 
 }
 
@@ -379,7 +363,7 @@ exports.deleteOne_reminder = function(req, res){
 }
 
 // Find all notifications
-exports.findAll_notifications = function(req, res){
+exports.findAll_notifications = function(req, res) {
    notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
 }
 
@@ -400,43 +384,12 @@ exports.updateOne_notification = function(req, res){
 }
 
 
-// Find all meetings
-exports.findAll_meetings = function(req, res){
-
-   var accpt_clr = "#46EE00";
-   var pnd_clr = "#C0C0C0";
-
-   function shape(mtg,atts) {
-      var attrib = atts.find(x => x.MeetingId == mtg._id) || { Status: 0 };
-      var backColor = attrib.Status == REPLY.ACCEPT ? accpt_clr : pnd_clr;
-      return {
-         start: mtg.startDate,
-         end: mtg.endDate,
-         id: mtg.subject,
-         text: mtg.subject,
-         backColor: backColor,
-         moveDisabled: true,
-      };
-   }
-
-   var mid = req.query.mid;
-   Attendance.find({
-      EmployeeId: mid,
-      $or: [
-         { Status: REPLY.NEUTRAL },
-         { Status: REPLY.ACCEPT }
-      ]
-   })
-   .exec(function(err,atts) {
-      if (err) { return res.send(500,err); }
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({'_id':{ $in: attending }})
-      .exec(function(err,mtgs) {
-         var dsp = mtgs.map(x => shape(x,atts));
-         return res.send(dsp);
-      });
-   });
-
+exports.findAll_meetings = function(req, res) {
+	var status = [
+		{ Status: REPLY.ACCEPT },
+		{ Status: REPLY.NEUTRAL } 
+	]
+	notificatonFilter(req.query.mid,status,res);
 }
 
 // Find all events that are scheduled on given date, and return those events
@@ -467,7 +420,9 @@ exports.findAll_selectedEvents = function(req, res){
       }
    };
 
-   Meeting.find({
+	// almost certain this can be simplified...
+
+	Meeting.find({
       room: { $in: roomIDs },
       startDate: { $gte: thisDate },
       endDate: { $lte: nextDate }
@@ -482,42 +437,16 @@ exports.findAll_selectedEvents = function(req, res){
       .populate(conditions)
       .exec(function(err,empMtgs) {
          if (err) { return res.send(500,err); }
-
-         console.log('ROOM MTGS',roomMtgs);
-         console.log('EMPLOYEE MTGS',empMtgs);
-
          empMtgs = empMtgs.filter(x => x.MeetingId);
          roomMtgs = roomMtgs.filter(x => x.room);
-
-
-         //roomMtgs = roomMtgs.filter(function(item))
-
          var results = {
             employees: empMtgs,
             rooms: roomMtgs
          };
-
-
          return res.send(results);
-
       });
 
-
    });
-
-   /*
-
-   Attendance.find().populate(conditions).exec(function(err, result){
-      if(err){return console.log(err)};
-      //console.log('attendance query',result);
-      result = result.filter(function(item){
-         return item.MeetingId;
-      })
-      //console.log('attendance filter',result);
-      return res.send(result);
-   });
-
-   */
 
 }
 

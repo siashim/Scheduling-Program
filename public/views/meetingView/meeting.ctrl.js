@@ -1,4 +1,6 @@
+
 mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFactory, meetingService){
+
    $scope.rooms = [];
    $scope.employees = [];
    $scope.schedulerConfig = {
@@ -10,8 +12,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
           { groupBy: "Hour", format: "hh:mm" }
       ],
       cellWidthSpec: 'Auto',
-      businessBeginsHour: 8,
-      businessEndsHour: 18,
+      businessBeginsHour: 0,//8,
+      businessEndsHour: 24,//18,
       showNonBusiness: false,
 
       treeEnabled: true,
@@ -24,19 +26,20 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
 
    // On create meeting button click, post data to server
    $scope.createMeeting = function(){
+
       if (validateForm() == false){
         return;
       }
 
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
-
       var user = $rootScope.currentUser;
       
       var startDate = $('#datetimepicker .date.start').datepicker('getDate');
 		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
 		var endDate = $('#datetimepicker .date.end').datepicker('getDate');
       var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+
       var selectedEmployees = $scope.employees.filter(function(item){
          return item.selected == true;
       });
@@ -61,24 +64,85 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    }
 
    // Form validators
-   function validateForm(){
+   function validateForm() {
+
       if ($scope.subject == undefined || $scope.subject === ''){
          formMessage('Subject required to create meeting.', 'red');
          return false;
       }
+
+      // employee must be selected
       var listOfSelected = $scope.employees.filter(function(emp){
          return emp.selected;
       });
+
       if (listOfSelected.length == 0){
          formMessage('At least one invitee required to create meeting.', 'red');
          return false;
       }
+
+      // can this be removed?
+      // ex, personal days may not need a room
+      // or perhaps the room can be 'Personal'
+      // room must be selected
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
-      if (options[options.selectedIndex].value == ''){
+      var roomID = options[options.selectedIndex].value;
+      if (roomID == ''){
          formMessage('A room is required to create meeting.', 'red');
          return false;
       }
+
+      // TODO check this, there is probably a better way
+      var room = options[options.selectedIndex].textContent;
+      var roomSize = parseInt(room.split(/\(|\)/)[1]);
+      if (listOfSelected.length > roomSize) {
+         formMessage('The room is not large enough to hold this meeting.','red');
+         return false;
+      }
+
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+      var startDateTime = meetingService.combineDateTime(startDate, startTime);
+		
+      if (startDate === null) {
+         formMessage('A starting date is required.','red');
+         return false;
+      }
+
+      if (startTime === null) {
+         formMessage('A starting time is required.','red');
+         return false;
+      }
+
+      var currentDate = new Date();
+      if (startDateTime < currentDate) {
+         formMessage('The date selected has passed. Select a new date.','red');
+         return false;
+      }
+
+      var endDate = $('#datetimepicker .date.end').datepicker('getDate');
+      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+      var endDateTime = meetingService.combineDateTime(endDate,endTime);
+
+      var bookings = $scope.roomBookings;
+      var candidateMtgs = bookings.filter(x => x.room._id == roomID);
+      var roomConflicts = candidateMtgs.find(function(x) {
+         var start = new Date(x.startDate);
+         var end = new Date(x.endDate);
+         if ((startDateTime >= start && startDateTime < end) ||
+            (endDateTime > start && endDateTime <= end) ||
+            (startDateTime <= start && endDateTime >= end)) 
+         {
+            return true;
+         }
+      });
+
+      if (roomConflicts != undefined) {
+         formMessage('This room selected is already booked during this time.','red');
+         return false;
+      }
+
    }
 
    // Form message
@@ -129,14 +193,15 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var selectedRooms = $scope.rooms.filter(function(item){
          return item.selected;
       });
+
       var selectedEmployees = $scope.employees.filter(function(item){
          return item.selected;
       });
+
       $scope.scheduler.resources = [
          meetingService.setSchedulerResources(selectedRooms, 'Rooms', 'group_1', 'r'),
          meetingService.setSchedulerResources(selectedEmployees, 'Employees', 'group_2','e'),
       ];
-
       refreshScheduleEvents(date, selectedEmployees, selectedRooms);
       $scope.scheduler.update();
 
@@ -146,8 +211,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    var refreshScheduleEvents = function(date, employees, rooms){
       var data = {date: date, employees: employees, rooms: rooms};
       meetingFactory.postSelectedEvents(data).then(function(response){
+         $scope.roomBookings = response.data.rooms;
          $scope.schedulerEvents = meetingService.eventToSchedulerEvent(response.data,employees,rooms);
-         // console.log($scope.schedulerEvents);
       }, function(err){
          console.log(err);
       })

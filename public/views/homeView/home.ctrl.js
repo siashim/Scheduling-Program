@@ -1,4 +1,6 @@
+
 mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
+
    $scope.reminders = [];
    $scope.notifications = [];
 
@@ -36,8 +38,6 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       } 
    }
 
-
-
    $scope.gotoAnchor = function(x) {
       $location.hash(x);
    };
@@ -45,29 +45,52 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    // Refresh data in browser with data from db
    var refresh = function(){
 
-      var id = $rootScope.currentUser.empId;
-      var mid = $rootScope.currentUser.mid;
+      function shapeMeetings(data) {
+         var mtgs = data.map(x => x.MeetingId);
 
-      homeFactory.getAllReminders($rootScope.currentUser).then(function(response){
-         $scope.reminders = response.data;
+         // temporary bandaid to prevent displaying bygone meetings
+         var now = new Date();      
+         mtgs = mtgs.filter(x => new Date(x.startDate) > now);
+
+         return mtgs.sort(function(a,b){ 
+            return new Date(a.startDate) - new Date(b.startDate) 
+         });
+      }
+
+      homeFactory.getAllReminders($rootScope.currentUser).then(function(res){
+         $scope.reminders = shapeMeetings(res.data);
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllNotifications($rootScope.currentUser).then(function(response){
-         $scope.notifications = response.data;
+      homeFactory.getAllNotifications($rootScope.currentUser).then(function(res){
+         $scope.notifications = shapeMeetings(res.data);
       }), function(err){
          console.log(err);
       }
 
-      homeFactory.getAllMeetings($rootScope.currentUser).then(function(response){
+      homeFactory.getAllMeetings($rootScope.currentUser).then(function(res){
 
-         
-         
-         calendar.events.list = response.data;
+         function parseMeetingData(data) {
+            var accept_clr = "#46EE00";
+            var pending_clr = "#C0C0C0";
+            var mtgs = data.map(function(meeting) {
+               var mtg = meeting.MeetingId;
+               return {
+                  start: mtg.startDate,
+                  end: mtg.endDate,
+                  id: mtg.subject,
+                  text: mtg.subject,
+                  backColor:  meeting.Status ? 
+                     accept_clr : pending_clr,
+                  moveDisabled: true,
+               };
+            });
+            return mtgs;
+         }
+
+         calendar.events.list = parseMeetingData(res.data);
          calendar.update();
-
-
 
       }), function(err){
          console.log(err);
