@@ -8,10 +8,10 @@ var Attendance = require('../models/attendance.js');
 
 
 var REPLY = Object.freeze({
-    ACCEPT: 1,
-    NEUTRAL: 0,
-    DECLINE: -1,
-    CANCEL: -2
+   ACCEPT: 1,
+   NEUTRAL: 0,
+   DECLINE: -1,
+   CANCEL: -2
 });
 
 
@@ -414,6 +414,7 @@ exports.findAll_meetings = function(req, res) {
 
 
 
+<<<<<<< HEAD
 /*
 
 // Find all events that are scheduled on given date, and return those events
@@ -469,6 +470,8 @@ exports.findAll_selectedEvents = function(req, res){
 */
 
 
+=======
+>>>>>>> e0c368b588c94569b09d89ceedee558bc6d82241
 
 // Find all events that are scheduled on given date, and return those events
 exports.findAll_selectedEvents = function(req, res){
