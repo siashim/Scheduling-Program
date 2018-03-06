@@ -13,9 +13,9 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    calendar.init();
    
    // Legend
-   document.getElementById("legendAccept").style.color = $rootScope.colors[1];
-   document.getElementById("legendPending").style.color = $rootScope.colors[0];
-   document.getElementById("legendOwner").style.color = $rootScope.colors[99];
+   document.getElementById("legendAccept").style.color = colors[1];
+   document.getElementById("legendPending").style.color = colors[0];
+   document.getElementById("legendOwner").style.color = colors[2];
 
    $scope.respondToNotification = function(msg, val) {
 
@@ -91,9 +91,9 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
                var mtg = meeting.MeetingId;
 
                // Set event colors
-               var event_clr = $rootScope.colors[meeting.Status];
+               var event_clr = colors[meeting.Status];
                if(meeting.EmployeeId === meeting.MeetingId.ownerID){
-                  event_clr = $rootScope.colors[99]; // The owner color
+                  event_clr = colors[2]; // owner color
                }
                
                return {

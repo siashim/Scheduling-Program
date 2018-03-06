@@ -5,7 +5,7 @@ mainapp.controller('adminEmployeeCtrl', function($scope, $timeout, adminEmplFact
    // When the view button is clicked, open an alert messagebox
    $scope.viewEmp = function(empid, id){
       adminEmplFactory.getEmployee(id).then(function(response){
-         alert(adminEmplService.employeeToString(response.data));s
+         alert(adminEmplService.employeeToString(response.data));
       }), function(err){
          console.log(err);
       }

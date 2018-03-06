@@ -12,8 +12,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
           { groupBy: "Hour", format: "hh:mm" }
       ],
       cellWidthSpec: 'Auto',
-      businessBeginsHour: 0,//8,
-      businessEndsHour: 24,//18,
+      businessBeginsHour: 6,
+      businessEndsHour: 20,
       showNonBusiness: false,
 
       treeEnabled: true,
@@ -23,6 +23,10 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       ],
    };
    $scope.schedulerEvents = [];
+
+   // Legend
+   document.getElementById("legendAccept").style.color = colors[1];
+   document.getElementById("legendPending").style.color = colors[0];
 
    // On create meeting button click, post data to server
    $scope.createMeeting = function() {
