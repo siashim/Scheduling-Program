@@ -127,12 +127,5 @@ mainapp.service('meetingService', function(){
       date.setMinutes(time.getMinutes());
       return date;
    }
-   
-   // colors
-   // var colorList = {
-   //    '-2': 'red',
-   //    '-1': 'blue',
-   //    '0': 'light grey',
-   //    '1': 'salmon',
-   // }
+
 })

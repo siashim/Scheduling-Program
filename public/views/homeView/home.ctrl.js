@@ -100,9 +100,10 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
                   start: mtg.startDate,
                   end: mtg.endDate,
                   id: mtg.subject,
-                  text: mtg.subject,
+                  text: calendarEventText(mtg),
                   backColor:  event_clr,
                   moveDisabled: true,
+                  bubbleHtml: calendarEventBubbleHtml(mtg),
                };
             });
             return mtgs;
@@ -115,6 +116,20 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
          console.log(err);
       }
    }
+
+   // Strings
+   var calendarEventBubbleHtml = function(mtg){
+      return '<b>' + mtg.subject + '</b><br>' + 
+      '<b>Time: </b>' + new Date(mtg.startDate).toLocaleString('en-US',{hour:'numeric', minute:'numeric'}) + ' - ' +
+      new Date(mtg.endDate).toLocaleString('en-US',{hour:'numeric', minute:'numeric'}) + '<br>' +
+      '<b>Owner: </b>' + mtg.ownerFirst + ' ' + mtg.ownerLast + '<br>' + 
+      '<b>Room(cap): </b>' + mtg.room.Number + '(' + mtg.room.Capacity + ')<br>' + 
+      '<b>Meeting size: </b>' + mtg.attendees.length;
+   };
+   var calendarEventText = function(mtg){
+      return new Date(mtg.startDate).toLocaleString(['en-US'],{hour: 'numeric', minute:'2-digit'}).slice(0, -2) + ' ' + 
+      mtg.subject;
+   };
 
    // Initialize the page with data
    $(document).ready(refresh())
