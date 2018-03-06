@@ -47,14 +47,36 @@ mainapp.controller('adminRoomCtrl', function($scope, adminRoomFactory, adminRoom
 	}
 
    // When the create button is clicked, post data to the db
-   $scope.createRoom = function(){
+   $scope.createRoom = function() {
+      if (formValid() === false) { return; }
       var data = adminRoomService.getCreateRoomData();
-      adminRoomFactory.postRoom(data).then(function(){
-         refresh();
+      adminRoomFactory.postRoom(data).then(function(res) {
+         if (res.data.found === true) {
+            formError('A unique room number is required.');
+         } else {
+            formSuccess('Room created successfully.');
+            resetForm();
+            refresh();
+         }
       }), function(err){
          console.log(err);
       }
-	}
+   }
+   
+
+   var formValid = function() {
+      if ($('#rnum').val().trim() === '')
+         return formError('A room number is required.');
+      if ($('#rcap').val().trim() === '')
+         return formError('A room capacity is required.');
+      return true;
+   }
+
+
+   var resetForm = function() {
+      $('#rnum.form-control').val('');
+      $('#rcap.form-control').val('');
+   }
 
    // Refresh data in browser with data from db
    var refresh = function(){

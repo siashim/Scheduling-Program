@@ -1,9 +1,11 @@
-mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state){
+mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state, $timeout){
    window.onload = function(){
       var lastUser = getCookie('empId');
       if(lastUser != ''){
          $rootScope.currentUser = JSON.parse(lastUser);
-         $state.go('home');
+         $timeout(function(){
+            $state.go('home');
+         });
       }
    }
    
@@ -30,4 +32,12 @@ mainapp.controller('mainCtrl', function ($scope, $rootScope, $http, $state){
       }
       return "";
    }
+
+   $rootScope.colors = {
+      '-2': 'red', // Error
+      '-1': 'blue', // Declined
+      '0': 'lightGrey', // Neutral
+      '1': 'salmon', // Accepted
+      '99': 'lime', // Owner
+   };
 });

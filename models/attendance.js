@@ -5,8 +5,8 @@ var Schema = mongoose.Schema;
 
 
 var attendanceSchema = new Schema({
-    MeetingId: String,
-    EmployeeId: String,
+    MeetingId: { type: Schema.Types.ObjectId, ref: 'Meeting' },
+    EmployeeId: { type: Schema.Types.ObjectId, ref: 'Employee' },
     Status: Number
 });
 

@@ -1,4 +1,4 @@
-mainapp.controller('loginCtrl', function($scope, $rootScope, $state, loginFactory){
+mainapp.controller('loginCtrl', function($scope, $rootScope, $state, $timeout, loginFactory){
    
    // On Login button click, send Form data and handle response
    $scope.formSubmit = function(){
@@ -18,7 +18,9 @@ mainapp.controller('loginCtrl', function($scope, $rootScope, $state, loginFactor
 
          if(response.data.isLoggedIn == true){
             $scope.setCookie('empId',$rootScope.currentUser,30);
-            $state.go('home');
+            $timeout(function(){
+               $state.go('home');
+            });
          }
       }), function(err){
          console.log(err);

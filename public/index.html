@@ -6,6 +6,7 @@
    <meta charset="utf-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="icon" type="image/x-icon" href="/img/favicon.ico" />
 
    <!-- Scripts -->
    <script src="libs/jquery.min.js"></script> 
@@ -44,6 +45,8 @@
    <!-- Local modules -->
    <script src="js/app.js"></script>
    <script src="js/appController.js"></script>
+   <script src="js/formRes.js"></script>
+   <script src="js/meetingCollisions.js"></script>
    <script src="views/adminView/admin-empl.ctrl.js"></script>
    <script src="views/adminView/admin-empl.factory.js"></script>
    <script src="views/adminView/admin-empl.service.js"></script>
@@ -57,6 +60,7 @@
    <script src="views/meetingView/meeting.ctrl.js"></script>
    <script src="views/meetingView/meeting.factory.js"></script>
    <script src="views/meetingView/meeting.service.js"></script>
+   <script src="views/profileView/profile.ctrl.js"></script>
 
    <!-- Custom stylesheets -->
    <link rel="stylesheet" href="css/style.css">
@@ -99,6 +103,7 @@
          </ul>
          <ul class="nav navbar-nav navbar-right">
             <p class="navbar-text" style="color: white;">{{currentUser.welcome}}</p>
+            <li class="tab" ng-show="currentUser.isLoggedIn"><a ui-sref="profile" style="color: white"><img src="img/profile.png" style="width: 30px; height: 30px;"/> Profile</a></li>
             <li class="tab" ng-show="!currentUser.isLoggedIn"><a ui-sref="login" style="color: white"><img src="img/login.png" style="width: 30px; height: 30px;"/> Login</a></li>      
             <li class="tab" ng-show="currentUser.isLoggedIn"><a ui-sref="logout" style="color: white"><img src="img/logout.png" style="width: 30px; height: 30px;"/> Logout</a></li>
          </ul>

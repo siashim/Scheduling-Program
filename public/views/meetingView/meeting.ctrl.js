@@ -1,87 +1,169 @@
+
 mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFactory, meetingService){
+
    $scope.rooms = [];
    $scope.employees = [];
-   $scope.event = {
-      subject: '',
-      startDate: '',
-      endDate: '',
-      startTime: '',
-      endTime: '',
-      room: '',
-      attendees: [],
-   }
+   $scope.schedulerConfig = {
+      scale: "Hour",
+      days: 1,
+      startDate: new DayPilot.Date.today(),
+      timeHeaders: [
+          { groupBy: "Day" },
+          { groupBy: "Hour", format: "hh:mm" }
+      ],
+      cellWidthSpec: 'Auto',
+      businessBeginsHour: 0,//8,
+      businessEndsHour: 24,//18,
+      showNonBusiness: false,
+
+      treeEnabled: true,
+      resources: [
+         meetingService.setSchedulerResources([], 'Rooms', 'group_1', 'r'),
+         meetingService.setSchedulerResources([], 'Employees', 'group_2','e'),
+      ],
+   };
+   $scope.schedulerEvents = [];
 
    // On create meeting button click, post data to server
-   $scope.createMeeting = function(){
+   $scope.createMeeting = function() {
+
+      if (validateForm() === false) {
+        return;
+      }
+
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
-
       var user = $rootScope.currentUser;
+      
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+		var endDate = $('#datetimepicker .date.end').datepicker('getDate');
+      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+
+      var selectedEmployees = $scope.employees.filter(function(item){
+         return item.selected == true;
+      });
 
       var newEvent = {
          ownerFirst: user.firstName,
          ownerLast: user.lastName,
          ownerID: user.mid,
-         subject: $scope.event.subject,
+         subject: $scope.subject,
          room: options[options.selectedIndex].value,
-         startDate: new Date($scope.event.startTime),
-         endDate: new Date($scope.event.endTime),
-         attendees: meetingService.getAttendeeIds($scope.employees),
+         startDate: meetingService.combineDateTime(startDate, startTime),
+         endDate: meetingService.combineDateTime(endDate, endTime),
+         attendees: selectedEmployees,
       }
       
       meetingFactory.postEvent(newEvent).then(function(){
-         alert('Meeting sent to server:\n' + meetingService.eventToString(newEvent));
+         formSuccess('Meeting created: ' + newEvent.subject);
+         resetForm();
       }), function(err){
+         formError('Inernal server error!');
          console.log(err);
       }
    }
 
-   // Initialize form input datetime widgets first
-   $('#datetimepicker .date').datepicker({
-      'format': 'm/d/yyyy',
-      'autoclose': true
-   });
-   $('#datetimepicker .time').timepicker({
-      'showDuration': true,
-      'timeFormat': 'g:ia'
-   });
-   var startDatetimepicker = document.getElementById('datetimepicker');
-   var endDatetimepicker = new Datepair(startDatetimepicker, {
-      'defaultDateDelta': 0,      // 0 days
-      'defaultTimeDelta': 3600000 // 1 hour
-   });
+   // TODO break this into smaller functions
+   // Form validators
+   function validateForm() {
 
-   // Watch for datetime widget change events
-   $('#datetimepicker .date.start').datepicker()
-   .on('changeDate', function(e){
-      $scope.$apply(function(){
-         $scope.event.startDate = $('#datetimepicker .date.start').datepicker('getDate');
-         $scope.event.endDate = $scope.event.startDate;
-         $scope.schedulerConfig.startDate = $scope.event.startDate;
-      })
-   });
-   $('#datetimepicker .date.end').datepicker()
-   .on('changeDate', function(e){
-      $scope.$apply(function(){
-         $scope.event.endDate = $('#datetimepicker .date.end').datepicker('getDate');
-         $scope.schedulerConfig.startDate = $scope.event.endDate;
-      })   
-   });
-   $('#datetimepicker .time.start').timepicker()
-   .on('changeTime', function(e){
-      $scope.$apply(function(){
-         $scope.event.startTime = $('#datetimepicker .time.start').timepicker('getTime', $scope.event.startDate);
-      })   
-   });
-   $('#datetimepicker .time.end').timepicker()
-   .on('changeTime', function(e){
-      $scope.$apply(function(){
-         $scope.event.endTime = $('#datetimepicker .time.end').timepicker('getTime', $scope.event.endDate);
-      })
-   });
+      if ($scope.subject == undefined || $scope.subject === ''){
+         return formError('Subject required to create meeting.');
+      }
+
+      // employee must be selected
+      var listOfSelected = $scope.employees.filter(function(emp){
+         return emp.selected;
+      });
+
+      if (listOfSelected.length == 0){
+         return formError('At least one invitee required to create meeting.');
+      }
+
+      var select = document.getElementById('sel1Room');
+      var options = select && select.options;
+      var roomID = options[options.selectedIndex].value;
+      
+      
+      // this can this be removed?
+      // ex, personal days may not need a room
+      // or perhaps the room can be 'Personal'
+      // room must be selected
+      if (roomID == ''){
+         return formError('A room is required to create meeting.');
+      }
+
+      // TODO check this, there is probably a better way
+      var room = options[options.selectedIndex].textContent;
+      var roomSize = parseInt(room.split(/\(|\)/)[1]);
+      if (listOfSelected.length > roomSize) {
+         return formError('The room is not large enough to hold this meeting.');
+      }
+
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+	   var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+      var startDateTime = meetingService.combineDateTime(startDate, startTime);
+		
+      if (startDate === null) {
+         return formError('A starting date is required.');
+      }
+
+      if (startTime === null) {
+         return formError('A starting time is required.');
+      }
+
+      var currentDate = new Date();
+      if (startDateTime < currentDate) {
+         return formError('The date selected has passed. Select a new date.');
+      }
+
+      var endDate = $('#datetimepicker .date.end').datepicker('getDate');
+      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+      var endDateTime = meetingService.combineDateTime(endDate,endTime);
+
+      var bookings = $scope.roomBookings;
+      var candidateMtgs = bookings.filter(x => x.room._id == roomID);
+      if (meetingConflicts(candidateMtgs,startDateTime,endDateTime)) {
+         return formError('The room selected is already booked during this time.');
+      }
+
+      return true;
+
+   }
+
+   // Form message
+   function formMessage(message, color){
+      document.getElementById("formmsg").style.color = color;
+      document.getElementById('formmsg').innerHTML = message;
+   }
+
+
+   function resetForm() {
+
+      // TOOD add more functionality to this, perhaps
+      $('#subject.form-control').val('');
+      $('#date.form-control').val('');
+      $('#time.form-control').val('');
+      $('#sel1Room.form-control').val('');
+      
+   }
+
    
+   function displayInvitees() {
+      var inviteesStr = $scope.employees.reduce(function(accum,elem) {
+         if (elem.selected)
+            return accum + '; ' + elem.LastName+', '+elem.FirstName;
+         else 
+            return accum;
+      },'').substr(1);
+      formInfo('<strong>Invitees:</strong> '+inviteesStr);
+   }
+
+
    // On button click to select (or deselect) an option, update its 'selected' value 
    $scope.selectOption = function(type, selectId, val){
+
       var select = document.getElementById(selectId);
       var options = select && select.options;
 
@@ -96,25 +178,58 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
             }
          }  
       }
+
+      displayInvitees();
+
    }
+
+   // When user changes date, update scheduler date and resources too
+   $('#datetimepicker .date.start').datepicker()
+      .on('changeDate', function(e) {
+         $scope.$apply(function(){
+            $scope.scheduler.startDate = $('#datetimepicker .date.start').datepicker('getDate');
+            $scope.updateScheduler();
+         })
+   });
 
    // Update DayPilot scheduler with 'selected' elements from master list(s) 
    $scope.updateScheduler = function(){
+      
+      // Get user-selected date
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+      var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+      var date = meetingService.combineDateTime(startDate, startTime);
+      if(date === undefined){
+         date = Date.now();
+      }
+      
+      // Update scheduler left column
+      var selectedRooms = $scope.rooms.filter(function(item){
+         return item.selected;
+      });
+
+      var selectedEmployees = $scope.employees.filter(function(item){
+         return item.selected;
+      });
+
       $scope.scheduler.resources = [
-         {
-            "id": "group_1",
-            "name": "Rooms",
-            "expanded": true,
-            "children": meetingService.getSelected('room', $scope.rooms),
-         },
-         {
-            "id": "group_2",
-            "name": "Employees",
-            "expanded": true,
-            "children": meetingService.getSelected('employee', $scope.employees),
-         }
-      ]
+         meetingService.setSchedulerResources(selectedRooms, 'Rooms', 'group_1', 'r'),
+         meetingService.setSchedulerResources(selectedEmployees, 'Employees', 'group_2','e'),
+      ];
+      refreshScheduleEvents(date, selectedEmployees, selectedRooms);
       $scope.scheduler.update();
+
+   }
+
+   // Refresh Daypilot schedule events by request from database
+   var refreshScheduleEvents = function(date, employees, rooms){
+      var data = {date: date, employees: employees, rooms: rooms};
+      meetingFactory.postSelectedEvents(data).then(function(response){
+         $scope.roomBookings = response.data.rooms;
+         $scope.schedulerEvents = meetingService.eventToSchedulerEvent(response.data,employees,rooms);
+      }, function(err){
+         console.log(err);
+      })
    }
 
    // On CheckRooms button click, open a modal dialog
@@ -127,10 +242,10 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       $('#empSelModal').modal({});
    }
 
-   // Refresh data in browser with data from db
+   // Initialize data on page load with data from db
    var refresh = function(){
       meetingFactory.getAllRooms().then(function(response){
-         $scope.rooms = meetingService.makeOptionsList(response.data); 
+         $scope.rooms = meetingService.makeOptionsList(response.data);
       }), function(err){
          console.log(err);
       }
@@ -139,96 +254,26 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       }), function(err){
          console.log(err);
       }
+
+      // Initialize form input datetime widgets first
+      $('#datetimepicker .date').datepicker({
+         'format': 'm/d/yyyy',
+         'autoclose': true,
+      });
+      $('#datetimepicker .time').timepicker({
+         'showDuration': true,
+         'timeFormat': 'g:ia',
+         'scrollDefault': 'now'
+      });
+      // Initialize datepair so date and time widgets can interact
+      var startDatetimepicker = document.getElementById('datetimepicker');
+      var endDatetimepicker = new Datepair(startDatetimepicker, {
+         'defaultDateDelta': 0,      // 0 days
+         'defaultTimeDelta': 3600000 // 1 hour
+      });
    }
 
    // Initialize the table with data
    $(document).ready(refresh())
-
-
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////
-
-   // Below this point is demo code
-
-
-   // Daypilot scheduler
-   var dp_events = [
-      {
-         start: new DayPilot.Date("2018-01-01T10:00:00"),
-         end: new DayPilot.Date("2018-01-01T11:00:00"),
-         id: DayPilot.guid(),
-         resource: "r1",
-         text: "Meeting"
-      },
-      {
-         start: new DayPilot.Date("2018-01-01T13:00:00"),
-         end: new DayPilot.Date("2018-01-01T14:00:00"),
-         id: DayPilot.guid(),
-         resource: "r2",
-         text: "Meeting"
-      },
-      {
-         start: new DayPilot.Date("2018-01-01T10:00:00"),
-         end: new DayPilot.Date("2018-01-01T11:00:00"),
-         id: DayPilot.guid(),
-         resource: "e1",
-         text: "Meeting (?)",
-         backColor: "salmon",
-      },
-      {
-         start: new DayPilot.Date("2018-01-01T10:00:00"),
-         end: new DayPilot.Date("2018-01-01T11:00:00"),
-         id: DayPilot.guid(),
-         resource: "e2",
-         text: "Meeting",
-      },
-      {
-         start: new DayPilot.Date("2018-01-01T13:00:00"),
-         end: new DayPilot.Date("2018-01-01T14:00:00"),
-         id: DayPilot.guid(),
-         resource: "e3",
-         text: "Meeting",
-      },
-      {
-         start: new DayPilot.Date("2018-01-01T13:00:00"),
-         end: new DayPilot.Date("2018-01-01T14:00:00"),
-         id: DayPilot.guid(),
-         resource: "e4",
-         text: "Meeting",
-      },
-   ];
-   var resources = []
-   
-   $scope.schedulerConfig = {
-      scale: "Hour",
-      days: 1,
-      startDate: new DayPilot.Date.today(),
-      timeHeaders: [
-          { groupBy: "Day" },
-          { groupBy: "Hour", format: "hh:mm" }
-      ],
-      cellWidthSpec: 'Auto',
-
-      businessBeginsHour: 8,
-      businessEndsHour: 18,
-      showNonBusiness: false,
-
-      treeEnabled: true,
-      resources:[
-      {
-         "id": "group_1",
-         "name": "Rooms",
-         "expanded": true,
-         "children": [],
-      },
-      {
-         "id": "group_2",
-         "name": "Employees",
-         "expanded": true,
-         "children": [],
-      }]
-   };
-   $scope.events = dp_events;
 });
+

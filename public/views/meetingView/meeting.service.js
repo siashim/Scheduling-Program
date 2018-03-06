@@ -13,43 +13,99 @@ mainapp.service('meetingService', function(){
    }
 
    // Accessors:
-
-   // Get list for Daypilot scheduler of only 'selected' items from master list
-   this.getSelected = function(listName, list){
+   // Set Daypilot scheduler resource children, the table left column items
+   this.setSchedulerResourcesChildren = function(list, type, prefix){
       var ary = [];
-      
-      for (i=0; i<list.length; i++){
-         if(list[i].selected == true){
-            var element = {};
-            if (listName == 'room'){
-               element = {
-                  id: 'r' + i,
-                  name: this.roomToString(list[i]),
-               }
+      for(i=0; i<list.length; i++){
+         var element;
+         if (type == 'Rooms'){
+            element = {
+               id: prefix + i,
+               name: this.roomToString(list[i]),
             }
-            else if (listName == 'employee'){
-               element = {
-                  id: 'e' + i,
-                  name: this.employeeToString(list[i]),
-               }
-            }            
-            ary.push(element);
          }
+         else if (type == 'Employees'){
+            element = {
+               id: prefix + i,
+               name: this.employeeToString(list[i]),
+            }
+         }
+         ary.push(element);
       }
       return ary;
-   }
-   // Get all 'selected' employee _id's from list
-   this.getAttendeeIds = function(list){
-      var result = [];
-      for(var i=0; i<list.length; i++){
-         if(list[i].selected == true){
-            result.push(list[i]._id);
-         }
-      }
-      return result;
+   };
+
+   // Set DayPilot scheduler resources, the table left column
+   this.setSchedulerResources = function(list, type, group, prefix){
+      var resource = {
+         "id": group,
+         "name": type,
+         "expanded": true,
+         "children": this.setSchedulerResourcesChildren(list, type, prefix),
+      };
+      return resource;
    }
 
-   // Strings:
+   // Convert UTC time to local time
+   // this.toLocaltime = function(data){
+   //    var date = new Date(data);
+   //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+   // };
+
+   
+	// Convert database event format to DayPilot event format
+   this.eventToSchedulerEvent = function(event,empCol,roomCol){
+
+		var schEvent = [];		
+		var employees = event.employees;
+		var rooms = event.rooms;
+
+		for (var i = 0; i < employees.length; i++) {
+
+			var empID = employees[i].EmployeeId;
+			var empIndex = empCol.findIndex(x => empID == x._id);
+			var resource = 'e'+empIndex;
+
+			var newEvent = {
+                start: new DayPilot.Date(new Date(employees[i].MeetingId.startDate), true),
+                end: new DayPilot.Date(new Date(employees[i].MeetingId.endDate), true),
+                id: DayPilot.guid(),
+                resource: resource,
+                text: employees[i].MeetingId.subject,
+                backColor: colorList[employees[i].Status],
+                moveDisabled: true,
+			};
+			
+			schEvent.push(newEvent);
+
+		}
+
+		for (var i = 0; i < rooms.length; i++) {
+			var roomID = rooms[i].room._id;
+			var roomIndex = roomCol.findIndex(x => roomID == x._id);
+			var resource = 'r'+roomIndex;
+
+			var newEvent = {
+                start: new DayPilot.Date(new Date(rooms[i].startDate), true),
+                end: new DayPilot.Date(new Date(rooms[i].endDate), true),
+                id: DayPilot.guid(),
+                resource: resource,
+                text: rooms[i].subject,
+                backColor: colorList['1'],
+                moveDisabled: true,
+			};
+			
+			schEvent.push(newEvent);
+
+		}
+
+		return schEvent;
+
+	}
+
+
+
+	// Strings:
    this.roomToString = function(data){
       return data.Number + '(' + data.Capacity + ')';
    }
@@ -63,5 +119,29 @@ mainapp.service('meetingService', function(){
       'End: ' + event.endDate +  '\n' + 
       'Room:' + event.room +  '\n' + 
       'Attendees:' + event.attendees;
+   }
+
+	// Helper function to combine date and time into single Date object
+	this.combineDateTime = function(date, time){
+		if (date === null){
+			return;
+		}
+		
+      var date = new Date(date);
+      if(time === null){
+         return date;
+      }
+
+      date.setHours(time.getHours());
+      date.setMinutes(time.getMinutes());
+      return date;
+   }
+   
+   // colors
+   var colorList = {
+      '-2': 'red',
+      '-1': 'blue',
+      '0': 'light grey',
+      '1': 'salmon',
    }
 })

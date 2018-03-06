@@ -1,0 +1,63 @@
+<!-- Top title section -->
+<div class="container">
+   <div class="well">
+      <h3 align="center">Employee Profile</h3>
+   </div>    
+
+   <!-- Form to update employee profile -->
+   <div class="well">
+      <h3 align="center">Profile for Employee: {{form.EmployeeId}}</h3>
+      <form class="form">
+         <div class="row">
+            <div class="col-sm-4 col-sm-offset-2">
+              <div class="form-group">
+                  <label class="control-label" for="fname">First Name:</label>
+                  <input class="form-control" id="fname" value={{form.FirstName}}>
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="form-group">
+                  <label class="control-label" for="lname">Last Name:</label>
+                  <input class="form-control" id="lname" value={{form.LastName}}>
+               </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-sm-4 col-sm-offset-2">
+               <div class="form-group">
+                  <label class="control-label" for="pwd">Password:</label>
+                  <input class="form-control" id="pwd" value={{form.Password}}>
+               </div>
+            </div>
+            <div class="col-sm-4">
+               <div class="form-group">
+                  <label class="control-label" for="pos">Position:</label>
+                  <input class="form-control" id="pos" value={{form.Position}} disabled>
+               </div>
+            </div>
+            <div class="col-sm-8 col-sm-offset-2">
+               <button class="btn btn-primary" ng-click="submit()">Submit</button>
+            </div>
+         </div>   
+      </form>
+   </div>
+  
+   <!-- Form to set availability -->
+   <div class="well">
+      <h3 align="center">Set Availability</h3>
+      <div class="row">
+         <div class="col-sm-3" ng-repeat="x in available">
+            <div class="checkbox" >
+               <label><input type="checkbox" value="" id="{{$index}}" ng-model="available[$index].checked">{{x.slotStart | date:'h:mm'}}-{{x.slotEnd | date:'h:mm a'}}</label>
+            </div>
+         </div>
+      </div>
+    
+      <div class="row">
+         <div class="col-sm-12">
+            <button class="btn btn-primary" ng-click="setAvailable()">Set Availablility</button>
+         </div>
+      </div>    
+   </div> 
+
+</div>

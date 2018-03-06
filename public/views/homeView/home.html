@@ -14,8 +14,9 @@
 <div class="container">
    <div class="well">
       <h3 align="center">Meeting Calendar&nbsp|&nbsp
-         <i class="fa fa-circle" style="font-size:1em; color:#46EE00" title="Accepted"></i>=Accepted,
-         <i class="fa fa-circle" style="font-size:1em; color:#C0C0C0"title="Pending"></i>=Pending
+         <i class="fa fa-circle" id="legendAccept" style="font-size:1em;" title="Accepted"></i>=Accepted,
+         <i class="fa fa-circle" id="legendPending" style="font-size:1em;" title="Pending"></i>=Pending,
+         <i class="fa fa-circle" id="legendOwner" style="font-size:1em;" title="Owner"></i>=Owner
       </h3>
          
          <daypilot-calendar id="dpm"></daypilot-calendar>
@@ -31,7 +32,7 @@
       <div id="notifications"></div>
       <h3 align="center">My Meeting Notifications</h3>
       <table  class="table table-bordered">
-      <thead class="thead-inverse">
+      <thead class="thead-inverse table-css-style">
          <tr>
          <th>Requester</th>
          <th>Subject</th>
@@ -46,7 +47,7 @@
             <td>{{ x.subject }}</td>
             <td>{{ x.startDate | date }}</td>
             <td>{{ x.startDate | date : "h:mm a" }}</td>
-            <td>{{ x.room }}</td>
+            <td>{{ x.room.Number }}</td>
             <td><button type="button" class="btn btn-success" ng-click="respondToNotification(x,1)">Accept</button></td>
             <td><button type="button" class="btn btn-danger" ng-click="respondToNotification(x,-1)">Decline</button></td>
          </tr>
@@ -56,7 +57,7 @@
       <!-- My Reminders -->
       <h3 id="reminders" align="center">My Meetings Reminders</h3>
       <table  class="table table-bordered">
-      <thead class="thead-inverse">
+      <thead class="thead-inverse table-css-style">
          <tr>
          <th>Owner</th>
          <th>Subject</th>
@@ -71,7 +72,7 @@
             <td>{{ x.subject }}</td>
             <td>{{ x.startDate | date }}</td>
             <td>{{ x.startDate | date : "h:mm a" }}</td>
-            <td>{{ x.room }}</td>
+            <td>{{ x.room.Number }}</td>
             <!-- <td><button type="button" class="btn btn-success" ng-click="edit()">Edit</button></td> -->
             <td><button type="button" class="btn btn-danger" ng-click="deleteReminder(x)">Delete</button></td>
          </tr>

@@ -14,5 +14,9 @@ mainapp.factory('meetingFactory', function($http){
       return $http.post('/meeting/event', data);
    }
 
+   factory.postSelectedEvents = function(data){
+      return $http.post('/meeting/selectedEvents', data);
+   }
+
    return factory;
 })

@@ -72,6 +72,16 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
          requireAuthorization: true,
       }
    };
+   
+   var profile = {
+		name:'profile',
+		url:'/profile',
+		templateUrl:'views/profileView/profile.html',
+      controller:'profileCtrl',
+      data: {
+         requireAuthorization: false,
+      }
+   };
 
    var logout = {
 		name:'logout',
@@ -92,6 +102,7 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
 	$stateProvider.state(admin);
    $stateProvider.state(adminEmployees);
    $stateProvider.state(adminRooms);
+   $stateProvider.state(profile);
    $stateProvider.state(logout);
 });
 

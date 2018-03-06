@@ -8,10 +8,10 @@ var Attendance = require('../models/attendance.js');
 
 
 var REPLY = Object.freeze({
-    ACCEPT: 1,
-    NEUTRAL: 0,
-    DECLINE: -1,
-    CANCEL: -2
+   ACCEPT: 1,
+   NEUTRAL: 0,
+   DECLINE: -1,
+   CANCEL: -2
 });
 
 
@@ -25,7 +25,7 @@ exports.findAll_employees = function(req, res) {
     }
 
     Employee.find(query)
-    .select({ Password: 0}) // Purposely prevent sending all pwds to frontend
+    .select({ Password: 0 }) // Purposely prevent sending all pwds to frontend
     .exec(function(err, result){
         if(err){ return res.send(500, err); }
         return res.send(result)
@@ -42,12 +42,22 @@ exports.findOne_employee = function(req, res){
 }
 
 // Create one employee
-exports.createOne_employee = function(req, res){
-   var employee = new Employee(req.body);
-   employee.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+exports.createOne_employee = function(req, res) {
+
+   var empID = req.body.EmployeeId;
+   Employee.find({ EmployeeId: empID })
+   .exec(function(err,docs) {
+      if (err) { return res.send(500,err); }
+      if (docs.length > 0)
+         return res.send({ found: true });
+      var employee = new Employee(req.body);
+      employee.save(function(err){
+         if(err){ return res.send(500, err); }
+         return res.sendStatus(200,{ found: false} );
+      });
+
+   });
+
 }
 
 // Update one employee
@@ -99,12 +109,22 @@ exports.findOne_room = function(req, res){
 }
 
 // Create one room
-exports.createOne_room = function(req, res){
-   var room = new Room(req.body);
-   room.save(function(err){
-      if(err){ return res.send(500, err); }
-      return res.sendStatus(200);
-   })
+exports.createOne_room = function(req, res) {
+
+   Room.find({ Number: req.body.Number })
+   .exec(function(err, docs) {
+      if (err) { return res.send(500,err); }
+      if (docs.length > 0)
+         return res.send({ found: true });
+      
+      var room = new Room(req.body);
+      room.save(function(err){
+         if(err){ return res.send(500, err); }
+         return res.send({ found: false });
+      });
+
+   });
+
 }
 
 // Update one room
@@ -172,14 +192,15 @@ exports.createOne_meeting = function(req, res) {
          Status: response
       });
    }
-
+console.log('Body: '+JSON.stringify(req.body));
    var meeting = new Meeting(req.body);
+   console.log('Meeting '+ meeting);
    meeting.save(function(err, mtg) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
       var attendance = atts.map(x => invite(mtg,x));
       Attendance.collection.insert(attendance, function(errs, docs) {
-         if (errs) { return res.send(500,errs); }
+         if (errs) { console.log('Error: '+err); return res.send(500,errs); }
          return res.send(docs);
       });
             
@@ -314,39 +335,23 @@ exports.findOne_login = function(req, res){
 }
 
 
-// A WORKING EXAMPLE!
 function notificatonFilter(id,status,res) {
 
-   function assign(meeting,rooms) {
-      var room = rooms.find(x => meeting.room == x._id) || { Number: '' };
-      return {
-         _id: meeting._id,
-         ownerFirst: meeting.ownerFirst,
-         ownerLast: meeting.ownerLast,
-         subject: meeting.subject,
-         startDate: meeting.startDate,
-         endDate: meeting.startDate,
-         room: room.Number
-      };
-   }
+	if (!Array.isArray(status))
+		status = [ { Status: status } ];
 
-   Attendance.find({
-      EmployeeId: id,
-      Status: status
-   })
-   .then(function(atts) {
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({ '_id': { $in: attending } })
-      .then(function(mtgs) {
-         var roomIDs = mtgs.map(x => x.room).filter(x => x != '');
-         Room.find({ '_id': { $in: roomIDs } })
-         .then(function(rooms) {
-            var notices = mtgs.map(x => assign(x,rooms));
-            return res.send(notices);
-         });
-      });
-   })
-   .catch(function(err){ return res.send(500,err); });
+	Attendance.find({
+		EmployeeId: id,
+		$or: status
+	})
+	.populate({
+		path: 'MeetingId',
+		populate: { path: 'room' }
+	})
+   .exec(function(err,mtgs) {
+		if (err) { return res.send(500,err); }
+		return res.send(mtgs);
+   });
 
 }
 
@@ -378,7 +383,7 @@ exports.deleteOne_reminder = function(req, res){
 }
 
 // Find all notifications
-exports.findAll_notifications = function(req, res){
+exports.findAll_notifications = function(req, res) {
    notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
 }
 
@@ -399,42 +404,84 @@ exports.updateOne_notification = function(req, res){
 }
 
 
-// Find all meetings
-exports.findAll_meetings = function(req, res){
+exports.findAll_meetings = function(req, res) {
+	var status = [
+		{ Status: REPLY.ACCEPT },
+		{ Status: REPLY.NEUTRAL } 
+	]
+	notificatonFilter(req.query.mid,status,res);
+}
 
-   var accpt_clr = "#46EE00";
-   var pnd_clr = "#C0C0C0";
 
-   function shape(mtg,atts) {
-      var attrib = atts.find(x => x.MeetingId == mtg._id) || { Status: 0 };
-      var backColor = attrib.Status == REPLY.ACCEPT ? accpt_clr : pnd_clr;
-      return {
-         start: mtg.startDate,
-         end: mtg.endDate,
-         id: mtg.subject,
-         text: mtg.subject,
-         backColor: backColor
-      };
-   }
 
-   var mid = req.query.mid;
-   Attendance.find({
-      EmployeeId: mid,
-      $or: [
-         { Status: REPLY.NEUTRAL },
-         { Status: REPLY.ACCEPT }
-      ]
+
+// Find all events that are scheduled on given date, and return those events
+exports.findAll_selectedEvents = function(req, res){
+
+   var employeeIDs = req.body.employees.map(x => x._id);
+   var roomIDs = req.body.rooms.map(x => x._id);
+   var thisDate = new Date(req.body.date).setHours(0,0,0,0);
+   var nextDate = new Date(req.body.date).setHours(24,0,0,0);
+
+   var meetingConditions = {
+      path: 'MeetingId',
+      match: { 
+         startDate: { $gte: thisDate }, 
+         endDate: { $lte: nextDate },
+      }
+   };
+
+	// almost certain this can be simplified...
+
+	Meeting.find({
+      room: { $in: roomIDs },
+      startDate: { $gte: thisDate },
+      endDate: { $lte: nextDate }
    })
-   .exec(function(err,atts) {
+   .populate({ path: 'room' })
+   .exec(function(err,roomMtgs) {
       if (err) { return res.send(500,err); }
-      var attending = atts.map(x => x.MeetingId);
-      Meeting.find({'_id':{ $in: attending }})
-      .exec(function(err,mtgs) {
-         var dsp = mtgs.map(x => shape(x,atts));
-         return res.send(dsp);
+
+      Attendance.find({ 
+         EmployeeId: { $in: employeeIDs },
+         $or: [ 
+            { Status: REPLY.ACCEPT }, 
+            { Status: REPLY.NEUTRAL }
+         ]
+      })
+      .populate(meetingConditions)
+      .exec(function(err,empMtgs) {
+         if (err) { return res.send(500,err); }
+         empMtgs = empMtgs.filter(x => x.MeetingId);
+         roomMtgs = roomMtgs.filter(x => x.room);
+         var results = {
+            employees: empMtgs,
+            rooms: roomMtgs
+         };
+         return res.send(results);
       });
+
    });
 
 }
 
+// Find one employee and return profile data
+exports.findOne_profile = function(req, res){
+   var id = { _id: req.body.id };
+   Employee.findById(id, function(err, result){
+      if(err){ return res.send(err); }
+      return res.send(result);
+   })
+};
 
+// Update one employee profile in db
+exports.updateOne_profile = function(req, res){
+   var id = { _id: req.params.id };
+   var update = req.body;
+   Employee.findByIdAndUpdate(id, {$set:update}, function(err, result){
+      if(err){ return res.send(500); }
+      return res.send(result);
+   })
+};
+
+   
