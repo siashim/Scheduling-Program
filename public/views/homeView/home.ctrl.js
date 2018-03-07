@@ -15,7 +15,7 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    // Legend
    document.getElementById("legendAccept").style.color = colors[1];
    document.getElementById("legendPending").style.color = colors[0];
-   document.getElementById("legendOwner").style.color = colors[2];
+   document.getElementById("legendOwner").style.color = colors[3];
 
    $scope.respondToNotification = function(msg, val) {
 
@@ -23,7 +23,7 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       var startDate = new Date(msg.startDate);
       var endDate = new Date(msg.endDate);
 
-      if (meetingConflicts(reminds,startDate,endDate)) {
+      if (val == 1 && meetingConflicts(reminds,startDate,endDate)) {
          alert('Meeting conflicts with a previously scheduled meeting.');
          return;
       }
@@ -98,7 +98,7 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
                // Set event colors
                var event_clr = colors[meeting.Status];
                if(meeting.EmployeeId === meeting.MeetingId.ownerID){
-                  event_clr = colors[2]; // owner color
+                  event_clr = colors[3]; // owner color
                }
                
                return {
