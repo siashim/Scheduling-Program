@@ -484,6 +484,25 @@ exports.updateOne_profile = function(req, res){
 };
 
 
+exports.findAll_available = function(req,res) {
+   
+   /*
+   Attendance.find({
+      EmployeeId: req.params.id,
+      Status: REPLY.PERSONAL
+   })
+   .populate({ path:'MeetingId' })
+   .exec(function(err,mtgs) {
+      if (err) { return res.send(500,err); }
+      return res.send(mtgs);
+   });
+   */
+
+   notificatonFilter(req.params.id,REPLY.PERSONAL,res);
+
+}
+
+
 exports.updateMany_available = function(req,res) {
 
    var user = req.body.user;
@@ -542,80 +561,6 @@ exports.updateMany_available = function(req,res) {
    });
 
 }
-
-
-/*
-
-exports.updateMany_available = function(req,res) {
-
-   var user = req.body.user;
-   var subject = req.body.subject;
-
-   function createMeetings(user,subject,avail) {
-      return new Meeting({
-         ownerFirst: user.firstName,
-         ownerLast: user.lastName,
-         ownerID: user.mid,
-         subject: subject,
-         startDate: avail.start,
-         endDate: avail.end,
-         attendees: [user.mid]
-      });
-   }
-
-   function createAttendances(mtgID,empID) {
-      return new Attendance({
-         MeetingId: mtgID,
-         EmployeeId: empID,
-         Status: REPLY.PERSONAL
-      });
-   }
-
-   var unavails = req.body.availability.map(x => createMeetings(user,subject,x));
-
-   var attendQuery = {
-      EmployeeId: user.mid,
-      Status: REPLY.PERSONAL
-   };
-
-   var empID = user.mid;
-
-   Attendance.find(attendQuery).remove()
-   .exec(function(err,opRes) {
-      if (err) { return res.send(500,err); }
-
-      var ops = opRes.ops || [];
-      var removeMtgIDs = ops.map(x => x._id);
-
-      console.log('\n\nMeetings OPS',ops,'\n\n');
-
-
-      Meeting.find({ _id: { $in: removeMtgIDs } }).remove()
-      .exec(function(err) {
-         if (err) { return res.send(500,err); }
-
-         Meeting.create(unavails,function(err,mtgs) {
-
-            console.log('\n\n Created meetings \n\n',mtgs);
-            var attendances = mtgs.map(x => createAttendances(x._id,empID));
-            console.log('Attendances',attendances);
-
-            Attendance.create(attendances,function(err,atts) {
-
-               console.log('Attendances created',atts);
-               return res.send(atts);
-
-            });
-
-         });
-
-      });
-      
-   });
-
-}
-
-*/
 
 
 // Find one meeting with all attendee responses

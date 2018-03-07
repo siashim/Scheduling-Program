@@ -33,6 +33,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
       profileFactory.putProfileChanges($scope.form._id, formchanges).then(function(response){
          // console.log(response.data);
+         formInfo('Profile updated.');
       },function(err){
          console.log(err);
       })
@@ -113,7 +114,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
       var unavailable = getUnavailable(startInput,endInput);
       var persMtgs = createUnavailableSlots(startInput,endInput,unavailable);
 
-      var data = {
+      var availData = {
          user: $rootScope.currentUser,
          availability: persMtgs,
          subject: 'Unavailable',
@@ -121,23 +122,40 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
       };
 
       // TODO figure out how to represent room in unavailable times
-      profileFactory.putAvailability(data).then(function(res) {
-         // TODO have part of profile page for current schedule off
-
-         console.log(res.data);
-
+      profileFactory.putAvailability(availData).then(function(res) {
          formSuccess('Availability has be updated.');
+
+         refreshAvailability();
+
       }, function(err) {
          console.log(err);
       });
 
    };
 
+
+   var refreshAvailability = function() {
+      var id = $rootScope.currentUser.mid;
+      profileFactory.getAvailability(id).then(function(res) {
+         
+         var unavail = res.data;
+         var initDate = unavail[0].MeetingId.startDate;
+         initDate = initDate.slice(0,initDate.length-1);
+
+         return;
+         
+         
+      },function(err) {
+         console.log(err);
+      });
+   }
+
    // Refresh data in browser with data from db
-   var refresh = function(){
+   var refresh = function() {
       profileFactory.getEmployeeDetails($rootScope.currentUser.mid).then(function(response){
          $scope.form = response.data;
          // console.log(response.data);
+         refreshAvailability();
       }), function(err){
          console.log(err);
       }
@@ -173,9 +191,13 @@ mainapp.factory('profileFactory', function($http){
       return $http.put('/profile/details/'+id, data);
    };
 
+   factory.getAvailability = function(id) {
+      return $http.get('/profile/available/'+id);
+   }
+
    factory.putAvailability = function(data) {
       return $http.put('/profile/available', data);
-   }
+   };
 
    return factory;
 

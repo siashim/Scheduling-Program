@@ -39,6 +39,7 @@ router.put('/home/notification/:id', controller.updateOne_notification);
 
 router.post('/profile/details', controller.findOne_profile);
 router.put('/profile/details/:id', controller.updateOne_profile);
+router.get('/profile/available/:id',controller.findAll_available);
 router.put('/profile/available', controller.updateMany_available);
 
 router.get('/response', controller.findOne_meetingResponses);

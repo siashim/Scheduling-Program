@@ -27,6 +27,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    // Legend
    document.getElementById("legendAccept").style.color = colors[1];
    document.getElementById("legendPending").style.color = colors[0];
+   document.getElementById("legendUnavailable").style.color = colors[2];
+   
 
    // On create meeting button click, post data to server
    $scope.createMeeting = function() {
