@@ -107,12 +107,29 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
       var startInput = $('#date.start').val();
       var endInput = $('#date.end').val();
-      if (startInput == '' || endInput == '') { return; }
+      if (startInput == '' || endInput == '')
+         return formError('A date range must be selected.'); 
 
       var unavailable = getUnavailable(startInput,endInput);
       var persMtgs = createUnavailableSlots(startInput,endInput,unavailable);
 
-      
+      var data = {
+         user: $rootScope.currentUser,
+         availability: persMtgs,
+         subject: 'Unavailable',
+         room: { Number: 0, Capacity: 1 }
+      };
+
+      // TODO figure out how to represent room in unavailable times
+      profileFactory.putAvailability(data).then(function(res) {
+         // TODO have part of profile page for current schedule off
+
+         console.log(res.data);
+
+         formSuccess('Availability has be updated.');
+      }, function(err) {
+         console.log(err);
+      });
 
    };
 
@@ -145,6 +162,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
 
 mainapp.factory('profileFactory', function($http){
+
    var factory = {};
 
    factory.getEmployeeDetails = function(id){
@@ -155,5 +173,10 @@ mainapp.factory('profileFactory', function($http){
       return $http.put('/profile/details/'+id, data);
    };
 
+   factory.putAvailability = function(data) {
+      return $http.put('/profile/available', data);
+   }
+
    return factory;
+
 });

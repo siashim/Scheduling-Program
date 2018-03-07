@@ -8,6 +8,7 @@ var Attendance = require('../models/attendance.js');
 
 
 var REPLY = Object.freeze({
+   PERSONAL: 2,
    ACCEPT: 1,
    NEUTRAL: 0,
    DECLINE: -1,
@@ -192,9 +193,8 @@ exports.createOne_meeting = function(req, res) {
          Status: response
       });
    }
-console.log('Body: '+JSON.stringify(req.body));
+
    var meeting = new Meeting(req.body);
-   console.log('Meeting '+ meeting);
    meeting.save(function(err, mtg) {
       if (err) { return res.send(500,err); }
       var atts = req.body.attendees;
@@ -408,7 +408,7 @@ exports.findAll_meetings = function(req, res) {
 	var status = [
 		{ Status: REPLY.ACCEPT },
 		{ Status: REPLY.NEUTRAL } 
-	]
+	];
 	notificatonFilter(req.query.mid,status,res);
 }
 
@@ -431,8 +431,6 @@ exports.findAll_selectedEvents = function(req, res){
       }
    };
 
-	// almost certain this can be simplified...
-
 	Meeting.find({
       room: { $in: roomIDs },
       startDate: { $gte: thisDate },
@@ -446,7 +444,8 @@ exports.findAll_selectedEvents = function(req, res){
          EmployeeId: { $in: employeeIDs },
          $or: [ 
             { Status: REPLY.ACCEPT }, 
-            { Status: REPLY.NEUTRAL }
+            { Status: REPLY.NEUTRAL },
+            { Status: REPLY.PERSONAL }
          ]
       })
       .populate(meetingConditions)
@@ -484,6 +483,141 @@ exports.updateOne_profile = function(req, res){
    })
 };
 
+
+exports.updateMany_available = function(req,res) {
+
+   var user = req.body.user;
+   var empID = user.mid;
+   var subject = req.body.subject;
+
+   function createMeetings(user,subject,avail) {
+      return new Meeting({
+         ownerFirst: user.firstName,
+         ownerLast: user.lastName,
+         ownerID: empID,
+         subject: subject,
+         startDate: avail.start,
+         endDate: avail.end,
+         attendees: [user.mid]
+      });
+   }
+
+   function createAttendances(mtgID,empID) {
+      return new Attendance({
+         MeetingId: mtgID,
+         EmployeeId: empID,
+         Status: REPLY.PERSONAL
+      });
+   }
+
+   var attendQuery = {
+      EmployeeId: user.mid,
+      Status: REPLY.PERSONAL
+   };
+
+   var unavails = req.body.availability.map(x => createMeetings(user,subject,x));
+
+   Attendance.find(attendQuery)
+   .exec(function(err,remMtgs) {
+      if (err) { return res.send(500,err); }
+
+      var removeAttsIDs = remMtgs.map(x => x._id);
+      var removeMtgIDs = remMtgs.map(x => x.MeetingId);
+      Attendance.remove({ _id: { $in: removeAttsIDs } })
+      .exec(function(err,remAtts) {
+         if (err) { return res.send(500,err); }
+         Meeting.find({ _id: { $in: removeMtgIDs } }).remove()
+         .exec(function(err) {
+            if (err) { return res.send(500,err); }
+
+            Meeting.create(unavails,function(err,mtgs) {
+               var attendances = mtgs.map(x => createAttendances(x._id,empID));
+               Attendance.create(attendances,function(err,atts) {
+                  if (err) { return res.send(500,err); }
+                  return res.send(atts);
+               });
+            });
+         });
+      });      
+   });
+
+}
+
+
+/*
+
+exports.updateMany_available = function(req,res) {
+
+   var user = req.body.user;
+   var subject = req.body.subject;
+
+   function createMeetings(user,subject,avail) {
+      return new Meeting({
+         ownerFirst: user.firstName,
+         ownerLast: user.lastName,
+         ownerID: user.mid,
+         subject: subject,
+         startDate: avail.start,
+         endDate: avail.end,
+         attendees: [user.mid]
+      });
+   }
+
+   function createAttendances(mtgID,empID) {
+      return new Attendance({
+         MeetingId: mtgID,
+         EmployeeId: empID,
+         Status: REPLY.PERSONAL
+      });
+   }
+
+   var unavails = req.body.availability.map(x => createMeetings(user,subject,x));
+
+   var attendQuery = {
+      EmployeeId: user.mid,
+      Status: REPLY.PERSONAL
+   };
+
+   var empID = user.mid;
+
+   Attendance.find(attendQuery).remove()
+   .exec(function(err,opRes) {
+      if (err) { return res.send(500,err); }
+
+      var ops = opRes.ops || [];
+      var removeMtgIDs = ops.map(x => x._id);
+
+      console.log('\n\nMeetings OPS',ops,'\n\n');
+
+
+      Meeting.find({ _id: { $in: removeMtgIDs } }).remove()
+      .exec(function(err) {
+         if (err) { return res.send(500,err); }
+
+         Meeting.create(unavails,function(err,mtgs) {
+
+            console.log('\n\n Created meetings \n\n',mtgs);
+            var attendances = mtgs.map(x => createAttendances(x._id,empID));
+            console.log('Attendances',attendances);
+
+            Attendance.create(attendances,function(err,atts) {
+
+               console.log('Attendances created',atts);
+               return res.send(atts);
+
+            });
+
+         });
+
+      });
+      
+   });
+
+}
+
+*/
+
+
 // Find one meeting with all attendee responses
 exports.findOne_meetingResponses = function(req, res){
    var mid = req.query.mid;
@@ -491,7 +625,7 @@ exports.findOne_meetingResponses = function(req, res){
 		{ Status: REPLY.ACCEPT },
       { Status: REPLY.NEUTRAL },
       { Status: REPLY.DECLINE },
-	]
+	];
 
    Attendance.find({
       MeetingId: mid,
