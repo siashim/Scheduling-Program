@@ -93,11 +93,23 @@ mainapp.config(function($stateProvider, $urlRouterProvider) {
       }
    };
 
+   var response = {
+      name: 'response',
+		url:'/response',
+		templateUrl:'views/responseView/response.html',
+      controller:'responseCtrl',
+      params: {'meeting': {} },
+      data: {
+         requireAuthorization: false,
+      }
+   };
+   
 	// Register both states with $stateProvider in a config block.
    // Because $stateProvider is an Angular Provider, 
    // you must inject it into a .config() block using Angular1 Dependency Injection.
    $stateProvider.state(login);
    $stateProvider.state(home);
+   $stateProvider.state(response);
    $stateProvider.state(meeting);
 	$stateProvider.state(admin);
    $stateProvider.state(adminEmployees);

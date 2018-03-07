@@ -45,62 +45,40 @@ mainapp.service('meetingService', function(){
       };
       return resource;
    }
-
-   // Convert UTC time to local time
-   // this.toLocaltime = function(data){
-   //    var date = new Date(data);
-   //    return date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-   // };
-
    
 	// Convert database event format to DayPilot event format
    this.eventToSchedulerEvent = function(event,empCol,roomCol){
+      var dpEvents = [];
 
-		var schEvent = [];		
-		var employees = event.employees;
-		var rooms = event.rooms;
+      event.employees.map(function(element){
+         var newEvent = {
+            start: new DayPilot.Date(new Date(element.MeetingId.startDate), true),
+            end: new DayPilot.Date(new Date(element.MeetingId.endDate), true),
+            id: DayPilot.guid(),
+            resource: 'e'+empCol.findIndex(x => element.EmployeeId == x._id),
+            text: element.MeetingId.subject,
+            backColor: colors[element.Status],
+            moveDisabled: true,
+            bubbleHtml: employeeEventBubbleHtml(element),
+         };
+         dpEvents.push(newEvent);
+      });
 
-		for (var i = 0; i < employees.length; i++) {
-
-			var empID = employees[i].EmployeeId;
-			var empIndex = empCol.findIndex(x => empID == x._id);
-			var resource = 'e'+empIndex;
-
-			var newEvent = {
-                start: new DayPilot.Date(new Date(employees[i].MeetingId.startDate), true),
-                end: new DayPilot.Date(new Date(employees[i].MeetingId.endDate), true),
-                id: DayPilot.guid(),
-                resource: resource,
-                text: employees[i].MeetingId.subject,
-                backColor: colorList[employees[i].Status],
-                moveDisabled: true,
-			};
-			
-			schEvent.push(newEvent);
-
-		}
-
-		for (var i = 0; i < rooms.length; i++) {
-			var roomID = rooms[i].room._id;
-			var roomIndex = roomCol.findIndex(x => roomID == x._id);
-			var resource = 'r'+roomIndex;
-
-			var newEvent = {
-                start: new DayPilot.Date(new Date(rooms[i].startDate), true),
-                end: new DayPilot.Date(new Date(rooms[i].endDate), true),
-                id: DayPilot.guid(),
-                resource: resource,
-                text: rooms[i].subject,
-                backColor: colorList['1'],
-                moveDisabled: true,
-			};
-			
-			schEvent.push(newEvent);
-
-		}
-
-		return schEvent;
-
+      event.rooms.map(function(element){ 
+         var newEvent = {
+            start: new DayPilot.Date(new Date(element.startDate), true),
+            end: new DayPilot.Date(new Date(element.endDate), true),
+            id: DayPilot.guid(),
+            resource: 'r'+roomCol.findIndex(x => element.room._id == x._id),
+            text: element.subject,
+            backColor: colors['1'],
+            moveDisabled: true,
+            bubbleHtml: roomEventBubbleHtml(element),
+         };
+         dpEvents.push(newEvent);
+      });
+      
+      return dpEvents;
 	}
 
 
@@ -120,6 +98,19 @@ mainapp.service('meetingService', function(){
       'Room:' + event.room +  '\n' + 
       'Attendees:' + event.attendees;
    }
+   var employeeEventBubbleHtml = function(element){
+      return '<b>Subject: </b>' + element.MeetingId.subject + '<br>' + 
+         '<b>Time: </b>' + new Date(element.MeetingId.startDate).toLocaleString('en-US',{month: 'numeric', day: 'numeric', hour:'numeric', minute:'numeric'}) + ' - ' +
+         new Date(element.MeetingId.endDate).toLocaleString('en-US',{month: 'numeric', day: 'numeric', hour:'numeric', minute:'numeric'}) + '<br>' +
+         '<b>Owner: </b>' + element.MeetingId.ownerFirst + ' ' + element.MeetingId.ownerLast; 
+   };
+   var roomEventBubbleHtml = function(element){
+      return '<b>Subject: </b>' + element.subject + '<br>' + 
+      '<b>Time: </b>' + new Date(element.startDate).toLocaleString('en-US',{month: 'numeric', day: 'numeric', hour:'numeric', minute:'numeric'}) + ' - ' +
+      new Date(element.endDate).toLocaleString('en-US',{month: 'numeric', day: 'numeric', hour:'numeric', minute:'numeric'}) + '<br>' +
+      '<b>Owner: </b>' + element.ownerFirst + ' ' + element.ownerLast + '<br>' + 
+      '<b>Meeting size: </b>' + element.attendees.length;
+   };
 
 	// Helper function to combine date and time into single Date object
 	this.combineDateTime = function(date, time){
@@ -136,12 +127,5 @@ mainapp.service('meetingService', function(){
       date.setMinutes(time.getMinutes());
       return date;
    }
-   
-   // colors
-   var colorList = {
-      '-2': 'red',
-      '-1': 'blue',
-      '0': 'light grey',
-      '1': 'salmon',
-   }
+
 })

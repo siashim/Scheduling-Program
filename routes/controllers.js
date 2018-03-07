@@ -484,4 +484,26 @@ exports.updateOne_profile = function(req, res){
    })
 };
 
+// Find one meeting with all attendee responses
+exports.findOne_meetingResponses = function(req, res){
+   var mid = req.query.mid;
+   var status = [
+		{ Status: REPLY.ACCEPT },
+      { Status: REPLY.NEUTRAL },
+      { Status: REPLY.DECLINE },
+	]
+
+   Attendance.find({
+      MeetingId: mid,
+      $or: status
+   })
+   .populate({
+      path: 'EmployeeId',
+   })
+   .exec(function(err, results) {
+      if (err) { return res.send(500,err); }
+      return res.send(results);
+   });
+}
+
    

@@ -7,7 +7,7 @@ mainapp.service('adminEmplService', function(){
          FirstName: document.getElementById("fname").value,
          LastName: document.getElementById("lname").value,
          EmployeeId: document.getElementById("empid").value,
-         Password: "",
+         Password: document.getElementById("empid").value, // Purposely make initial pwd=empid
          Position: document.getElementById("pos").value,
       };
       return data;

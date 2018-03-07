@@ -47,3 +47,8 @@ tbody td {
 div.well a:hover{
    text-decoration: none;
 }
+
+/* minimize Bootstrap alert margins */
+.alert{
+   margin-bottom: 0;
+}

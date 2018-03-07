@@ -1,5 +1,5 @@
 
-mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
+mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, $state, $stateParams, homeFactory){
 
    $scope.reminders = [];
    $scope.notifications = [];
@@ -13,9 +13,9 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
    calendar.init();
    
    // Legend
-   document.getElementById("legendAccept").style.color = $rootScope.colors[1];
-   document.getElementById("legendPending").style.color = $rootScope.colors[0];
-   document.getElementById("legendOwner").style.color = $rootScope.colors[99];
+   document.getElementById("legendAccept").style.color = colors[1];
+   document.getElementById("legendPending").style.color = colors[0];
+   document.getElementById("legendOwner").style.color = colors[2];
 
    $scope.respondToNotification = function(msg, val) {
 
@@ -39,6 +39,11 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       };
 
    }
+
+   // On Reminder View button click, view meeting details in new page
+   $scope.viewResponses = function(meeting){
+      $state.go('response', {'meeting': meeting});
+   };
 
    $scope.deleteReminder = function(msg){
       if (confirm('OK to delete this event?')) {
@@ -91,18 +96,19 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
                var mtg = meeting.MeetingId;
 
                // Set event colors
-               var event_clr = $rootScope.colors[meeting.Status];
+               var event_clr = colors[meeting.Status];
                if(meeting.EmployeeId === meeting.MeetingId.ownerID){
-                  event_clr = $rootScope.colors[99]; // The owner color
+                  event_clr = colors[2]; // owner color
                }
                
                return {
-                  start: mtg.startDate,
-                  end: mtg.endDate,
+                  start: new DayPilot.Date(new Date(mtg.startDate), true),
+                  end: new DayPilot.Date(new Date(mtg.endDate), true),
                   id: mtg.subject,
-                  text: mtg.subject,
+                  text: calendarEventText(mtg),
                   backColor:  event_clr,
                   moveDisabled: true,
+                  bubbleHtml: calendarEventBubbleHtml(mtg),
                };
             });
             return mtgs;
@@ -115,6 +121,20 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
          console.log(err);
       }
    }
+
+   // Strings
+   var calendarEventBubbleHtml = function(mtg){
+      return '<b>' + mtg.subject + '</b><br>' + 
+      '<b>Time: </b>' + new Date(mtg.startDate).toLocaleString('en-US',{hour:'numeric', minute:'numeric'}) + ' - ' +
+      new Date(mtg.endDate).toLocaleString('en-US',{hour:'numeric', minute:'numeric'}) + '<br>' +
+      '<b>Owner: </b>' + mtg.ownerFirst + ' ' + mtg.ownerLast + '<br>' + 
+      '<b>Room(cap): </b>' + mtg.room.Number + '(' + mtg.room.Capacity + ')<br>' + 
+      '<b>Meeting size: </b>' + mtg.attendees.length;
+   };
+   var calendarEventText = function(mtg){
+      return new Date(mtg.startDate).toLocaleString(['en-US'],{hour: 'numeric', minute:'2-digit'}).slice(0, -2) + ' ' + 
+      mtg.subject;
+   };
 
    // Initialize the page with data
    $(document).ready(refresh())

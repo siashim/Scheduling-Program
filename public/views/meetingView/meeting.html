@@ -58,8 +58,9 @@
             <button type="button" class="btn btn-success btn-block pull-right" ng-click="selectEmployees()">Add Employees</button>
          </div>
          <div class="col-sm-9">
-
-          </div>
+            <!-- a hook to display invitees -->
+            <div id="formInfo" ></div>
+         </div>
       </div><br>
 
       <div class="row">
@@ -79,8 +80,6 @@
                </div>
             </form>
 
-            <!-- a hook to display invitees -->
-            <div id="formInfo" ></div>
             <!-- a hook to dipslay meeting booking success/failure -->
             <div id="formResponse"></div>
 
@@ -93,7 +92,10 @@
 <!-- Daypilot schedule availability section -->
 <div class="container">
    <div class="well">
-      <h3 align="center">Check Availability</h3>
+      <h3 align="center">Check Availability |
+         <i class="fa fa-circle" id="legendAccept" style="font-size:1em;" title="Accepted"></i>=Accepted,
+         <i class="fa fa-circle" id="legendPending" style="font-size:1em;" title="Pending"></i>=Pending
+      </h3>
       <p>&nbsp</p>
       <daypilot-scheduler id="scheduler" daypilot-config="schedulerConfig" daypilot-events="schedulerEvents" ></daypilot-scheduler>
    </div>
