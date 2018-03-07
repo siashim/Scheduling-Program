@@ -41,4 +41,6 @@ router.post('/profile/details', controller.findOne_profile);
 router.put('/profile/details/:id', controller.updateOne_profile);
 // router.put('/profile/available', controller.updateOne_available);
 
+router.get('/response', controller.findOne_meetingResponses);
+
 module.exports = router;

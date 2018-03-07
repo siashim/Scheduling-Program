@@ -1,5 +1,5 @@
 
-mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, homeFactory){
+mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $anchorScroll, $state, $stateParams, homeFactory){
 
    $scope.reminders = [];
    $scope.notifications = [];
@@ -39,6 +39,11 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
       };
 
    }
+
+   // On Reminder View button click, view meeting details in new page
+   $scope.viewResponses = function(meeting){
+      $state.go('response', {'meeting': meeting});
+   };
 
    $scope.deleteReminder = function(msg){
       if (confirm('OK to delete this event?')) {
@@ -97,8 +102,8 @@ mainapp.controller('homeCtrl', function ($scope, $rootScope, $http, $location, $
                }
                
                return {
-                  start: mtg.startDate,
-                  end: mtg.endDate,
+                  start: new DayPilot.Date(new Date(mtg.startDate), true),
+                  end: new DayPilot.Date(new Date(mtg.endDate), true),
                   id: mtg.subject,
                   text: calendarEventText(mtg),
                   backColor:  event_clr,

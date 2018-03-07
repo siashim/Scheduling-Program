@@ -1,0 +1,68 @@
+<!-- Dashboard section -->
+<div class="container">
+   <div class="well">
+      <div class="row">
+         <div class="col-sm-4">
+            <button type="button" class="btn btn-primary" style="float:left;" ng-click="goBack()">Back</button>
+         </div>
+         <div class="col-sm-4">
+            <h3 align="center" style="margin-top:4;margin-bottom:4;">View Meeting</h3>   
+         </div>      
+      </div><br>
+
+      <!-- Meeting details -->
+      <div class="row">
+         <div class="col-sm-4 col-sm-offset-2">
+            <b>Subject: </b>{{meeting.subject}}    
+         </div>
+         <div class="col-sm-4">
+            <b>Owner:</b> {{meeting.ownerFirst}}&nbsp;{{meeting.ownerLast}}  
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-4 col-sm-offset-2">
+            <p><b>Time: </b>{{ meeting.startDate | date }}, {{ meeting.startDate | date : "h:mm a" }} to {{ meeting.endDate | date : "h:mm a" }}</p>
+         </div>
+         <div class="col-sm-4">
+            <b>Location: </b>{{ meeting.room.Number }}(seats {{ meeting.room.Capacity }})                  
+         </div>
+      </div>
+      
+   </div> 
+</div>
+
+<!-- Table of responses -->
+<div class="container">
+   <div class="well">
+      <h3 align="center">Attendees</h3>
+      <table  class="table table-bordered">
+      <thead class="thead-inverse table-css-style">
+         <tr>
+            <th>Name</th>
+            <th>EID</th>
+            <th>Position</th>
+            <th>Status</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr ng-repeat="x in responses">
+            <td>{{ x.name }}</td>
+            <td>{{ x.eid }}</td>
+            <td>{{ x.position }}</td>
+            <td>
+               <div class={{x.status.alert}}>
+                  <div class=row>
+                     <div class=col-sm-1>
+                        <i class={{x.status.icon}} style="font-size:20px;" ng-style="{{x.status.style}}"></i>
+                     </div>
+                     <div class=col-sm-11>
+                        {{ x.status.text }}      
+                     </div>
+                  </div>
+               </div>
+            </td>
+         </tr>
+      </tbody>
+      </table>
+   </div>    
+</div>
