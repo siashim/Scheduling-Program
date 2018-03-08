@@ -78,6 +78,14 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          return formError('Subject required to create meeting.');
       }
 
+      if ($('#time.form-control.time.start').val().trim() == '') {
+         return formError('A start time is required.');
+      }
+
+      if ($('#time.form-control.time.end').val().trim() == '') {
+         return formError('An end time is required.');
+      }
+
       // employee must be selected
       var listOfSelected = $scope.employees.filter(function(emp){
          return emp.selected;

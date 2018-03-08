@@ -52,3 +52,9 @@ div.well a:hover{
 .alert{
    margin-bottom: 0;
 }
+
+
+/* prevents readonly form being grey */
+.form-control.date {
+  background-color: white;
+}
