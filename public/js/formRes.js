@@ -19,6 +19,17 @@ var formInfo = function(msg) {
 }
 
 
+//alert-dismissible fade show
+var formWarning = function(msg) {
+    $('#formResponse').empty();
+    $('#formResponse').append(
+        '<div class="alert alert-warning alert-dismissible show"> '+
+        '<strong>Warning!</strong> '+
+        msg+'</div>');
+    return false;
+}
+
+
 var formSuccess = function(msg) {
    $('#formResponse').empty();
    $('#formResponse').append(

@@ -37,6 +37,14 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
         return;
       }
 
+      
+
+
+
+      //return;
+
+
+
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
       var user = $rootScope.currentUser;
@@ -62,12 +70,26 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       }
       
       meetingFactory.postEvent(newEvent).then(function(){
-         formSuccess('Meeting created: ' + newEvent.subject);
+         formSuccess('The meeting ' + newEvent.subject+' was created.');
          resetForm();
       }), function(err){
          formError('Inernal server error!');
          console.log(err);
       }
+   }
+
+
+   function getStartAndEndDates() {
+      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
+	   var startTime = $('#datetimepicker .time.start').timepicker('getTime');
+      var startDateTime = meetingService.combineDateTime(startDate, startTime);
+      var endDate = $('#datetimepicker .date.end').datepicker('getDate');
+      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
+      var endDateTime = meetingService.combineDateTime(endDate,endTime);
+      return { 
+         startDate: startDateTime,
+         endDate: endDateTime
+      };
    }
 
    // TODO break this into smaller functions
@@ -142,9 +164,20 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          return formError('The room selected is already booked during this time.');
       }
 
+      var commitments = $scope.employeeCommitments.map(x => x.MeetingId);
+      if (meetingConflicts(commitments,startDateTime,endDateTime)) {
+
+         return formWarning('One or more employees is occupied during that time. Proceed?');
+      }
+
+      // TODO remove
+      //return formError('Did not find a collision...');
+
+
       return true;
 
    }
+
 
    // Form message
    function formMessage(message, color){
@@ -240,6 +273,10 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var data = {date: date, employees: employees, rooms: rooms};
       meetingFactory.postSelectedEvents(data).then(function(response){
          $scope.roomBookings = response.data.rooms;
+
+         // testing employee stuff
+         $scope.employeeCommitments = response.data.employees;
+
          $scope.schedulerEvents = meetingService.eventToSchedulerEvent(response.data,employees,rooms);
       }, function(err){
          console.log(err);
