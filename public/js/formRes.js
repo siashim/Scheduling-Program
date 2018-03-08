@@ -19,11 +19,11 @@ var formInfo = function(msg) {
 }
 
 
-//alert-dismissible fade show
 var formWarning = function(msg) {
     $('#formResponse').empty();
     $('#formResponse').append(
-        '<div class="alert alert-warning alert-dismissible show"> '+
+        '<div class="alert alert-warning fade in">'+
+        '<span class="close" data-dismiss="alert">&times;</span>'+
         '<strong>Warning!</strong> '+
         msg+'</div>');
     return false;

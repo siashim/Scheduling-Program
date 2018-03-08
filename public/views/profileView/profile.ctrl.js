@@ -138,9 +138,9 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
       var id = $rootScope.currentUser.mid;
       profileFactory.getAvailability(id).then(function(res) {
          
-         var unavail = res.data;
-         var initDate = unavail[0].MeetingId.startDate;
-         initDate = initDate.slice(0,initDate.length-1);
+         //var unavail = res.data;
+         //var initDate = unavail[0].MeetingId.startDate;
+         //initDate = initDate.slice(0,initDate.length-1);
 
          return;
          

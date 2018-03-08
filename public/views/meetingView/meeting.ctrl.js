@@ -28,32 +28,25 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    document.getElementById("legendAccept").style.color = colors[1];
    document.getElementById("legendPending").style.color = colors[0];
    document.getElementById("legendUnavailable").style.color = colors[2];
-   
 
+   $scope.warningIssued = false;
+   
    // On create meeting button click, post data to server
    $scope.createMeeting = function() {
 
-      if (validateForm() === false) {
-        return;
+      if (validateForm() === false) { 
+         return;
       }
-
       
-
-
-
-      //return;
-
-
+      if (noEmployeeConflicts() === false) { 
+         return; 
+      }
 
       var select = document.getElementById('sel1Room');
       var options = select && select.options;
       var user = $rootScope.currentUser;
       
-      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
-		var startTime = $('#datetimepicker .time.start').timepicker('getTime');
-		var endDate = $('#datetimepicker .date.end').datepicker('getDate');
-      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
-
+      var date = getStartAndEndDates();
       var selectedEmployees = $scope.employees.filter(function(item){
          return item.selected == true;
       });
@@ -64,8 +57,8 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          ownerID: user.mid,
          subject: $scope.subject,
          room: options[options.selectedIndex].value,
-         startDate: meetingService.combineDateTime(startDate, startTime),
-         endDate: meetingService.combineDateTime(endDate, endTime),
+         startDate: date.startDateTime,
+         endDate: date.endDateTime,
          attendees: selectedEmployees,
       }
       
@@ -87,8 +80,12 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var endTime = $('#datetimepicker .time.end').timepicker('getTime');
       var endDateTime = meetingService.combineDateTime(endDate,endTime);
       return { 
-         startDate: startDateTime,
-         endDate: endDateTime
+         startDateTime: startDateTime,
+         endDateTime: endDateTime,
+         startDate: startDate,
+         endDate: endDate,
+         startTime: startTime,
+         endTime: endTime
       };
    }
 
@@ -96,17 +93,26 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
    // Form validators
    function validateForm() {
 
-      if ($scope.subject == undefined || $scope.subject === ''){
+      if ($scope.subject == undefined || $scope.subject === '')
          return formError('Subject required to create meeting.');
-      }
 
-      if ($('#time.form-control.time.start').val().trim() == '') {
-         return formError('A start time is required.');
-      }
+      var dates = getStartAndEndDates();
+      var currentDate = new Date();
 
-      if ($('#time.form-control.time.end').val().trim() == '') {
-         return formError('An end time is required.');
-      }
+      if (dates.startDate === null)
+         return formError('A starting date is required.');
+
+      if (dates.startTime === null)
+         return formError('A starting time is required.');
+      
+      if (dates.endDate === null)
+         return formError('An ending date is required.');
+      
+      if (dates.endTime === null)
+         return formError('An ending time is required.');
+
+      if (dates.startDateTime < currentDate)
+         return formError('The date selected has passed. Select a new date.');
 
       // employee must be selected
       var listOfSelected = $scope.employees.filter(function(emp){
@@ -121,11 +127,6 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
       var options = select && select.options;
       var roomID = options[options.selectedIndex].value;
       
-      
-      // this can this be removed?
-      // ex, personal days may not need a room
-      // or perhaps the room can be 'Personal'
-      // room must be selected
       if (roomID == ''){
          return formError('A room is required to create meeting.');
       }
@@ -137,45 +138,23 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          return formError('The room is not large enough to hold this meeting.');
       }
 
-      var startDate = $('#datetimepicker .date.start').datepicker('getDate');
-	   var startTime = $('#datetimepicker .time.start').timepicker('getTime');
-      var startDateTime = meetingService.combineDateTime(startDate, startTime);
-		
-      if (startDate === null) {
-         return formError('A starting date is required.');
-      }
-
-      if (startTime === null) {
-         return formError('A starting time is required.');
-      }
-
-      var currentDate = new Date();
-      if (startDateTime < currentDate) {
-         return formError('The date selected has passed. Select a new date.');
-      }
-
-      var endDate = $('#datetimepicker .date.end').datepicker('getDate');
-      var endTime = $('#datetimepicker .time.end').timepicker('getTime');
-      var endDateTime = meetingService.combineDateTime(endDate,endTime);
-
       var bookings = $scope.roomBookings;
       var candidateMtgs = bookings.filter(x => x.room._id == roomID);
-      if (meetingConflicts(candidateMtgs,startDateTime,endDateTime)) {
+      if (meetingConflicts(candidateMtgs,dates.startDateTime,dates.endDateTime)) {
          return formError('The room selected is already booked during this time.');
       }
 
-      var commitments = $scope.employeeCommitments.map(x => x.MeetingId);
-      if (meetingConflicts(commitments,startDateTime,endDateTime)) {
-
-         return formWarning('One or more employees is occupied during that time. Proceed?');
-      }
-
-      // TODO remove
-      //return formError('Did not find a collision...');
-
-
       return true;
 
+   }
+
+   function noEmployeeConflicts() {
+      var dates = getStartAndEndDates();
+      var commitments = $scope.employeeCommitments.map(x => x.MeetingId);
+      if (meetingConflicts(commitments,dates.startDateTime,dates.endDateTime)) {
+         return formError('One or more employees is occupied during that time.');
+      }
+      return true;
    }
 
 
@@ -263,6 +242,11 @@ mainapp.controller('meetingCtrl', function ($scope, $rootScope, $http, meetingFa
          meetingService.setSchedulerResources(selectedRooms, 'Rooms', 'group_1', 'r'),
          meetingService.setSchedulerResources(selectedEmployees, 'Employees', 'group_2','e'),
       ];
+
+
+      //if (selectedEmployees.length > 0)
+      //   noEmployeeConflicts();
+
       refreshScheduleEvents(date, selectedEmployees, selectedRooms);
       $scope.scheduler.update();
 
