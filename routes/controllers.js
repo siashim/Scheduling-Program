@@ -535,7 +535,6 @@ exports.updateMany_available = function(req,res) {
    };
 
    var unavails = req.body.availability.map(x => createMeetings(user,subject,x));
-
    Attendance.find(attendQuery)
    .exec(function(err,remMtgs) {
       if (err) { return res.send(500,err); }

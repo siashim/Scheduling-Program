@@ -15,6 +15,18 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
       return ary;
    };
 
+   // On Select All button click, set all check boxes 
+   $scope.setAll = function(){
+      $scope.available.forEach(x => x.checked = true);
+   };
+   // On Select None button click, clear all check boxes  
+   $scope.setNone = function(){
+      $scope.available.forEach(x => x.checked = false);
+   };
+   // On Select Work Hours button click, set some check boxes 
+   $scope.setWorkhours = function(){
+      $scope.available = createAvailable();
+   };
    // On submit button click, send user profile to db
    $scope.submit = function(){
       var formchanges = {};
@@ -113,7 +125,6 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
       var unavailable = getUnavailable(startInput,endInput);
       var persMtgs = createUnavailableSlots(startInput,endInput,unavailable);
-
       var availData = {
          user: $rootScope.currentUser,
          availability: persMtgs,
@@ -133,14 +144,89 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
    };
 
+   // Convert db unavailable slot data to array format 
+   var toUnavailableAry = function(data){
+      var ary = [];
+
+      if (data.length == 0){ 
+         return ary; 
+      }
+      
+      for (var key in data) {      
+         if (  data.hasOwnProperty(key)  ){
+            var newValue = {
+               startDate: data[key].MeetingId.startDate,
+               endDate: data[key].MeetingId.endDate,
+            };
+            ary.push(newValue);
+         };
+      }
+      return ary;
+   };
+
+   // Get date range as string from database unavailablity data
+   var toDateRangeString = function(data){
+      if(data.length == 0){ return ''; }
+
+      var initDate = new Date(data[0].MeetingId.startDate);
+      var finalDate = new Date(data[data.length-1].MeetingId.startDate);
+      var dateRangeStr = 'Current dates: From ' + initDate.toLocaleDateString()  + ' to ' + finalDate.toLocaleDateString();
+      return dateRangeStr;
+   };
+
+   // Get all available and unavailable slots from database data 
+   var getAllSlotsFromDb = function(data){
+      if(data.length == 0){ return []; }
+
+      // Get unavailable slots from day one
+      var dayOneEnd = new Date(data[0].MeetingId.startDate);
+      dayOneEnd.setDate(dayOneEnd.getDate()+1);
+      var unavailableDayOneSlots = data.filter(function(x){
+         return new Date(x.MeetingId.startDate) < dayOneEnd; 
+      });
+      
+      // Populate availability array for all hours 
+      var slots = [];
+      for(var hour=0; hour<=23; hour++){
+         var available = true;
+         for(var i=0; i<unavailableDayOneSlots.length; i++){
+            var start = new Date(unavailableDayOneSlots[i].MeetingId.startDate);
+            var end = new Date(unavailableDayOneSlots[i].MeetingId.endDate);
+            var startHr = start.getHours();
+            var endHr = (end.getHours() == 0) ? 24 : end.getHours();
+
+            if(startHr <= hour && hour < endHr){
+               available = false;
+               break;
+            }
+         }
+
+         slots.push({checked: available});
+      }
+
+      return slots;
+   }
 
    var refreshAvailability = function() {
       var id = $rootScope.currentUser.mid;
       profileFactory.getAvailability(id).then(function(res) {
+         $scope.dateRangeStr = toDateRangeString(res.data);
          
-         var unavail = res.data;
-         var initDate = unavail[0].MeetingId.startDate;
-         initDate = initDate.slice(0,initDate.length-1);
+         var available = getAllSlotsFromDb(res.data);
+         if(available.length == 0){ 
+            $scope.available = createAvailable();
+         }
+         else{
+            for(var i=0; i<$scope.available.length; i++){
+               $scope.available[i].checked = available[i].checked;
+            }
+         }
+         
+         // var unavail = res.data;
+         // if(unavail.length == 0){ return; }
+         
+         // var initDate = unavail[0].MeetingId.startDate;
+         // initDate = initDate.slice(0,initDate.length-1);
 
          return;
          
