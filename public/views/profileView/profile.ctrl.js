@@ -214,7 +214,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
          
          var available = getAllSlotsFromDb(res.data);
          if(available.length == 0){ 
-            $scope.available = createAvailable();
+            $scope.setAll();
          }
          else{
             for(var i=0; i<$scope.available.length; i++){
@@ -225,8 +225,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
          // var unavail = res.data;
          // if(unavail.length == 0){ return; }
          
-         // var initDate = unavail[0].MeetingId.startDate;
-         // initDate = initDate.slice(0,initDate.length-1);
+         
 
          return;
          

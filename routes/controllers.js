@@ -384,7 +384,9 @@ exports.deleteOne_reminder = function(req, res){
 
 // Find all notifications
 exports.findAll_notifications = function(req, res) {
-   notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
+
+    notificatonFilter(req.query.mid,REPLY.NEUTRAL,res);
+
 }
 
 // Update one notification
@@ -405,11 +407,14 @@ exports.updateOne_notification = function(req, res){
 
 
 exports.findAll_meetings = function(req, res) {
-	var status = [
+
+    var status = [
 		{ Status: REPLY.ACCEPT },
 		{ Status: REPLY.NEUTRAL } 
 	];
-	notificatonFilter(req.query.mid,status,res);
+
+    notificatonFilter(req.query.mid,status,res);
+
 }
 
 
@@ -485,20 +490,8 @@ exports.updateOne_profile = function(req, res){
 
 
 exports.findAll_available = function(req,res) {
-   
-   /*
-   Attendance.find({
-      EmployeeId: req.params.id,
-      Status: REPLY.PERSONAL
-   })
-   .populate({ path:'MeetingId' })
-   .exec(function(err,mtgs) {
-      if (err) { return res.send(500,err); }
-      return res.send(mtgs);
-   });
-   */
 
-   notificatonFilter(req.params.id,REPLY.PERSONAL,res);
+    notificatonFilter(req.params.id,REPLY.PERSONAL,res);
 
 }
 
@@ -517,7 +510,7 @@ exports.updateMany_available = function(req,res) {
          subject: subject,
          startDate: avail.start,
          endDate: avail.end,
-         attendees: [user.mid]
+         attendees: [user]
       });
    }
 
@@ -541,14 +534,19 @@ exports.updateMany_available = function(req,res) {
 
       var removeAttsIDs = remMtgs.map(x => x._id);
       var removeMtgIDs = remMtgs.map(x => x.MeetingId);
+
       Attendance.remove({ _id: { $in: removeAttsIDs } })
       .exec(function(err,remAtts) {
          if (err) { return res.send(500,err); }
+
          Meeting.find({ _id: { $in: removeMtgIDs } }).remove()
          .exec(function(err) {
             if (err) { return res.send(500,err); }
 
+            if (unavails.length <= 0) { return res.send({}); }
+
             Meeting.create(unavails,function(err,mtgs) {
+               if (err) { return res.send(500,err); }
                var attendances = mtgs.map(x => createAttendances(x._id,empID));
                Attendance.create(attendances,function(err,atts) {
                   if (err) { return res.send(500,err); }

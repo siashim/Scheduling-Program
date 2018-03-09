@@ -31,7 +31,7 @@
                   <label class="control-label col-xs-2" for="start">Start:</label>
                   <div class="input-group col-xs-4">
                      <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
-                     <input id="date" type="text" class="form-control date start" name="date" placeholder="Date">
+                     <input id="date" type="text" class="form-control date start" name="date" placeholder="Date" readonly>
                   </div>
                   <div class="input-group col-xs-4">
                      <span class="input-group-addon"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></span>
@@ -42,7 +42,7 @@
                   <label class="control-label col-xs-2" for="end">End:</label>
                   <div class="input-group col-xs-4">
                      <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
-                     <input id="date" type="text" class="form-control date end" name="date" placeholder="Date">
+                     <input id="date" type="text" class="form-control date end" name="date" placeholder="Date" readonly>
                   </div>
                   <div class="input-group col-xs-4">
                      <span class="input-group-addon"><i class="fa fa-clock-o fa-fw" aria-hidden="true"></i></span>
@@ -57,7 +57,7 @@
          <div class="col-sm-offset-1 col-sm-2">
             <button type="button" class="btn btn-success btn-block pull-right" ng-click="selectEmployees()">Add Employees</button>
          </div>
-         <div class="col-sm-9">
+         <div class="col-sm-6">
             <!-- a hook to display invitees -->
             <div id="formInfo" ></div>
          </div>
@@ -82,6 +82,7 @@
 
             <!-- a hook to dipslay meeting booking success/failure -->
             <div id="formResponse"></div>
+            
 
          </div>   
       </div>
