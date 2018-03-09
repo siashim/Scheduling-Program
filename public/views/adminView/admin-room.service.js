@@ -4,7 +4,7 @@ mainapp.service('adminRoomService',function(){
    this.getCreateRoomData = function(){
       var data = {
          Number: document.getElementById("rnum").value,
-         Capacity: document.getElementById("rcap").value
+         Capacity: parseInt( document.getElementById("rcap").value ).toString(),
       };
       return data;
    }
