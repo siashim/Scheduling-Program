@@ -45,7 +45,6 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
 
    }
 
-
    // On submit button click, send user profile to db
    $scope.submit = function(){
 

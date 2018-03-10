@@ -42,6 +42,17 @@ exports.findOne_employee = function(req, res){
    })
 }
 
+
+exports.findOne_byEmployeeID = function(req,res) {
+   Employee.findOne({EmployeeId: req.params.id})
+   .exec(function(err,emp) {
+      if (err) {return res.send(500,err); }
+      if (emp == null)
+         return res.send({ employee: null, found: false });
+      return res.send({ employee: emp, found: true });
+   });
+}
+
 // Create one employee
 exports.createOne_employee = function(req, res) {
 

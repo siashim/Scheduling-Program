@@ -9,7 +9,7 @@ mainapp.controller('adminEmployeeCtrl', function($scope, $timeout, adminEmplFact
       }), function(err){
          console.log(err);
       }
-	} 
+   } 
 
    // When the update button is clicked, open a modal dialog for data entry
    $scope.updateEmpDialog = function(empid, id){
@@ -19,17 +19,56 @@ mainapp.controller('adminEmployeeCtrl', function($scope, $timeout, adminEmplFact
       }), function(err){
          console.log(err);
       }
-   } 
+   }
 
+   function alertError(msg) {
+      alert('Error! '+msg);
+      return false;
+   }
+
+   function validateDia() {
+
+      if ($('#diafname.form-control').val().trim() == '')
+         return alertError('A first name is required');
+      
+      if ($('#dialname.form-control').val().trim() == '')
+         return alertError('A last name is required.');
+      
+      if ($('#diaempid.form-control').val().trim() == '')
+         return alertError('An employee ID is required.');
+      
+      if ($('#diapwd.form-control').val().trim() == '')
+         return alertError('A password is required.');
+      
+      if ($('#diapos.form-control').val().trim() == '')
+         return alertError('An employee position is required');
+      
+      return true;
+
+   }
+
+   
    // Send update data to db
    $scope.updateEmp = function(){
       var id = $scope.empModal.id;
       var data = adminEmplService.getEmployeeModalData();
-      adminEmplFactory.putEmployee(id, data).then(function(response){
-         refresh();
-      }), function(err){
+      if (validateDia() == false) { return; }
+      var inputId = $('#diaempid').val().trim();
+      adminEmplFactory.getEmployeeByEmployeeID(inputId).then(function(res) {
+         if (res.data.found) {
+            if (res.data.employee._id !== id) {
+               return alertError('Employee ID '+inputId+' already exists, please use another.');
+            }
+         }
+         adminEmplFactory.putEmployee(id, data).then(function(response){
+            refresh();
+         }), function(err){
+            console.log(err);
+         }
+      },function(err) {
          console.log(err);
-      }
+      });
+
    }
 
    // When the delete button is clicked, open a confirmation messagebox

@@ -17,6 +17,7 @@ router.get('/admin/employees', controller.findAll_employees);
 router.get('/admin/employees/:id', controller.findOne_employee);
 router.post('/admin/employees', controller.createOne_employee);
 router.put('/admin/employees/:id', controller.updateOne_employee);
+router.get('/admin/employee/:id',controller.findOne_byEmployeeID);
 router.delete('/admin/employees/:id', controller.deleteOne_employee);
 router.get('/admin/rooms', controller.findAll_rooms);
 router.get('/admin/rooms/:id', controller.findOne_room);
