@@ -27,8 +27,30 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
    $scope.setWorkhours = function(){
       $scope.available = createAvailable();
    };
+
+
+   function formValid() {
+
+      if ($('#fname.form-control').val().trim() == '') {
+         return formError('A first name is required.');
+      }
+      if ($('#lname.form-control').val().trim() == '') {
+         return formError('A last name is required.');
+      }
+      if ($('#pwd.form-control').val().trim() == '') {
+         return formError('A password is required.');
+      }
+
+      return true;
+
+   }
+
+
    // On submit button click, send user profile to db
    $scope.submit = function(){
+
+      if (formValid() === false) { return; }
+
       var formchanges = {};
       if(document.getElementById('fname').value !== $scope.form.FirstName){
          formchanges.FirstName = document.getElementById('fname').value;
@@ -44,8 +66,7 @@ mainapp.controller('profileCtrl', function ($scope, $rootScope, profileFactory){
       };
 
       profileFactory.putProfileChanges($scope.form._id, formchanges).then(function(response){
-         // console.log(response.data);
-         formInfo('Profile updated.');
+         formSuccess('Profile updated. Changes will be visible upon next login.');
       },function(err){
          console.log(err);
       })

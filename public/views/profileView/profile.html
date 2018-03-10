@@ -2,11 +2,11 @@
 <div class="container">
    <div class="well">
       <h3 align="center">Employee Profile</h3>
-   </div>    
+   </div>
 
    <!-- Form to update employee profile -->
    <div class="well">
-      <h3 align="center">Profile for Employee: {{form.EmployeeId}}</h3>
+      <h3 align="center">Profile for Employee: {{ form.EmployeeId }}</h3>
       <form class="form">
          <div class="row">
             <div class="col-sm-4 col-sm-offset-2">
@@ -38,9 +38,10 @@
             <div class="col-sm-8 col-sm-offset-2">
                <button class="btn btn-primary" ng-click="submit()">Submit</button>
             </div>
-         </div>   
+         </div>
       </form>
 
+      <div id="formResponse">  </div>
       <div id="formInfo"></div>
 
    </div>
