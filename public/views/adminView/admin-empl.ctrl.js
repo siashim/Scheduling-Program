@@ -29,17 +29,13 @@ mainapp.controller('adminEmployeeCtrl', function($scope, $timeout, adminEmplFact
    function validateDia() {
 
       if ($('#diafname.form-control').val().trim() == '')
-         return alertError('A first name is required');
-      
+         return alertError('A first name is required');      
       if ($('#dialname.form-control').val().trim() == '')
          return alertError('A last name is required.');
-      
       if ($('#diaempid.form-control').val().trim() == '')
          return alertError('An employee ID is required.');
-      
       if ($('#diapwd.form-control').val().trim() == '')
          return alertError('A password is required.');
-      
       if ($('#diapos.form-control').val().trim() == '')
          return alertError('An employee position is required');
       
