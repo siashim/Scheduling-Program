@@ -42,6 +42,17 @@ exports.findOne_employee = function(req, res){
    })
 }
 
+
+exports.findOne_byEmployeeID = function(req,res) {
+   Employee.findOne({EmployeeId: req.params.id})
+   .exec(function(err,emp) {
+      if (err) {return res.send(500,err); }
+      if (emp == null)
+         return res.send({ employee: null, found: false });
+      return res.send({ employee: emp, found: true });
+   });
+}
+
 // Create one employee
 exports.createOne_employee = function(req, res) {
 
@@ -185,7 +196,7 @@ exports.findOne_meeting = function(req, res){
 exports.createOne_meeting = function(req, res) {
 
    function invite(mtg,atts) {
-      var response = atts == mtg.ownerID ? 
+      var response = atts._id == mtg.ownerID ? 
          REPLY.ACCEPT : REPLY.NEUTRAL;
       return new Attendance({
          MeetingId: mtg.id,
@@ -369,10 +380,13 @@ exports.deleteOne_reminder = function(req, res){
    Meeting.findById(mtgId,function(err,mtg) {
       if (err) { return res.send(500,err); }
       var query = { MeetingId: mtgId };
-      if (mtg.ownerID != empId)
-         query.EmployeeId = empId;      
+      var status = { Status: REPLY.CANCEL };
+      if (mtg.ownerID != empId) {
+         query.EmployeeId = empId;
+         status.Status = REPLY.DECLINE;
+      }
       Attendance.update(query,
-         { $set: { Status: REPLY.CANCEL }},
+         { $set: status },
          { multi: true },
          function(errs) {
             if (errs) { return res.send(500,errs); }
