@@ -23,5 +23,9 @@ mainapp.factory('adminEmplFactory', function($http){
       return $http.delete('/admin/employees/'+id);
    }
 
+   factory.getEmployeeByEmployeeID = function(empID) {
+       return $http.get('/admin/employee/'+empID);
+   }
+
    return factory
 })

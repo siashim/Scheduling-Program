@@ -11,8 +11,8 @@ mainapp.controller('loginCtrl', function($scope, $rootScope, $state, $timeout, l
 
 
          $rootScope.currentUser = response.data;
-         console.log('CURRENT USER LOGIN');
-         console.log($rootScope.currentUser);
+         // console.log('CURRENT USER LOGIN');
+         // console.log($rootScope.currentUser);
 
 
 

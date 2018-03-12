@@ -69,6 +69,10 @@ mainapp.controller('adminRoomCtrl', function($scope, adminRoomFactory, adminRoom
          return formError('A room number is required.');
       if ($('#rcap').val().trim() === '')
          return formError('A room capacity is required.');
+      if (isNaN (parseInt( $('#rcap').val().trim() ) ))
+         return formError('A room capacity whole number is required.'); 
+      if (parseInt( $('#rcap').val().trim() ) <= 0)
+         return formError('A room capacity whole number greater than 0 is required.');         
       return true;
    }
 

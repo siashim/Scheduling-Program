@@ -34,6 +34,10 @@ tbody td {
 }
 
 /* Sticky footer (added by MarkM) */
+html, body {
+   height: 100%;
+   margin: 0;
+ }
 .wrapper {
    min-height: 100%;
    margin-bottom: -50px;
@@ -51,4 +55,10 @@ div.well a:hover{
 /* minimize Bootstrap alert margins */
 .alert{
    margin-bottom: 0;
+}
+
+
+/* prevents readonly form being grey */
+.form-control.date {
+  background-color: white;
 }

@@ -2,11 +2,11 @@
 <div class="container">
    <div class="well">
       <h3 align="center">Employee Profile</h3>
-   </div>    
+   </div>
 
    <!-- Form to update employee profile -->
    <div class="well">
-      <h3 align="center">Profile for Employee: {{form.EmployeeId}}</h3>
+      <h3 align="center">Profile for Employee: {{ form.EmployeeId }}</h3>
       <form class="form">
          <div class="row">
             <div class="col-sm-4 col-sm-offset-2">
@@ -38,35 +38,47 @@
             <div class="col-sm-8 col-sm-offset-2">
                <button class="btn btn-primary" ng-click="submit()">Submit</button>
             </div>
-         </div>   
+         </div>
       </form>
 
+      <div id="formResponse">  </div>
       <div id="formInfo"></div>
 
    </div>
-  
+
    <!-- Form to set availability -->
    <div class="well">
       <h3 align="center">Set Availability</h3>
 
-
-
-         <!-- Form: Datetime input -->
+      <!-- Form: Datetime input -->
       <div id="datetimepicker" align="center">
          <form class="form-inline">
             <div class="input-group col-xs-4">
                <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
-               <input id="date" type="text" class="form-control date start" name="date" placeholder="From">
+               <input id="date" type="text" class="form-control date start" name="date" placeholder="From" readonly>
             </div>
             <div class="input-group col-xs-4">
                <span class="input-group-addon"><i class="fa fa-calendar fa-fw" aria-hidden="true"></i></span>
-               <input id="date" type="text" class="form-control date end" name="date" placeholder="To">
+               <input id="date" type="text" class="form-control date end" name="date" placeholder="To" readonly>
             </div>
+            <button class="btn btn-primary" ng-click="setAvailable()">Set Availablility</button>
          </form>
+         <h4 align="center">{{dateRangeStr}}</h4>
       </div>
 
-      <div id="formResponse"></div>
+      <!-- Message to user -->
+      <div id="formResponse" style="margin-bottom:20;"></div>
 
+      <!-- Buttons -->
+      <div class="row">
+         <div class="col-sm-12" align="center">
+            <button class="btn btn-success" ng-click="setAll()">Select All</button>
+            <button class="btn btn-success" ng-click="setNone()">Select None</button>
+            <button class="btn btn-success" ng-click="setWorkhours()">Select Work Hours</button>
+         </div>
+      </div>    
+
+      <!-- Grid of availability slots -->
       <div class="row">
          <div class="col-sm-3" ng-repeat="x in available">
             <div class="checkbox" >
@@ -75,11 +87,6 @@
          </div>
       </div>
     
-      <div class="row">
-         <div class="col-sm-12">
-            <button class="btn btn-primary" ng-click="setAvailable()">Set Availablility</button>
-         </div>
-      </div>    
    </div> 
 
 </div>

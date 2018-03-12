@@ -19,6 +19,17 @@ var formInfo = function(msg) {
 }
 
 
+var formWarning = function(msg) {
+    $('#formResponse').empty();
+    $('#formResponse').append(
+        '<div class="alert alert-warning fade in">'+
+        '<span class="close" data-dismiss="alert">&times;</span>'+
+        '<strong>Warning!</strong> '+
+        msg+'</div>');
+    return false;
+}
+
+
 var formSuccess = function(msg) {
    $('#formResponse').empty();
    $('#formResponse').append(

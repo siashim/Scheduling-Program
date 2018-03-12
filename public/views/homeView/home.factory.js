@@ -25,7 +25,6 @@ mainapp.factory('homeFactory', function($http){
    }
    
    factory.deleteReminder = function(msg){
-      console.log('delete reminder frontend',msg);
       return $http.delete('/home/reminders/'+msg.empId, {
          params: { 
             empId: msg.mid,

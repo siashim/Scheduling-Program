@@ -74,7 +74,10 @@
             <td>{{ x.startDate | date : "h:mm a" }}</td>
             <td>{{ x.room.Number }}</td>
             <td><button type="button" class="btn btn-info" ng-click="viewResponses(x)">View</button></td>
-            <td><button type="button" class="btn btn-danger" ng-click="deleteReminder(x)">Delete</button></td>
+            <td><button type="button" class="btn btn-danger" ng-click="deleteReminder(x)">
+               <span ng-show="x.ownerID == currentUser.mid"> Delete </span>
+               <span ng-show="x.ownerID != currentUser.mid"> Decline </span>
+            </button></td>
          </tr>
       </tbody>
       </table>
